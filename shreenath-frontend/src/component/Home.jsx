@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./home.css";
 
+import { FaShoppingCart, FaUser, FaSearch, FaMapMarkerAlt, FaHeart, FaRegHeart } from "react-icons/fa";
+
 import logo from "../images/logo.png";
-import cart from "../images/cart.jpg";
-import login from "../images/login.webp";
 import hero1 from "../images/hero1.webp";
 import hero2 from "../images/hero2.webp";
 import hero3 from "../images/hero3.webp";
@@ -36,7 +36,8 @@ function Home() {
     }
   }, [user?.id]);
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = async (e, product) => {
+    e.preventDefault(); // Prevent navigating to product detail
     if (!user?.id) {
       alert("Please login to add items to cart");
       return;
@@ -66,7 +67,8 @@ function Home() {
     }
   };
 
-  const toggleWishlist = async (productId) => {
+  const toggleWishlist = async (e, productId) => {
+    e.preventDefault(); // Prevent navigating to product detail
     if (!user?.id) {
       alert("Please login first");
       return;
@@ -149,42 +151,41 @@ function Home() {
             <Link to="/">
               <img src={logo} alt="Logo" className="logo" />
             </Link>
-            <h4 className="store-name">ShreeNathCycleStore.com</h4>
           </div>
+          
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              alert(`Searching: ${searchTerm}`);
+            }}
+            className="search-form"
+          >
+            <input
+              type="text"
+              placeholder="Search for cycles, accessories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            <button type="submit" className="search-btn">
+              <FaSearch />
+            </button>
+          </form>
+
           <ul className="nav-links">
-            <li>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert(`Searching: ${searchTerm}`);
-                }}
-                className="search-form"
-              >
-                <input
-                  type="text"
-                  placeholder="Search cycles..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-                <button type="submit" className="search-btn">
-                  Search
-                </button>
-              </form>
-            </li>
             {isAdmin && (
               <li>
                 <Link to="/admin">Admin Panel</Link>
               </li>
             )}
-            <li className="nav-icon">
-              <Link to="/Cart">
-                <img src={cart} className="icon-img" alt="Cart" />
+            <li>
+              <Link to="/Cart" className="nav-icon-link">
+                <FaShoppingCart />
               </Link>
             </li>
-            <li className="nav-icon">
-              <Link to="/UserAccount">
-                <img src={login} className="icon-img" alt="Login" />
+            <li>
+              <Link to="/UserAccount" className="nav-icon-link">
+                <FaUser />
               </Link>
             </li>
           </ul>
@@ -193,21 +194,19 @@ function Home() {
 
       <div className="location-box">
         <button className="location-btn" onClick={getUserLocation}>
-          Get Live Location
+          <FaMapMarkerAlt /> {address ? "Update Location" : "Set Delivery Location"}
         </button>
 
         {address && (
-          <div className="address-container">
-            <p className="location-info">
-              <strong>Delivery to:</strong> {address}
-            </p>
-          </div>
+          <span className="location-info">
+            Delivery to: <strong>{address}</strong>
+          </span>
         )}
 
-        {error && <p className="error-text">{error}</p>}
+        {error && <span className="error-text">{error}</span>}
       </div>
 
-      <section className="hero-slider">
+      <section className="hero-banner">
         <div className="slider">
           {[hero1, hero2, hero3, hero4].map((image, index) => (
             <div key={index} className="slide">
@@ -215,45 +214,46 @@ function Home() {
             </div>
           ))}
         </div>
-        <div className="hero-overlay">
-          <h2>Welcome to ShreeNathCycleStore!</h2>
-          <p>Your one-stop shop for all cycling needs.</p>
+        <div className="hero-content">
+          <h2>Ride Your Passion</h2>
+          <p>Discover our premium selection of cycles, gear, and accessories. Designed for performance, built for the journey.</p>
+          <a href="#products" className="hero-cta">Shop Now</a>
         </div>
       </section>
 
-      <div className="product-section">
-        <h2>Featured Products</h2>
+      <div className="product-section" id="products">
+        <div className="section-header">
+          <h2>Featured Products</h2>
+        </div>
+        
         <div className="product-grid">
           {products.length > 0 ? (
             products.map((product) => (
               <div className="product-card" key={product.id}>
-                <Link to={`/product/${product.id}`} className="product-link">
+                <Link to={`/product/${product.id}`} className="product-img-wrapper">
                   <img
                     src={`http://localhost:8080/api/product/${product.id}/image`}
                     className="product-img"
                     alt={product.name}
                   />
-                  <h3>{product.name}</h3>
-                  <p className="product-price">Rs. {product.price}</p>
-                </Link>
-                <div className="button-group">
                   <button
-                    className="wishlist-btn"
-                    onClick={() => toggleWishlist(product.id)}
-                    style={{
-                      border: "none",
-                      background: "none",
-                      cursor: "pointer",
-                      fontSize: "1.5rem",
-                    }}
+                    className={`wishlist-btn ${wishlistIds.includes(product.id) ? "active" : ""}`}
+                    onClick={(e) => toggleWishlist(e, product.id)}
                   >
-                    {wishlistIds.includes(product.id) ? "♥" : "♡"}
+                    {wishlistIds.includes(product.id) ? <FaHeart /> : <FaRegHeart />}
                   </button>
+                </Link>
+                
+                <div className="product-info">
+                  <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+                    <h3>{product.name}</h3>
+                    <p className="product-price">Rs. {product.price}</p>
+                  </Link>
                   <button
                     className="add-to-cart-btn"
-                    onClick={() => handleAddToCart(product)}
+                    onClick={(e) => handleAddToCart(e, product)}
                   >
-                    Add to Cart
+                    <FaShoppingCart /> Add to Cart
                   </button>
                 </div>
               </div>
@@ -265,8 +265,32 @@ function Home() {
       </div>
 
       <footer className="footer">
+        <div className="footer-container">
+          <div className="footer-section">
+            <h4>ShreeNathCycleStore</h4>
+            <p>Your premium destination for cycles and accessories. We deliver quality directly to your doorstep.</p>
+          </div>
+          <div className="footer-section">
+            <h4>Shop</h4>
+            <ul>
+              <li><Link to="/">Mountain Bikes</Link></li>
+              <li><Link to="/">Road Bikes</Link></li>
+              <li><Link to="/">Accessories</Link></li>
+              <li><Link to="/">New Arrivals</Link></li>
+            </ul>
+          </div>
+          <div className="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><Link to="/">Contact Us</Link></li>
+              <li><Link to="/">FAQs</Link></li>
+              <li><Link to="/">Shipping & Returns</Link></li>
+              <li><Link to="/">Track Order</Link></li>
+            </ul>
+          </div>
+        </div>
         <div className="footer-bottom">
-          © 2025 ShreeNathCycleStore.com
+          <p>© {new Date().getFullYear()} ShreeNathCycleStore.com. All rights reserved.</p>
         </div>
       </footer>
     </>
