@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";   // ✅ Added useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import "./userAccount.css";
 import "./home.css";
 import logo from "../images/logo.png";
@@ -9,33 +9,36 @@ import login from "../images/login.webp";
 export default function UserAccount() {
   const navigate = useNavigate();
 
-  // ✅ Safe localStorage parsing
   const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
+  let user = null;
+
+  try {
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    user = null;
+  }
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Search Handler
   const handleSearch = (e) => {
     e.preventDefault();
     alert(`Searching for: ${searchTerm}`);
   };
 
-  // Logout Handler
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
     alert("You have been logged out.");
-    navigate("/");   // ✅ Better than window.location.href
+    navigate("/");
   };
 
-  // Login Redirect
   const handleLoginRedirect = () => {
-    navigate("/login");   // ✅ Proper navigation
+    navigate("/login");
   };
 
   return (
     <>
-      {/* NAVBAR */}
       <nav>
         <div className="nav-container">
           <div className="logo-section">
@@ -56,7 +59,7 @@ export default function UserAccount() {
                   className="search-input"
                 />
                 <button type="submit" className="search-btn">
-                  🔍
+                  Search
                 </button>
               </form>
             </li>
@@ -74,7 +77,6 @@ export default function UserAccount() {
         </div>
       </nav>
 
-      {/* PROFILE CARD */}
       <div className="user-card">
         <h2>Profile</h2>
 
@@ -84,7 +86,7 @@ export default function UserAccount() {
           {user ? (
             <div className="user-details">
               <p><strong>Name:</strong> {user.username}</p>
-              {/* <p><strong>Email:</strong> {user.email}</p> */}
+              <p><strong>Email:</strong> {user.email || "Not available"}</p>
               <p><strong>Phone:</strong> {user.phoneNo}</p>
 
               <Link to="/EditProfile">
@@ -97,28 +99,26 @@ export default function UserAccount() {
         </div>
       </div>
 
-      {/* USER ACTION CARDS */}
       <div className="user-actions">
         <div className="action-card">
-          <h3>📦 Orders</h3>
+          <h3>Orders</h3>
           <p>View your past and current orders</p>
           <Link to="/orders">View Orders</Link>
         </div>
 
         <div className="action-card">
-          <h3>❤️ Wishlist</h3>
+          <h3>Wishlist</h3>
           <p>Your saved favorite products</p>
           <Link to="/wishlist">View Wishlist</Link>
         </div>
 
         <div className="action-card">
-          <h3>🏠 Address Book</h3>
+          <h3>Address Book</h3>
           <p>Manage delivery addresses</p>
           <Link to="/address-book">Manage Address</Link>
         </div>
       </div>
 
-      {/* LOGIN / LOGOUT */}
       <div className="logout-section">
         {user ? (
           <button className="logout-btn" onClick={handleLogout}>
@@ -132,7 +132,7 @@ export default function UserAccount() {
       </div>
 
       <button className="back-btn" onClick={() => navigate(-1)}>
-        ⬅ Go Back
+        Go Back
       </button>
     </>
   );

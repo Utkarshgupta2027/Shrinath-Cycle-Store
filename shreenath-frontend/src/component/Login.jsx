@@ -3,48 +3,51 @@ import { useNavigate, Link } from "react-router-dom";
 import "./Login.css";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setMsg("Logging in...");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setMsg("Logging in...");
 
-  try {
-    const res = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phoneNumber: username,   // 🔥 FIXED HERE
-        password: password
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phoneNumber: phoneNumber.trim(),
+          password,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      setMsg("Login successful ✔");
+      if (!res.ok) {
+        setMsg(data.message || "Invalid credentials");
+        return;
+      }
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: data.userId,
-          username: data.username,
-          phoneNo: data.phoneNo,
-        })
-      );
+      const user = {
+        id: data.userId,
+        username: data.username,
+        phoneNo: data.phoneNo,
+        email: data.email,
+      };
 
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userId", String(data.userId));
+      localStorage.setItem("token", data.token);
+
+      setMsg("Login successful");
       setTimeout(() => navigate("/"), 500);
-    } else {
-      setMsg(data.message || "Invalid credentials ❌");
+    } catch (err) {
+      console.error(err);
+      setMsg("Network error");
     }
-  } catch (err) {
-    console.error(err);
-    setMsg("Network error ❌");
-  }
-};
+  };
+
   return (
     <div className="auth-container">
       <h2>Login to Your Account</h2>
@@ -53,8 +56,8 @@ const handleLogin = async (e) => {
         <input
           required
           placeholder="Phone Number (10 digits)"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
         />
 
         <input

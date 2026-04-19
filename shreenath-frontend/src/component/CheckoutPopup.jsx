@@ -4,17 +4,17 @@ import "./CheckoutPopup.css";
 import { useNavigate } from "react-router-dom";
 
 function CheckoutPopup() {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const { cart, clearCart } = useContext(AppContext);
 
   const [address, setAddress] = useState(null);
   const [error, setError] = useState("");
 
-  const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+  const totalPrice = cart.reduce(
+    (sum, item) => sum + item.price * (item.quantity || 1),
+    0
+  );
 
-  // =============================
-  // 🌍 Fetch User Location + Address
-  // =============================
   const getUserLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -30,7 +30,11 @@ function CheckoutPopup() {
             setAddress({
               road: data.address.road || "",
               suburb: data.address.suburb || "",
-              city: data.address.city || data.address.town || data.address.village || "",
+              city:
+                data.address.city ||
+                data.address.town ||
+                data.address.village ||
+                "",
               district: data.address.county || "",
               state: data.address.state || "",
               country: data.address.country || "",
@@ -52,60 +56,66 @@ function CheckoutPopup() {
     getUserLocation();
   }, []);
 
-  // =============================
-  // 🧾 Handle Order Confirm
-  // =============================
- const handleConfirm = async () => {
-  const userId = localStorage.getItem("userId");  
+  const handleConfirm = async () => {
+    const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+    const userId = user?.id || localStorage.getItem("userId");
 
-  if (!userId) {
-    navigate("/login"); // ✅ redirect only, no alert
-    return;
-  }
-
-  const order = {
-    userId: userId,
-    items: cart.map(item => ({
-      productId: item.id,
-      name: item.name,
-      price: item.price
-    })),
-    totalAmount: totalPrice,
-    address: `${address.road}, ${address.suburb}, ${address.city}, ${address.district}, ${address.state}, ${address.country} - ${address.postcode}`
-  };
-
-  try {
-    const res = await fetch("http://localhost:8080/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(order)
-    });
-
-    if (res.ok) {
-      alert("Order Saved Successfully!");
-      clearCart();
-      navigate("/makepayment");
-    } else {
-      alert("Failed to save order!");
+    if (!userId) {
+      navigate("/login");
+      return;
     }
 
-  } catch (err) {
-    console.log(err);
-    alert("Something went wrong!");
-  }
-};
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    const orderAddress = address
+      ? `${address.road}, ${address.suburb}, ${address.city}, ${address.district}, ${address.state}, ${address.country} - ${address.postcode}`
+      : "";
+
+    const order = {
+      userId,
+      items: cart.map((item) => ({
+        productId: item.id,
+        name: item.name,
+        price: item.price,
+      })),
+      totalAmount: totalPrice,
+      address: orderAddress,
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order),
+      });
+
+      if (res.ok) {
+        alert("Order Saved Successfully!");
+        clearCart();
+        navigate("/makepayment");
+      } else {
+        alert("Failed to save order!");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Something went wrong!");
+    }
+  };
 
   return (
     <div className="checkout-container">
       <h2>Checkout</h2>
 
-      {/* USER ADDRESS */}
       <div className="checkout-section">
         <h3>Your Location</h3>
 
         {address ? (
           <p className="address-box">
-            {address.road}, {address.suburb}, {address.city}, {address.district}, 
+            {address.road}, {address.suburb}, {address.city}, {address.district},
             {address.state}, {address.country} - {address.postcode}
           </p>
         ) : (
@@ -115,7 +125,6 @@ function CheckoutPopup() {
         {error && <p className="error-text">{error}</p>}
       </div>
 
-      {/* PRODUCTS SECTION */}
       <div className="checkout-section">
         <h3>Selected Products</h3>
 
@@ -131,7 +140,7 @@ function CheckoutPopup() {
                 />
                 <div>
                   <h4>{item.name}</h4>
-                  <p>₹{item.price}</p>
+                  <p>Rs. {item.price}</p>
                 </div>
               </li>
             ))}
@@ -139,18 +148,13 @@ function CheckoutPopup() {
         )}
       </div>
 
-      {/* TOTAL PRICE */}
-      <h3 className="total-price">Total Amount: ₹{totalPrice}</h3>
+      <h3 className="total-price">Total Amount: Rs. {totalPrice}</h3>
 
-      {/* CONFIRM ORDER */}
-      <button className="confirm-btn" onClick={() => {
-        handleConfirm();
-        navigate("/makepayment");
-      }}>
+      <button className="confirm-btn" onClick={handleConfirm}>
         Confirm Order
       </button>
       <button className="back-btn" onClick={() => navigate(-1)}>
-        ⬅ Go Back
+        Go Back
       </button>
     </div>
   );

@@ -30,28 +30,31 @@ public class AuthController {
         }
     }
 
-    // 🔥 LOGIN METHOD MUST BE HERE
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-
         String identifier = loginRequest.get("phoneNumber");
         String password = loginRequest.get("password");
 
-        User user = authService.authenticate(identifier, password);
-
-        if (user != null) {
-
-            String token = jwtUtils.generateToken(user.getPhoneNumber());
-
-            return ResponseEntity.ok(Map.of(
-                    "token", token,
-                    "userId", user.getId(),
-                    "username", user.getName(),
-                    "phoneNo", user.getPhoneNumber()
-            ));
+        if (identifier == null || identifier.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Phone number and password are required."));
         }
 
-        return ResponseEntity.status(401)
-                .body(Map.of("message", "Invalid credentials ❌"));
+        User user = authService.authenticate(identifier, password);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("message", "Invalid phone number or password."));
+        }
+
+        String token = jwtUtils.generateToken(user.getPhoneNumber());
+
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "userId", user.getId(),
+                "username", user.getName(),
+                "phoneNo", user.getPhoneNumber(),
+                "email", user.getEmail()
+        ));
     }
 }
