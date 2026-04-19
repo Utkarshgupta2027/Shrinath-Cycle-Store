@@ -48,13 +48,15 @@ public class AuthController {
         }
 
         String token = jwtUtils.generateToken(user.getPhoneNumber());
+        String role = authService.getRoleForPhoneNumber(user.getPhoneNumber());
 
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "userId", user.getId(),
                 "username", user.getName(),
                 "phoneNo", user.getPhoneNumber(),
-                "email", user.getEmail()
+                "email", user.getEmail(),
+                "role", role
         ));
     }
 }

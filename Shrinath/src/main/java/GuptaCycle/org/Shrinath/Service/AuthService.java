@@ -2,6 +2,7 @@ package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ public class AuthService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${app.admin.phone-number}")
+    private String adminPhoneNumber;
 
     public User registerUser(User user) {
         if (user == null) {
@@ -61,6 +65,14 @@ public class AuthService {
         }
 
         return null;
+    }
+
+    public String getRoleForPhoneNumber(String phoneNumber) {
+        return isAdminPhoneNumber(phoneNumber) ? "ADMIN" : "CUSTOMER";
+    }
+
+    public boolean isAdminPhoneNumber(String phoneNumber) {
+        return normalize(phoneNumber).equals(normalize(adminPhoneNumber));
     }
 
     private String normalize(String value) {

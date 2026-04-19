@@ -12,18 +12,17 @@ import Product from "./component/Product";
 import UpdateProduct from "./component/UpdateProduct";
 import CheckoutPopup from "./component/CheckoutPopup";
 import MakePayment from "./component/MakePayment";
-import UserAccount from "./component/UserAccount";  
+import UserAccount from "./component/UserAccount";
 import Orders from "./component/orders.jsx";
 import Wishlist from "./component/Wishlist.jsx";
-//import AuthService from "./service/auth.service.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import AdminPanel from "./pages/AdminPanel.jsx";
 
 function App() {
   return (
     <AppProvider>
       <Router>
         <Routes>
-          {/* <Route path="/AuthService" element={<AuthService />} /> */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -37,9 +36,7 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* <Route path="/edit" element={<EditProfile />} /> */}
-          {/* <Route path="/editprofile" element={<EditProfile />} /> */}
-          
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </Router>
     </AppProvider>

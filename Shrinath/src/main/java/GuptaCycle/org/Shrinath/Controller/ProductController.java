@@ -1,6 +1,8 @@
 package GuptaCycle.org.Shrinath.Controller;
 
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Security.JwtUtils;
+import GuptaCycle.org.Shrinath.Service.AuthService;
 import GuptaCycle.org.Shrinath.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -15,14 +17,26 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private AuthService authService;
+
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts() {
         return new ResponseEntity<>(service.getAllProducts(), HttpStatus.OK);
     }
     @PutMapping("/product/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable int id,
+                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
                                            @RequestPart("product") Product product,
                                            @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
         try {
             Product updatedProduct = service.updateProduct(id, product, imgFile);
             if (updatedProduct != null) {
@@ -37,8 +51,13 @@ public class ProductController {
 
     @PostMapping("/product")
     public ResponseEntity<?> addProduct(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
             @RequestPart("product") Product product,
             @RequestPart("imgFile") MultipartFile imgFile) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
 
         try {
             Product savedProduct = service.addProduct(product, imgFile);
@@ -75,7 +94,14 @@ public class ProductController {
                 .body(product.getImgData());
     }
     @DeleteMapping("/product/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable int id,
+                                                @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return ResponseEntity.status(authFailure.getStatusCode())
+                    .body(String.valueOf(authFailure.getBody()));
+        }
+
         try {
             service.deleteProduct(id);
             return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
@@ -83,5 +109,26 @@ public class ProductController {
             // This will send the "Product not found" or "Constraint violation" error to React
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private ResponseEntity<?> authorizeAdmin(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Admin authorization is required.");
+        }
+
+        String token = authorizationHeader.substring(7);
+        if (!jwtUtils.validateJwtToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid or expired token.");
+        }
+
+        String phoneNumber = jwtUtils.getUserNameFromJwtToken(token);
+        if (!authService.isAdminPhoneNumber(phoneNumber)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Only the admin can manage products.");
+        }
+
+        return null;
     }
 }

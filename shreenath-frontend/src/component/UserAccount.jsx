@@ -5,6 +5,7 @@ import "./home.css";
 import logo from "../images/logo.png";
 import cart from "../images/cart.jpg";
 import login from "../images/login.webp";
+import { isAdminUser } from "../utils/auth";
 
 export default function UserAccount() {
   const navigate = useNavigate();
@@ -64,12 +65,8 @@ export default function UserAccount() {
               </form>
             </li>
 
-            <li>
-              <Link to="/AddProduct">AddProduct</Link>
-            </li>
-
             <li className="nav-icon">
-              <Link to="/Cart">
+              <Link to="/cart">
                 <img src={cart} className="icon-img" alt="Cart" />
               </Link>
             </li>
@@ -88,10 +85,7 @@ export default function UserAccount() {
               <p><strong>Name:</strong> {user.username}</p>
               <p><strong>Email:</strong> {user.email || "Not available"}</p>
               <p><strong>Phone:</strong> {user.phoneNo}</p>
-
-              <Link to="/EditProfile">
-                <button className="edit-btn">Edit Profile</button>
-              </Link>
+              <p><strong>Role:</strong> {user.role || "CUSTOMER"}</p>
             </div>
           ) : (
             <p>No user information available.</p>
@@ -112,11 +106,13 @@ export default function UserAccount() {
           <Link to="/wishlist">View Wishlist</Link>
         </div>
 
-        <div className="action-card">
-          <h3>Address Book</h3>
-          <p>Manage delivery addresses</p>
-          <Link to="/address-book">Manage Address</Link>
-        </div>
+        {isAdminUser(user) && (
+          <div className="action-card">
+            <h3>Admin</h3>
+            <p>Add, update and remove products</p>
+            <Link to="/admin">Open Admin Panel</Link>
+          </div>
+        )}
       </div>
 
       <div className="logout-section">
