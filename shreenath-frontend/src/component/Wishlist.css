@@ -1,0 +1,97 @@
+/* ===========================
+   Wishlist Page Layout
+   =========================== */
+.wishlist-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.wishlist-page h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 26px;
+  color: #222;
+}
+
+/* ===========================
+   Error Text
+   =========================== */
+.error-text {
+  color: #d32f2f;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* ===========================
+   Wishlist Grid
+   =========================== */
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* ===========================
+   Wishlist Card
+   =========================== */
+.wishlist-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wishlist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* ===========================
+   Product Image
+   =========================== */
+.wishlist-img {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+/* ===========================
+   Product Name
+   =========================== */
+.wishlist-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 8px 0;
+}
+
+/* ===========================
+   Product Price
+   =========================== */
+.wishlist-price {
+  font-size: 15px;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+/* ===========================
+   Empty / Loading States
+   =========================== */
+.wishlist-page p {
+  text-align: center;
+  font-size: 15px;
+  color: #555;
+}
+
+/* ===========================
+   Responsive Design
+   =========================== */
+@media (max-width: 600px) {
+  .wishlist-img {
+    height: 140px;
+  }
+}

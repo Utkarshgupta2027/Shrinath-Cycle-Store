@@ -1,0 +1,34 @@
+.status {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status.placed {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status.shipped {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.delivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.order-items {
+  margin-top: 10px;
+  padding-left: 10px;
+}
+
+.order-item {
+  margin: 4px 0;
+}

@@ -1,0 +1,66 @@
+.edit-profile-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 35px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.edit-profile-container h2 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.edit-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.edit-profile-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.edit-profile-form input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+}
+
+.edit-profile-form input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.edit-profile-form button {
+  margin-top: 20px;
+  padding: 14px;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-profile-form button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.5);
+}
+
+.success-msg {
+  text-align: center;
+  color: #15803d;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
