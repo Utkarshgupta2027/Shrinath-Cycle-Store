@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
-import "./orders.css";
+import "./Orders.css";
 
 export default function Orders() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.id;
+
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) {
+    if (!userId) {
       setLoading(false);
       return;
     }
 
-    fetch(`http://localhost:8080/api/orders/user/${user.id}`)
+    fetch(`http://localhost:8080/api/orders/user/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch orders");
         return res.json();
@@ -24,7 +26,7 @@ export default function Orders() {
       .then(setOrders)
       .catch(() => setError("Unable to load your orders. Please try again."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [userId]);
 
   if (!user) {
     return (

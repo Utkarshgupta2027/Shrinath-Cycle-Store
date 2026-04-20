@@ -45,7 +45,7 @@ function CheckoutPopup() {
 
     // Auto-detect location
     getUserLocation();
-  }, [userId]);
+  }, [userId, navigate]);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + Number(item.price) * (item.quantity || 1),

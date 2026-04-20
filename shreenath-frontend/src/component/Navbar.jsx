@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaShoppingCart, FaUser, FaSearch } from "react-icons/fa";
 import logo from "../images/logo.png";
 import { getStoredUser, isAdminUser } from "../utils/auth";
@@ -8,7 +8,6 @@ import "./Navbar.css";
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [cartCount, setCartCount] = useState(0);
-  const navigate = useNavigate();
   const location = useLocation();
   const user = getStoredUser();
 

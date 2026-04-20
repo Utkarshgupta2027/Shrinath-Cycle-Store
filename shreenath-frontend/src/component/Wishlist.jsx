@@ -12,10 +12,11 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState({});
 
+  const userId = user?.id;
   const fetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!user || fetchedRef.current) {
+    if (!userId || fetchedRef.current) {
       setLoading(false);
       return;
     }
@@ -24,7 +25,7 @@ export default function Wishlist() {
     setLoading(true);
     setError("");
 
-    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+    fetch(`http://localhost:8080/api/wishlist/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch wishlist");
         return res.json();
@@ -32,7 +33,7 @@ export default function Wishlist() {
       .then(setWishlist)
       .catch(() => setError("Unable to load wishlist. Please try again."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // BUG FIX: use productId (not wishlistId) when calling the remove API
   const handleRemove = async (productId) => {
