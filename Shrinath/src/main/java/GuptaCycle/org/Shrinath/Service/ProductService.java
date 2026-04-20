@@ -1,23 +1,29 @@
 package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Repository.CartItemRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
-import java.util.regex.MatchResult;
-import java.util.stream.Stream;
+
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepo repo;
+
+    @Autowired
+    private CartItemRepository cartItemRepo;
+
+    @Autowired
+    private WishlistRepository wishlistRepo;
 
     public List<Product> getAllProducts() {
         return repo.findAll();
@@ -61,10 +67,16 @@ public class ProductService {
         return repo.save(existing);
     }
 
+    @Transactional
     public void deleteProduct(int id) {
         if (!repo.existsById(id)) {
             throw new RuntimeException("Product not found with ID " + id);
         }
+        
+        // Remove foreign key dependencies first
+        cartItemRepo.deleteByProductId(id);
+        wishlistRepo.deleteByProductId(id);
+        
         repo.deleteById(id);
     }
 }
