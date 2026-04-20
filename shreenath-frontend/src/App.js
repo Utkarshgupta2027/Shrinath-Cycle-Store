@@ -18,6 +18,7 @@ import MakePayment from "./component/MakePayment";
 import UserAccount from "./component/UserAccount";
 import Orders from "./component/orders.jsx";
 import Wishlist from "./component/Wishlist.jsx";
+import Settings from "./component/Settings.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 
@@ -41,6 +42,7 @@ function App() {
               <Route path="/useraccount" element={<UserAccount />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin" element={<AdminPanel />} />
             </Routes>
