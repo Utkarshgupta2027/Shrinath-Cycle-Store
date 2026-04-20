@@ -1,5 +1,5 @@
-import React, { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchProductById } from "../api/products";
 import AppContext from "../Context/Context";
 import "./product.css";

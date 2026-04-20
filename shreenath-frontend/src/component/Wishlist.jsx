@@ -1,27 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { FaTrash, FaShoppingCart, FaHeart, FaArrowLeft } from "react-icons/fa";
 import "./Wishlist.css";
-import { useNavigate } from "react-router-dom";
-/* ===========================
-   API FUNCTIONS
-   =========================== */
-const getWishlist = async (userId) => {
-    // Matches the @GetMapping("/{userId}") in WishlistController
-  const res = await fetch(`http://localhost:8080/api/wishlist/${userId}`);
-  if (!res.ok) throw new Error("Failed to fetch wishlist");
-  return res.json();
-};
 
-const removeFromWishlistApi = async (userId, productId) => {
-  // Matches the @DeleteMapping("/remove") in WishlistController
-  const res = await fetch(`http://localhost:8080/api/wishlist/remove?userId=${userId}&productId=${productId}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to remove item");
-  return true;
-};
-/* ===========================
-   WISHLIST COMPONENT
-   =========================== */
 export default function Wishlist() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -29,10 +10,10 @@ export default function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState({});
 
   const fetchedRef = useRef(false);
 
-  // 1. Fetch Wishlist on Mount
   useEffect(() => {
     if (!user || fetchedRef.current) {
       setLoading(false);
@@ -43,93 +24,157 @@ export default function Wishlist() {
     setLoading(true);
     setError("");
 
-    getWishlist(user.id)
+    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch wishlist");
+        return res.json();
+      })
       .then(setWishlist)
-      .catch(() => setError("Unable to load wishlist"))
+      .catch(() => setError("Unable to load wishlist. Please try again."))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, []);
 
-  // 2. Handler to Remove Item
- const handleRemove = async (productId) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  
-  // Debugging: Check if user.id and productId actually exist
-  console.log("Removing Item - User ID:", user?.id, "Product ID:", productId);
-
-  if (!user?.id || !productId) {
-    alert("Error: Missing User or Product ID");
-    return;
-  }
-
-  try {
-    // Use template literals to build the query string
-    const res = await fetch(
-      `http://localhost:8080/api/wishlist/remove?userId=${user.id}&productId=${productId}`, 
-      { method: "DELETE" }
-    );
-
-    if (res.ok) {
-      // Success: Update the UI
-      setWishlist((prev) => prev.filter((item) => item.productId !== productId));
-    } else {
-      const errorMsg = await res.text();
-      console.error("Server responded with:", errorMsg);
-      alert("Failed to remove item: " + errorMsg);
+  // BUG FIX: use productId (not wishlistId) when calling the remove API
+  const handleRemove = async (productId) => {
+    if (!user?.id || !productId) {
+      alert("Error: Missing User or Product ID");
+      return;
     }
-  } catch (err) {
-    console.error("Network error:", err);
-    alert("Connection to server lost.");
-  }
-};
 
-  /* ===========================
-     UI STATES
-     =========================== */
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/wishlist/remove?userId=${user.id}&productId=${productId}`,
+        { method: "DELETE" }
+      );
+
+      if (res.ok) {
+        // Remove the item from UI using productId
+        setWishlist((prev) => prev.filter((item) => item.productId !== productId));
+      } else {
+        const errorMsg = await res.text();
+        alert("Failed to remove item: " + errorMsg);
+      }
+    } catch (err) {
+      alert("Connection to server lost.");
+    }
+  };
+
+  const handleAddToCart = async (productId, productName) => {
+    if (!user?.id) {
+      alert("Please login to add items to cart");
+      navigate("/login");
+      return;
+    }
+
+    setAddingToCart((prev) => ({ ...prev, [productId]: true }));
+
+    try {
+      const params = new URLSearchParams({ userId: user.id, productId, quantity: 1 });
+      const res = await fetch(`http://localhost:8080/api/cart/add?${params}`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        alert(`${productName} added to cart!`);
+      } else {
+        alert("Failed to add to cart.");
+      }
+    } catch (err) {
+      alert("Network error while adding to cart.");
+    } finally {
+      setAddingToCart((prev) => ({ ...prev, [productId]: false }));
+    }
+  };
+
   if (!user) {
-    return <h3>Please login to view your wishlist.</h3>;
+    return (
+      <div className="wishlist-page">
+        <div className="wishlist-empty-state">
+          <FaHeart className="empty-icon" />
+          <h2>Please login to view your wishlist</h2>
+          <button className="wishlist-login-btn" onClick={() => navigate("/login")}>
+            Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (loading) {
-    return <p>Loading wishlist...</p>;
+    return (
+      <div className="wishlist-page">
+        <div className="wishlist-loading">Loading your wishlist...</div>
+      </div>
+    );
   }
 
   return (
     <div className="wishlist-page">
-      <h2>Your Wishlist</h2>
+      <div className="wishlist-container">
+        <button className="back-link" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Continue Shopping
+        </button>
 
-      {error && <p className="error-text">{error}</p>}
+        <h1 className="wishlist-title">My Wishlist</h1>
 
-      {wishlist.length === 0 ? (
-        <p>Your wishlist is empty.</p>
-      ) : (
-        <div className="wishlist-grid">
-          {wishlist.map((item) => (
-            <div key={item.wishlistId} className="wishlist-card">
-              <img
-                src={item.imageUrl}
-                alt={item.name}
-                className="wishlist-img"
-                loading="lazy"
-              />
-              <h4 className="wishlist-name">{item.name}</h4>
-              <p className="wishlist-price">₹{item.price}</p>
+        {error && <div className="wishlist-error">{error}</div>}
 
-              <button
-                className="remove-btn"
-                onClick={() => handleRemove(item.wishlistId)}
-              >
-                ❌ Remove
-              </button>
-            </div>
-          ))}
-        </div>
-        
-      )}
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ⬅ Go Back
-      </button>
+        {wishlist.length === 0 ? (
+          <div className="wishlist-empty-state">
+            <FaHeart className="empty-icon" />
+            <h2>Your wishlist is empty</h2>
+            <p>Save items you love by clicking the heart icon on any product.</p>
+            <button className="wishlist-browse-btn" onClick={() => navigate("/")}>
+              Browse Products
+            </button>
+          </div>
+        ) : (
+          <div className="wishlist-grid">
+            {wishlist.map((item) => (
+              <div key={item.wishlistId} className="wishlist-card">
+                {/* BUG FIX: Use backend image endpoint with productId */}
+                <Link to={`/product/${item.productId}`} className="wishlist-img-link">
+                  <img
+                    src={`http://localhost:8080/api/product/${item.productId}/image`}
+                    alt={item.name}
+                    className="wishlist-img"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+                    }}
+                  />
+                </Link>
+
+                <div className="wishlist-info">
+                  <Link to={`/product/${item.productId}`} className="wishlist-name">
+                    {item.name}
+                  </Link>
+                  <p className="wishlist-price">₹{item.price}</p>
+                </div>
+
+                <div className="wishlist-actions">
+                  {/* BUG FIX: Pass productId to handleRemove, not wishlistId */}
+                  <button
+                    className="add-to-cart-btn"
+                    onClick={() => handleAddToCart(item.productId, item.name)}
+                    disabled={addingToCart[item.productId]}
+                  >
+                    <FaShoppingCart /> {addingToCart[item.productId] ? "Adding..." : "Add to Cart"}
+                  </button>
+
+                  <button
+                    className="remove-btn"
+                    onClick={() => handleRemove(item.productId)}
+                    title="Remove from wishlist"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-export { Wishlist };

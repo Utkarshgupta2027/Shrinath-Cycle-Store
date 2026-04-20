@@ -1,67 +1,139 @@
 import React, { useEffect, useState } from "react";
-import "./Orders.css";
-
-const getOrders = (userId) => {
-  return fetch(`http://localhost:8080/api/orders/user/${userId}`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed to fetch orders");
-      return res.json();
-    });
-};
+import { useNavigate } from "react-router-dom";
+import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import "./orders.css";
 
 export default function Orders() {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      getOrders(user.id)
-        .then(setOrders)
-        .catch(() => setError("Unable to load orders"));
+    if (!user?.id) {
+      setLoading(false);
+      return;
     }
-  }, [user]);
+
+    fetch(`http://localhost:8080/api/orders/user/${user.id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch orders");
+        return res.json();
+      })
+      .then(setOrders)
+      .catch(() => setError("Unable to load your orders. Please try again."))
+      .finally(() => setLoading(false));
+  }, []);
 
   if (!user) {
-    return <h3>Please login to view your orders.</h3>;
+    return (
+      <div className="orders-page">
+        <div className="orders-empty">
+          <FaBoxOpen className="empty-icon" />
+          <h2>Please login to view your orders</h2>
+          <button onClick={() => navigate("/login")} className="orders-action-btn">Login</button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="orders-page">
-      <h2>Your Orders</h2>
+      <div className="orders-container">
+        <button className="back-link" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Back
+        </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <h1 className="orders-title">My Orders</h1>
 
-      {orders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        orders.map((order) => (
-          <div key={order.id} className="order-card">
-            <p><strong>Order ID:</strong> {order.id}</p>
-            <p><strong>Total Amount:</strong> ₹{order.totalAmount}</p>
-            <p><strong>Address:</strong> {order.address}</p>
-            <p><strong>Order Date:</strong> {order.orderDate}</p>
+        {loading && (
+          <div className="orders-loading">Loading your orders...</div>
+        )}
 
-            {/* ✅ ORDER ITEMS */}
-            <div className="order-items">
-              <h4>Ordered Items:</h4>
-              {order.items && order.items.length > 0 ? (
-                <ul>
-                  {order.items.map((item) => (
-                    <li key={item.id} className="order-item">
-                      <strong>{item.name}</strong> — ₹{item.price}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No items found</p>
-              )}
-            </div>
+        {error && (
+          <div className="orders-error">{error}</div>
+        )}
 
-            <p><strong>Status:</strong> Placed</p>
+        {!loading && orders.length === 0 && !error && (
+          <div className="orders-empty">
+            <FaBoxOpen className="empty-icon" />
+            <h2>No orders yet</h2>
+            <p>Your order history will appear here after your first purchase.</p>
+            <button onClick={() => navigate("/")} className="orders-action-btn">
+              Start Shopping
+            </button>
           </div>
-        ))
-      )}
+        )}
+
+        <div className="orders-list">
+          {orders.map((order, index) => (
+            <div key={order.id} className="order-card">
+              <div className="order-header">
+                <div className="order-header-left">
+                  <span className="order-number">Order #{order.id}</span>
+                  <span className="order-status placed">Placed</span>
+                </div>
+                <div className="order-header-right">
+                  <span className="order-meta">
+                    <FaCalendarAlt />
+                    {order.orderDate
+                      ? new Date(order.orderDate).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })
+                      : "N/A"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="order-body">
+                {/* Address */}
+                {order.address && (
+                  <div className="order-address">
+                    <FaMapMarkerAlt className="address-icon" />
+                    <span>{order.address}</span>
+                  </div>
+                )}
+
+                {/* Items */}
+                <div className="order-items">
+                  <h4>Items Ordered</h4>
+                  {order.items && order.items.length > 0 ? (
+                    <ul className="order-item-list">
+                      {order.items.map((item) => (
+                        <li key={item.id} className="order-item-row">
+                          <div className="order-item-img-wrap">
+                            <img
+                              src={`http://localhost:8080/api/product/${item.productId || item.id}/image`}
+                              alt={item.name}
+                              onError={(e) => { e.target.src = "https://via.placeholder.com/60"; }}
+                            />
+                          </div>
+                          <div className="order-item-info">
+                            <span className="order-item-name">{item.name}</span>
+                            <span className="order-item-price">₹{Number(item.price).toLocaleString("en-IN")}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="no-items">No item details available.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="order-footer">
+                <span className="order-total-label">Total Amount</span>
+                <span className="order-total-value">
+                  ₹{Number(order.totalAmount).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

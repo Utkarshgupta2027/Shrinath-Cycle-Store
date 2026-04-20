@@ -1,17 +1,54 @@
-import React, { useEffect, useState, useContext } from "react";
-import AppContext from "../Context/Context";
-import "./CheckoutPopup.css";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaMapMarkerAlt, FaShoppingBag, FaArrowLeft } from "react-icons/fa";
+import "./CheckoutPopup.css";
 
 function CheckoutPopup() {
   const navigate = useNavigate();
-  const { cart, clearCart } = useContext(AppContext);
 
-  const [address, setAddress] = useState(null);
-  const [error, setError] = useState("");
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const userId = user?.id;
 
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
+  // BUG FIX: Read cart from backend, not from React Context (which is empty)
+  const [cartItems, setCartItems] = useState([]);
+  const [loadingCart, setLoadingCart] = useState(true);
+  const [address, setAddress] = useState("");
+  const [manualAddress, setManualAddress] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [placing, setPlacing] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+
+    // Fetch cart from backend
+    fetch(`http://localhost:8080/api/cart/users/${userId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch cart");
+        return res.json();
+      })
+      .then((data) => {
+        if (data && data.items) {
+          setCartItems(
+            data.items.map((ci) => ({
+              ...ci.product,
+              quantity: ci.quantity,
+            }))
+          );
+        }
+      })
+      .catch(() => alert("Could not load your cart. Please go back and try again."))
+      .finally(() => setLoadingCart(false));
+
+    // Auto-detect location
+    getUserLocation();
+  }, [userId]);
+
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + Number(item.price) * (item.quantity || 1),
     0
   );
 
@@ -20,72 +57,69 @@ function CheckoutPopup() {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const { latitude, longitude } = pos.coords;
-
           try {
             const res = await fetch(
               `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
             );
             const data = await res.json();
-
-            setAddress({
-              road: data.address.road || "",
-              suburb: data.address.suburb || "",
-              city:
-                data.address.city ||
-                data.address.town ||
-                data.address.village ||
-                "",
-              district: data.address.county || "",
-              state: data.address.state || "",
-              country: data.address.country || "",
-              postcode: data.address.postcode || "",
-            });
-            setError("");
+            const addr = data.address;
+            const fullAddress = [
+              addr.house_number || "",
+              addr.road || "",
+              addr.suburb || addr.neighbourhood || "",
+              addr.city || addr.town || addr.village || "",
+              addr.state || "",
+              addr.postcode || "",
+              addr.country || "",
+            ]
+              .filter((s) => s !== "")
+              .join(", ");
+            setAddress(fullAddress || data.display_name);
+            setManualAddress(fullAddress || data.display_name);
+            setLocationError("");
           } catch {
-            setError("Unable to load address");
+            setLocationError("Unable to detect location. Please enter your address manually.");
           }
         },
-        (err) => setError(err.message)
+        () => {
+          setLocationError("Location access denied. Please enter your address manually.");
+        }
       );
     } else {
-      setError("Location not supported in your browser");
+      setLocationError("Geolocation not supported. Please enter your address manually.");
     }
   };
 
-  useEffect(() => {
-    getUserLocation();
-  }, []);
-
   const handleConfirm = async () => {
-    const storedUser = localStorage.getItem("user");
-    const user = storedUser ? JSON.parse(storedUser) : null;
-    const userId = user?.id || localStorage.getItem("userId");
-
     if (!userId) {
       navigate("/login");
       return;
     }
 
-    if (cart.length === 0) {
-      alert("Your cart is empty.");
+    if (cartItems.length === 0) {
+      alert("Your cart is empty. Add some products first.");
+      navigate("/");
       return;
     }
 
-    const orderAddress = address
-      ? `${address.road}, ${address.suburb}, ${address.city}, ${address.district}, ${address.state}, ${address.country} - ${address.postcode}`
-      : "";
+    const finalAddress = manualAddress.trim() || address.trim();
+    if (!finalAddress) {
+      alert("Please provide a delivery address.");
+      return;
+    }
 
     const order = {
       userId,
-      items: cart.map((item) => ({
+      items: cartItems.map((item) => ({
         productId: item.id,
         name: item.name,
         price: item.price,
       })),
       totalAmount: totalPrice,
-      address: orderAddress,
+      address: finalAddress,
     };
 
+    setPlacing(true);
     try {
       const res = await fetch("http://localhost:8080/api/orders", {
         method: "POST",
@@ -94,68 +128,136 @@ function CheckoutPopup() {
       });
 
       if (res.ok) {
-        alert("Order Saved Successfully!");
-        clearCart();
-        navigate("/makepayment");
+        // Clear the cart in the backend
+        await fetch(
+          `http://localhost:8080/api/cart/remove?userId=${userId}`,
+          { method: "DELETE" }
+        ).catch(() => {}); // Best effort clear
+
+        alert("🎉 Order placed successfully!");
+        navigate("/orders");
       } else {
-        alert("Failed to save order!");
+        alert("Failed to place order. Please try again.");
       }
     } catch (err) {
-      console.log(err);
-      alert("Something went wrong!");
+      alert("Network error. Please check your connection.");
+    } finally {
+      setPlacing(false);
     }
   };
 
+  if (!userId) return null;
+
   return (
-    <div className="checkout-container">
-      <h2>Checkout</h2>
+    <div className="checkout-page">
+      <div className="checkout-container">
+        <button className="back-link" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Back to Cart
+        </button>
 
-      <div className="checkout-section">
-        <h3>Your Location</h3>
+        <h1 className="checkout-title">Checkout</h1>
 
-        {address ? (
-          <p className="address-box">
-            {address.road}, {address.suburb}, {address.city}, {address.district},
-            {address.state}, {address.country} - {address.postcode}
-          </p>
-        ) : (
-          <p>Fetching location...</p>
-        )}
+        <div className="checkout-layout">
+          {/* LEFT: Address + Items */}
+          <div className="checkout-left">
+            {/* Delivery Address */}
+            <div className="checkout-section-card">
+              <div className="section-title">
+                <FaMapMarkerAlt className="section-icon" />
+                <h2>Delivery Address</h2>
+              </div>
 
-        {error && <p className="error-text">{error}</p>}
-      </div>
+              {locationError && (
+                <p className="location-error">{locationError}</p>
+              )}
 
-      <div className="checkout-section">
-        <h3>Selected Products</h3>
+              <textarea
+                className="address-input"
+                rows={4}
+                placeholder="Enter your full delivery address..."
+                value={manualAddress}
+                onChange={(e) => setManualAddress(e.target.value)}
+              />
 
-        {cart.length === 0 ? (
-          <p>No items in your cart.</p>
-        ) : (
-          <ul className="checkout-list">
-            {cart.map((item) => (
-              <li key={item.id} className="checkout-item">
-                <img
-                  src={`http://localhost:8080/api/product/${item.id}/image`}
-                  alt={item.name}
-                />
-                <div>
-                  <h4>{item.name}</h4>
-                  <p>Rs. {item.price}</p>
+              <button className="detect-location-btn" onClick={getUserLocation}>
+                <FaMapMarkerAlt /> Detect My Location
+              </button>
+            </div>
+
+            {/* Order Items */}
+            <div className="checkout-section-card">
+              <div className="section-title">
+                <FaShoppingBag className="section-icon" />
+                <h2>Order Items</h2>
+              </div>
+
+              {loadingCart ? (
+                <p className="checkout-loading">Loading your cart...</p>
+              ) : cartItems.length === 0 ? (
+                <div className="empty-cart-msg">
+                  <p>Your cart is empty.</p>
+                  <button onClick={() => navigate("/")}>Browse Products</button>
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
+              ) : (
+                <ul className="checkout-item-list">
+                  {cartItems.map((item) => (
+                    <li key={item.id} className="checkout-item">
+                      <div className="checkout-item-img-wrap">
+                        <img
+                          src={`http://localhost:8080/api/product/${item.id}/image`}
+                          alt={item.name}
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/80";
+                          }}
+                        />
+                      </div>
+                      <div className="checkout-item-details">
+                        <h4>{item.name}</h4>
+                        <p>Qty: {item.quantity}</p>
+                      </div>
+                      <div className="checkout-item-price">
+                        ₹{(Number(item.price) * item.quantity).toLocaleString("en-IN")}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT: Order Summary */}
+          <div className="checkout-right">
+            <div className="order-summary-card">
+              <h2>Order Summary</h2>
+
+              <div className="summary-lines">
+                <div className="summary-line">
+                  <span>Subtotal ({cartItems.length} items)</span>
+                  <span>₹{totalPrice.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="summary-line">
+                  <span>Delivery</span>
+                  <span className="free-delivery">FREE</span>
+                </div>
+                <div className="summary-line total-line">
+                  <span>Total Amount</span>
+                  <span>₹{totalPrice.toLocaleString("en-IN")}</span>
+                </div>
+              </div>
+
+              <button
+                className="confirm-order-btn"
+                onClick={handleConfirm}
+                disabled={placing || loadingCart || cartItems.length === 0}
+              >
+                {placing ? "Placing Order..." : "Confirm Order"}
+              </button>
+
+              <p className="secure-note">🔒 Safe & Secure Checkout</p>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <h3 className="total-price">Total Amount: Rs. {totalPrice}</h3>
-
-      <button className="confirm-btn" onClick={handleConfirm}>
-        Confirm Order
-      </button>
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        Go Back
-      </button>
     </div>
   );
 }
