@@ -5,6 +5,7 @@ import AppContext from "../Context/Context";
 import "./product.css";
 import axios from "axios";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
+import { FaArrowLeft, FaShoppingCart, FaEdit, FaTrash } from "react-icons/fa";
 
 const Product = () => {
   const { productId } = useParams();
@@ -103,49 +104,53 @@ const Product = () => {
   return (
     <div className="product-page">
       <div className="product-container">
-        <div className="product-image-box">
-          <img
-            src={`http://localhost:8080/api/product/${product.id}/image`}
-            alt={product.name}
-            className="product-image"
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/300";
-            }}
-          />
-        </div>
-
-        <div className="product-details">
-          <h1 className="product-title">{product.name}</h1>
-          <p className="product-brand">Brand: {product.brand}</p>
-          <p className="product-price">Rs. {product.price}</p>
-          <p className="product-description">
-            {product.desc || "No description provided."}
-          </p>
-
-          <div className="product-buttons">
-            <button className="add-btn" onClick={() => handleAddToCart(product)}>
-              Add to Cart
-            </button>
-
-            {isAdmin && (
-              <>
-                <button
-                  className="update-btn"
-                  onClick={() => navigate(`/updateproduct/${product.id}`)}
-                >
-                  Update
-                </button>
-
-                <button className="delete-btn" onClick={handleDelete}>
-                  Delete
-                </button>
-              </>
-            )}
+        <button className="back-link" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Back to products
+        </button>
+        
+        <div className="product-layout">
+          <div className="product-image-box">
+            <img
+              src={`http://localhost:8080/api/product/${product.id}/image`}
+              alt={product.name}
+              className="product-image"
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/400";
+              }}
+            />
           </div>
 
-          <button className="back-btn" onClick={() => navigate(-1)}>
-            Back
-          </button>
+          <div className="product-details">
+            <span className="product-brand">{product.brand}</span>
+            <h1 className="product-title">{product.name}</h1>
+            <p className="product-price">Rs. {product.price}</p>
+            
+            <div className="product-description">
+              <h3>About this item</h3>
+              <p>{product.desc || "No description provided."}</p>
+            </div>
+
+            <div className="product-buttons">
+              <button className="add-btn" onClick={() => handleAddToCart(product)}>
+                <FaShoppingCart /> Add to Cart
+              </button>
+
+              {isAdmin && (
+                <div className="admin-actions">
+                  <button
+                    className="update-btn"
+                    onClick={() => navigate(`/updateproduct/${product.id}`)}
+                  >
+                    <FaEdit /> Edit
+                  </button>
+
+                  <button className="delete-btn" onClick={handleDelete}>
+                    <FaTrash /> Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

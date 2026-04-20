@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css";
+import "./auth.css";
 
 export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -50,33 +50,42 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Login to Your Account</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Welcome Back</h2>
+        <p className="auth-subtitle">Login to your account</p>
 
-      <form onSubmit={handleLogin}>
-        <input
-          required
-          placeholder="Phone Number (10 digits)"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
+        <form onSubmit={handleLogin} className="auth-form">
+          <div className="input-group">
+            <label>Phone Number</label>
+            <input
+              required
+              placeholder="Enter your 10 digit number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </div>
 
-        <input
-          required
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <div className="input-group">
+            <label>Password</label>
+            <input
+              required
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit" className="auth-submit-btn">Login</button>
+        </form>
 
-      <p className="auth-message">{msg}</p>
+        {msg && <p className="auth-message">{msg}</p>}
 
-      <p className="auth-switch">
-        Don&apos;t have an account? <Link to="/register">Register</Link>
-      </p>
+        <p className="auth-switch">
+          Don&apos;t have an account? <Link to="/register">Register here</Link>
+        </p>
+      </div>
     </div>
   );
 }

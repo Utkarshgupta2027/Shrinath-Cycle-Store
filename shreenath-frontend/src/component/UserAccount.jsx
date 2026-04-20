@@ -1,15 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./userAccount.css";
-import "./home.css";
-import logo from "../images/logo.png";
-import cart from "../images/cart.jpg";
-import login from "../images/login.webp";
+import { FaUserCircle, FaShoppingBag, FaHeart, FaUserShield, FaSignOutAlt, FaSignInAlt } from "react-icons/fa";
 import { isAdminUser } from "../utils/auth";
+import "./userAccount.css";
 
 export default function UserAccount() {
   const navigate = useNavigate();
-
   const storedUser = localStorage.getItem("user");
   let user = null;
 
@@ -18,13 +14,6 @@ export default function UserAccount() {
   } catch (error) {
     user = null;
   }
-
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    alert(`Searching for: ${searchTerm}`);
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -39,97 +28,88 @@ export default function UserAccount() {
   };
 
   return (
-    <>
-      <nav>
-        <div className="nav-container">
-          <div className="logo-section">
-            <Link to="/">
-              <img src={logo} alt="Logo" className="logo" />
-            </Link>
-            <h4 className="store-name">ShreeNathCycleStore.com</h4>
-          </div>
+    <div className="user-account-page">
+      <div className="account-container">
+        <h1 className="page-title">My Account</h1>
 
-          <ul className="nav-links">
-            <li>
-              <form onSubmit={handleSearch} className="search-form">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-                <button type="submit" className="search-btn">
-                  Search
-                </button>
-              </form>
-            </li>
-
-            <li className="nav-icon">
-              <Link to="/cart">
-                <img src={cart} className="icon-img" alt="Cart" />
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <div className="user-card">
-        <h2>Profile</h2>
-
-        <div className="profile-content">
-          <img src={login} className="icon-img-large" alt="User" />
-
-          {user ? (
-            <div className="user-details">
-              <p><strong>Name:</strong> {user.username}</p>
-              <p><strong>Email:</strong> {user.email || "Not available"}</p>
-              <p><strong>Phone:</strong> {user.phoneNo}</p>
-              <p><strong>Role:</strong> {user.role || "CUSTOMER"}</p>
+        <div className="profile-section">
+          <div className="profile-card">
+            <div className="profile-avatar">
+              <FaUserCircle className="avatar-icon" />
             </div>
+            {user ? (
+              <div className="user-info">
+                <h2>{user.username}</h2>
+                <div className="user-details-grid">
+                  <div className="detail-item">
+                    <span className="detail-label">Email</span>
+                    <span className="detail-value">{user.email || "Not available"}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Phone</span>
+                    <span className="detail-value">{user.phoneNo}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Role</span>
+                    <span className="detail-value role-badge">{user.role || "CUSTOMER"}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="user-info empty-state">
+                <h2>Welcome Guest</h2>
+                <p>Please login to view your complete profile and access all features.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="dashboard-grid">
+          <Link to="/orders" className="dashboard-card">
+            <div className="card-icon orders-icon">
+              <FaShoppingBag />
+            </div>
+            <div className="card-content">
+              <h3>My Orders</h3>
+              <p>Track, return, or buy things again</p>
+            </div>
+          </Link>
+
+          <Link to="/wishlist" className="dashboard-card">
+            <div className="card-icon wishlist-icon">
+              <FaHeart />
+            </div>
+            <div className="card-content">
+              <h3>My Wishlist</h3>
+              <p>View your saved favorite products</p>
+            </div>
+          </Link>
+
+          {isAdminUser(user) && (
+            <Link to="/admin" className="dashboard-card admin-card">
+              <div className="card-icon admin-icon">
+                <FaUserShield />
+              </div>
+              <div className="card-content">
+                <h3>Admin Panel</h3>
+                <p>Manage products, categories, and orders</p>
+              </div>
+            </Link>
+          )}
+        </div>
+
+        <div className="auth-section">
+          {user ? (
+            <button className="auth-btn logout-btn" onClick={handleLogout}>
+              <FaSignOutAlt /> Logout
+            </button>
           ) : (
-            <p>No user information available.</p>
+            <button className="auth-btn login-btn" onClick={handleLoginRedirect}>
+              <FaSignInAlt /> Login to your account
+            </button>
           )}
         </div>
       </div>
-
-      <div className="user-actions">
-        <div className="action-card">
-          <h3>Orders</h3>
-          <p>View your past and current orders</p>
-          <Link to="/orders">View Orders</Link>
-        </div>
-
-        <div className="action-card">
-          <h3>Wishlist</h3>
-          <p>Your saved favorite products</p>
-          <Link to="/wishlist">View Wishlist</Link>
-        </div>
-
-        {isAdminUser(user) && (
-          <div className="action-card">
-            <h3>Admin</h3>
-            <p>Add, update and remove products</p>
-            <Link to="/admin">Open Admin Panel</Link>
-          </div>
-        )}
-      </div>
-
-      <div className="logout-section">
-        {user ? (
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
-        ) : (
-          <button className="login-btn" onClick={handleLoginRedirect}>
-            Login
-          </button>
-        )}
-      </div>
-
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        Go Back
-      </button>
-    </>
+    </div>
   );
 }

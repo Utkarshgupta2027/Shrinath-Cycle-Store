@@ -2,23 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./home.css";
 
-import { FaShoppingCart, FaUser, FaSearch, FaMapMarkerAlt, FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaShoppingCart, FaMapMarkerAlt, FaHeart, FaRegHeart } from "react-icons/fa";
 
-import logo from "../images/logo.png";
 import hero1 from "../images/hero1.webp";
 import hero2 from "../images/hero2.webp";
 import hero3 from "../images/hero3.webp";
 import hero4 from "../images/hero4.jpeg";
-import { getStoredUser, isAdminUser } from "../utils/auth";
+import { getStoredUser } from "../utils/auth";
 
 function Home() {
   const [address, setAddress] = useState(null);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [wishlistIds, setWishlistIds] = useState([]);
   const user = getStoredUser();
-  const isAdmin = isAdminUser(user);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/products")
@@ -37,7 +34,7 @@ function Home() {
   }, [user?.id]);
 
   const handleAddToCart = async (e, product) => {
-    e.preventDefault(); // Prevent navigating to product detail
+    e.preventDefault(); 
     if (!user?.id) {
       alert("Please login to add items to cart");
       return;
@@ -68,7 +65,7 @@ function Home() {
   };
 
   const toggleWishlist = async (e, productId) => {
-    e.preventDefault(); // Prevent navigating to product detail
+    e.preventDefault(); 
     if (!user?.id) {
       alert("Please login first");
       return;
@@ -145,53 +142,6 @@ function Home() {
 
   return (
     <>
-      <nav>
-        <div className="nav-container">
-          <div className="logo-section">
-            <Link to="/">
-              <img src={logo} alt="Logo" className="logo" />
-            </Link>
-          </div>
-          
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert(`Searching: ${searchTerm}`);
-            }}
-            className="search-form"
-          >
-            <input
-              type="text"
-              placeholder="Search for cycles, accessories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            <button type="submit" className="search-btn">
-              <FaSearch />
-            </button>
-          </form>
-
-          <ul className="nav-links">
-            {isAdmin && (
-              <li>
-                <Link to="/admin">Admin Panel</Link>
-              </li>
-            )}
-            <li>
-              <Link to="/Cart" className="nav-icon-link">
-                <FaShoppingCart />
-              </Link>
-            </li>
-            <li>
-              <Link to="/UserAccount" className="nav-icon-link">
-                <FaUser />
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
       <div className="location-box">
         <button className="location-btn" onClick={getUserLocation}>
           <FaMapMarkerAlt /> {address ? "Update Location" : "Set Delivery Location"}
@@ -263,36 +213,6 @@ function Home() {
           )}
         </div>
       </div>
-
-      <footer className="footer">
-        <div className="footer-container">
-          <div className="footer-section">
-            <h4>ShreeNathCycleStore</h4>
-            <p>Your premium destination for cycles and accessories. We deliver quality directly to your doorstep.</p>
-          </div>
-          <div className="footer-section">
-            <h4>Shop</h4>
-            <ul>
-              <li><Link to="/">Mountain Bikes</Link></li>
-              <li><Link to="/">Road Bikes</Link></li>
-              <li><Link to="/">Accessories</Link></li>
-              <li><Link to="/">New Arrivals</Link></li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Support</h4>
-            <ul>
-              <li><Link to="/">Contact Us</Link></li>
-              <li><Link to="/">FAQs</Link></li>
-              <li><Link to="/">Shipping & Returns</Link></li>
-              <li><Link to="/">Track Order</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} ShreeNathCycleStore.com. All rights reserved.</p>
-        </div>
-      </footer>
     </>
   );
 }

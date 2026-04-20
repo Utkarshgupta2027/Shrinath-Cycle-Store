@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Register.css";
+import { useNavigate, Link } from "react-router-dom";
+import "./auth.css";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -29,12 +29,6 @@ function Register() {
       );
 
       alert(response.data.message);
-      setFormData({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        password: "",
-      });
       navigate("/login");
     } catch (error) {
       alert(
@@ -45,42 +39,66 @@ function Register() {
   };
 
   return (
-    <div className="register-container">
-      <form className="register-card" onSubmit={handleRegister}>
-        <h3>Create Account</h3>
-        <input
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-        />
-        <input
-          type="tel"
-          placeholder="Phone Number"
-          value={formData.phoneNumber}
-          onChange={(e) =>
-            setFormData({ ...formData, phoneNumber: e.target.value })
-          }
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
-          required
-        />
-        <button type="submit">Register</button>
-      </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Create Account</h2>
+        <p className="auth-subtitle">Join ShreeNathCycleStore today</p>
+
+        <form className="auth-form" onSubmit={handleRegister}>
+          <div className="input-group">
+            <label>Full Name</label>
+            <input
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+          </div>
+          
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="john@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
+          </div>
+          
+          <div className="input-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              placeholder="10 digit number"
+              value={formData.phoneNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, phoneNumber: e.target.value })
+              }
+              required
+            />
+          </div>
+          
+          <div className="input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Create a strong password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <button type="submit" className="auth-submit-btn">Register</button>
+        </form>
+
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Login here</Link>
+        </p>
+      </div>
     </div>
   );
 }
