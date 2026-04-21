@@ -18,6 +18,10 @@ import {
   FaTruck,
   FaTools,
   FaFilter,
+  FaBicycle,
+  FaCogs,
+  FaGift,
+  FaRocket,
 } from "react-icons/fa";
 
 import hero1 from "../images/hero1.webp";
@@ -68,7 +72,53 @@ const HERO_SLIDES = [
   },
 ];
 
-const CATEGORIES = ["All", "Mountain", "City", "Kids", "Ladies", "Sports", "Electric"];
+const BICYCLE_SUBCATEGORIES = ["Mountain", "City", "Kids", "Ladies", "Sports", "Electric"];
+
+const CATEGORY_GROUPS = [
+  {
+    key: "Bicycle",
+    title: "Bicycle",
+    description: "Choose from everyday rides, trail bikes, kids cycles, and sporty electric models.",
+    icon: <FaBicycle />,
+    accentClass: "bicycle",
+    image: rangerCycle,
+    subcategories: BICYCLE_SUBCATEGORIES,
+  },
+  {
+    key: "Parts",
+    title: "Parts",
+    description: "Frames, tyres, chains, brakes, and essential replacements to keep every ride moving.",
+    icon: <FaCogs />,
+    accentClass: "parts",
+    image: normalCycle,
+  },
+  {
+    key: "Accessories",
+    title: "Accessories",
+    description: "Helmets, lights, carriers, bottles, and add-ons that make each ride better.",
+    icon: <FaGift />,
+    accentClass: "accessories",
+    image: ladiesCycle,
+  },
+  {
+    key: "New Arrivals",
+    title: "New Arrivals",
+    description: "Fresh stock and the latest additions from the newest launches in store.",
+    icon: <FaRocket />,
+    accentClass: "new-arrivals",
+    image: rangerCycle,
+  },
+  {
+    key: "Tools",
+    title: "Tools",
+    description: "Repair kits, service tools, and workshop essentials for quick fixes and upkeep.",
+    icon: <FaTools />,
+    accentClass: "tools",
+    image: normalCycle,
+  },
+];
+
+const FILTER_PILLS = ["All", ...CATEGORY_GROUPS.map((group) => group.key), ...BICYCLE_SUBCATEGORIES];
 
 const STORE_FEATURES = [
   { icon: <FaTruck />, title: "Free Delivery", desc: "On orders above ₹2,000" },
@@ -123,6 +173,15 @@ function Home() {
     setTimeout(() => setToastMsg(""), 2800);
   };
 
+  const scrollToProducts = () => {
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleCategorySelect = (category) => {
+    setActiveCategory(category);
+    scrollToProducts();
+  };
+
   const goToSlide = (idx) => {
     clearInterval(autoSlideRef.current);
     setActiveSlide(idx);
@@ -165,13 +224,68 @@ function Home() {
     }
   };
 
+  const matchesCategory = (product, selectedCategory) => {
+    if (selectedCategory === "All") {
+      return true;
+    }
+
+    const productCategory = product.category?.toLowerCase() || "";
+    const categoryText = `${product.name || ""} ${product.desc || ""} ${product.brand || ""}`.toLowerCase();
+
+    if (selectedCategory === "Bicycle") {
+      return BICYCLE_SUBCATEGORIES.some(
+        (category) => productCategory === category.toLowerCase()
+      );
+    }
+
+    if (selectedCategory === "Parts") {
+      return (
+        productCategory.includes("part") ||
+        productCategory.includes("spare") ||
+        ["tyre", "tire", "tube", "chain", "brake", "pedal", "rim", "seat", "handle", "frame"].some((term) =>
+          categoryText.includes(term)
+        )
+      );
+    }
+
+    if (selectedCategory === "Accessories") {
+      return (
+        productCategory.includes("accessor") ||
+        ["helmet", "light", "lock", "bottle", "carrier", "bag", "pump", "bell"].some((term) =>
+          categoryText.includes(term)
+        )
+      );
+    }
+
+    if (selectedCategory === "Tools") {
+      return (
+        productCategory.includes("tool") ||
+        ["tool", "repair", "kit", "wrench", "spanner", "allen key", "maintenance"].some((term) =>
+          categoryText.includes(term)
+        )
+      );
+    }
+
+    if (selectedCategory === "New Arrivals") {
+      const releaseDate = product.releaseDate ? new Date(product.releaseDate) : null;
+      const isRecentRelease =
+        releaseDate instanceof Date &&
+        !Number.isNaN(releaseDate.getTime()) &&
+        Date.now() - releaseDate.getTime() <= 1000 * 60 * 60 * 24 * 120;
+
+      return productCategory.includes("new") || isRecentRelease;
+    }
+
+    return productCategory === selectedCategory.toLowerCase();
+  };
+
   // Filter products
   const filteredProducts = products.filter((p) => {
     const matchSearch = searchQuery
       ? p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.desc?.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
-    const matchCat = activeCategory === "All" ? true : p.category?.toLowerCase() === activeCategory.toLowerCase();
+    const matchCat = matchesCategory(p, activeCategory);
     return matchSearch && matchCat;
   });
 
@@ -256,33 +370,56 @@ function Home() {
         </div>
       </section>
 
-      {/* ============ SHOP CATEGORIES (image cards) ============ */}
+      {/* ============ SHOP CATEGORIES ============ */}
       <section className="categories-section">
         <div className="section-container">
           <div className="section-heading">
             <h2>Shop by Category</h2>
-            <p>Find your perfect ride from our wide collection</p>
+            <p>Browse bicycles, parts, accessories, new arrivals, and tools from one place.</p>
           </div>
-          <div className="category-cards">
-            {[
-              { label: "Ladies Cycles", img: ladiesCycle, filter: "Ladies" },
-              { label: "City Cycles", img: normalCycle, filter: "City" },
-              { label: "Mountain / MTB", img: rangerCycle, filter: "Mountain" },
-            ].map((c) => (
-              <button
-                key={c.label}
-                className="category-card"
-                onClick={() => {
-                  setActiveCategory(c.filter);
-                  document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
-                }}
+
+          <div className="category-group-grid">
+            {CATEGORY_GROUPS.map((group) => (
+              <article
+                key={group.key}
+                className={`category-group-card ${group.accentClass}${activeCategory === group.key ? " active" : ""}`}
               >
-                <img src={c.img} alt={c.label} />
-                <div className="category-overlay">
-                  <span>{c.label}</span>
-                  <FaArrowRight />
+                <div className="category-group-media">
+                  <img src={group.image} alt={group.title} />
                 </div>
-              </button>
+
+                <div className="category-group-overlay" />
+
+                <div className="category-group-content">
+                  <div className="category-group-header">
+                    <span className="category-group-icon">{group.icon}</span>
+                    <span className="category-group-title">{group.title}</span>
+                  </div>
+
+                  <p className="category-group-description">{group.description}</p>
+
+                  <button
+                    className="category-group-cta"
+                    onClick={() => handleCategorySelect(group.key)}
+                  >
+                    Explore {group.title} <FaArrowRight />
+                  </button>
+
+                  {group.subcategories?.length ? (
+                    <div className="category-subgrid">
+                      {group.subcategories.map((subcategory) => (
+                        <button
+                          key={subcategory}
+                          className={`category-subchip${activeCategory === subcategory ? " active" : ""}`}
+                          onClick={() => handleCategorySelect(subcategory)}
+                        >
+                          {subcategory}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </article>
             ))}
           </div>
         </div>
@@ -306,7 +443,7 @@ function Home() {
 
           {/* Category filter pills */}
           <div className="filter-pills">
-            {CATEGORIES.map((cat) => (
+            {FILTER_PILLS.map((cat) => (
               <button
                 key={cat}
                 className={`filter-pill${activeCategory === cat ? " active" : ""}`}
