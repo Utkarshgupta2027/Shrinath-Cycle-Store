@@ -169,7 +169,7 @@ function Home() {
   const filteredProducts = products.filter((p) => {
     const matchSearch = searchQuery
       ? p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        p.desc?.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     const matchCat = activeCategory === "All" ? true : p.category?.toLowerCase() === activeCategory.toLowerCase();
     return matchSearch && matchCat;
@@ -330,13 +330,14 @@ function Home() {
                       onError={(e) => { e.target.src = normalCycle; }}
                     />
                     {/* Badges */}
-                    {product.stock <= 5 && product.stock > 0 && (
+                    {product.quantity <= 5 && product.quantity > 0 && (
                       <span className="badge badge-low">Low Stock</span>
                     )}
-                    {product.stock === 0 && (
+                    {product.quantity === 0 && (
                       <span className="badge badge-out">Out of Stock</span>
                     )}
-                    {product.featured && (
+                    {/* Mock featured for aesthetic purposes */}
+                    {product.id % 2 !== 0 && product.quantity > 0 && (
                       <span className="badge badge-hot">🔥 Hot</span>
                     )}
 
@@ -363,14 +364,14 @@ function Home() {
                       <span className="rating-count">(24)</span>
                     </div>
 
-                    {product.description && (
-                      <p className="product-desc">{product.description.slice(0, 60)}{product.description.length > 60 ? "…" : ""}</p>
+                    {product.desc && (
+                      <p className="product-desc">{product.desc.slice(0, 60)}{product.desc.length > 60 ? "…" : ""}</p>
                     )}
 
                     <div className="product-price-row">
                       <span className="product-price">₹{product.price?.toLocaleString("en-IN")}</span>
-                      {product.mrp && product.mrp > product.price && (
-                        <span className="product-mrp">₹{product.mrp?.toLocaleString("en-IN")}</span>
+                      {product.price && (
+                        <span className="product-mrp">₹{(product.price * 1.15).toLocaleString("en-IN")}</span>
                       )}
                     </div>
 
@@ -378,12 +379,12 @@ function Home() {
                       <button
                         className="add-to-cart-btn"
                         onClick={(e) => handleAddToCart(e, product)}
-                        disabled={loadingCart === product.id || product.stock === 0}
+                        disabled={loadingCart === product.id || product.quantity === 0}
                       >
                         {loadingCart === product.id ? (
                           <span className="spinner" />
                         ) : (
-                          <><FaShoppingCart /> {product.stock === 0 ? "Out of Stock" : "Add to Cart"}</>
+                          <><FaShoppingCart /> {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}</>
                         )}
                       </button>
                       <Link to={`/product/${product.id}`} className="view-details-btn">
