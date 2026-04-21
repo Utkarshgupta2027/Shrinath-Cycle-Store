@@ -5,7 +5,12 @@ import "./Wishlist.css";
 
 export default function Wishlist() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch (error) {
+    user = null;
+  }
 
   const [wishlist, setWishlist] = useState([]);
   const [error, setError] = useState("");

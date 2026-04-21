@@ -3,6 +3,7 @@ package GuptaCycle.org.Shrinath.Controller;
 import GuptaCycle.org.Shrinath.Model.Cart;
 import GuptaCycle.org.Shrinath.Service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,31 +21,46 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Cart> addToCart(
+    public ResponseEntity<?> addToCart(
             @RequestParam Long userId,
             @RequestParam Long productId,
             @RequestParam int quantity) {
-        return ResponseEntity.ok(
-                cartService.addToCart(userId, productId, quantity)
-        );
+        try {
+            return ResponseEntity.ok(cartService.addToCart(userId, productId, quantity));
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Cart> updateQuantity(
+    public ResponseEntity<?> updateQuantity(
             @RequestParam Long userId,
             @RequestParam Long productId,
             @RequestParam int quantity) {
-        return ResponseEntity.ok(
-                cartService.updateQuantity(userId, productId, quantity)
-        );
+        try {
+            return ResponseEntity.ok(cartService.updateQuantity(userId, productId, quantity));
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<Cart> removeItem(
+    public ResponseEntity<?> removeItem(
             @RequestParam Long userId,
             @RequestParam Long productId) {
-        return ResponseEntity.ok(
-                cartService.removeItem(userId, productId)
-        );
+        try {
+            return ResponseEntity.ok(cartService.removeItem(userId, productId));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/clear")
+    public ResponseEntity<?> clearCart(@RequestParam Long userId) {
+        try {
+            return ResponseEntity.ok(cartService.clearCart(userId));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 }

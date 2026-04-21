@@ -4,6 +4,8 @@ import GuptaCycle.org.Shrinath.Model.Order;
 import GuptaCycle.org.Shrinath.Model.OrderRequest;
 import GuptaCycle.org.Shrinath.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +19,12 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public Order placeOrder(@RequestBody OrderRequest request) {
-        return orderService.saveOrder(request);
+    public ResponseEntity<?> placeOrder(@RequestBody OrderRequest request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(orderService.saveOrder(request));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @GetMapping("/user/{userId}")

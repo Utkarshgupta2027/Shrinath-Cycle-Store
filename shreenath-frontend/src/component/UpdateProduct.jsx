@@ -4,6 +4,35 @@ import axios from "axios";
 import "./UpdateProduct.css";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 
+const formatDateForInput = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toISOString().split("T")[0];
+};
+
+const formatDateDdMmYyyy = (isoDate) => {
+  if (!isoDate) {
+    return null;
+  }
+
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const yyyy = date.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+};
+
 const UpdateProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -11,6 +40,7 @@ const UpdateProduct = () => {
   const isAdmin = isAdminUser(user);
 
   const [image, setImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
   const [updateProduct, setUpdateProduct] = useState({
     id: null,
     name: "",
@@ -41,35 +71,22 @@ const UpdateProduct = () => {
           brand: product.brand || "",
           price: product.price || "",
           category: product.category || "",
-          releaseDate: product.releaseDate || "",
+          releaseDate: formatDateForInput(product.releaseDate),
           productAvailable: Boolean(product.available),
           stockQuantity: product.quantity || "",
         });
 
-        const responseImage = await axios.get(
-          `http://localhost:8080/api/product/${id}/image`,
-          { responseType: "blob" }
-        );
-
-        if (responseImage.data && responseImage.data.size > 0) {
-          const imgFile = new File(
-            [responseImage.data],
-            product.imgName || "image.jpg",
-            {
-              type: responseImage.data.type,
-            }
-          );
-          setImage(imgFile);
-        }
+        setPreviewUrl(`http://localhost:8080/api/product/${id}/image`);
       } catch (error) {
         console.error("Error fetching product or image:", error);
+        alert("Failed to load product details.");
       }
     };
 
     fetchProduct();
   }, [id, isAdmin, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isAdmin) {
@@ -89,10 +106,10 @@ const UpdateProduct = () => {
       name: updateProduct.name,
       brand: updateProduct.brand,
       desc: updateProduct.description,
-      price: updateProduct.price,
+      price: updateProduct.price?.toString() ?? "0",
       category: updateProduct.category,
-      releaseDate: updateProduct.releaseDate,
-      quantity: updateProduct.stockQuantity,
+      releaseDate: formatDateDdMmYyyy(updateProduct.releaseDate),
+      quantity: Number(updateProduct.stockQuantity) || 0,
       available: updateProduct.productAvailable,
     };
 
@@ -101,21 +118,16 @@ const UpdateProduct = () => {
       new Blob([JSON.stringify(productData)], { type: "application/json" })
     );
 
-    axios
-      .put(`http://localhost:8080/api/product/${id}`, form, {
+    try {
+      await axios.put(`http://localhost:8080/api/product/${id}`, form, {
         headers: { "Content-Type": "multipart/form-data", ...getAuthHeaders() },
-      })
-      .then(() => {
-        alert("Product updated successfully!");
-        navigate("/admin");
-      })
-      .catch((error) => {
-        console.error(
-          "Error updating:",
-          error.response ? error.response.data : error
-        );
-        alert(error.response?.data || "Failed to update product.");
       });
+      alert("Product updated successfully!");
+      navigate("/admin");
+    } catch (error) {
+      console.error("Error updating:", error.response ? error.response.data : error);
+      alert(error.response?.data || "Failed to update product.");
+    }
   };
 
   const handleChange = (e) => {
@@ -123,7 +135,11 @@ const UpdateProduct = () => {
   };
 
   const handleImageChange = (e) => {
-    setImage(e.target.files[0] || null);
+    const file = e.target.files[0] || null;
+    setImage(file);
+    if (file) {
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   return (
@@ -190,6 +206,16 @@ const UpdateProduct = () => {
               </div>
 
               <div className="form-group">
+                <label>Release Date</label>
+                <input
+                  type="date"
+                  name="releaseDate"
+                  value={updateProduct.releaseDate}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
                 <label>Stock Quantity</label>
                 <input
                   type="number"
@@ -201,14 +227,14 @@ const UpdateProduct = () => {
 
               <div className="form-group full">
                 <label>Product Image</label>
-                {image && (
+                {previewUrl && (
                   <img
-                    src={URL.createObjectURL(image)}
+                    src={previewUrl}
                     alt="Product"
                     className="preview-img"
                   />
                 )}
-                <input type="file" onChange={handleImageChange} />
+                <input type="file" accept="image/*" onChange={handleImageChange} />
               </div>
 
               <div className="checkbox-group">

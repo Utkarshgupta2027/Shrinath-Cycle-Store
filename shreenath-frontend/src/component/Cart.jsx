@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from "react-icons/fa";
@@ -18,28 +18,37 @@ const Cart = () => {
   }
   const userId = user?.id;
 
+  const normalizeCartItems = (cart) => {
+    if (!cart?.items) {
+      return [];
+    }
+
+    return cart.items.map((ci) => ({
+      ...ci.product,
+      quantity: ci.quantity,
+      cartItemId: ci.id,
+    }));
+  };
+
+  const fetchCart = useCallback(async () => {
+    if (!userId) {
+      setCartItems([]);
+      return;
+    }
+
+    try {
+      const res = await axios.get(`http://localhost:8080/api/cart/users/${userId}`);
+      setCartItems(normalizeCartItems(res.data));
+    } catch (error) {
+      console.error("Fetch error details:", error.response || error);
+    }
+  }, [userId]);
+
   useEffect(() => {
     if (!userId) return;
 
-    const fetchCart = async () => {
-      try {
-        const res = await axios.get(`http://localhost:8080/api/cart/users/${userId}`);
-        
-        if (res.data && res.data.items) {
-          const items = res.data.items.map(ci => ({
-            ...ci.product,
-            quantity: ci.quantity,
-            cartItemId: ci.id 
-          }));
-          setCartItems(items);
-        }
-      } catch (error) {
-        console.error("Fetch error details:", error.response || error);
-      }
-    };
-
     fetchCart();
-  }, [userId]);
+  }, [fetchCart, userId]);
 
   useEffect(() => {
     const total = cartItems.reduce((sum, item) => {
@@ -55,15 +64,13 @@ const Cart = () => {
     if (!item) return;
 
     try {
-      await axios.put("http://localhost:8080/api/cart/update", null, {
+      const response = await axios.put("http://localhost:8080/api/cart/update", null, {
         params: { userId, productId, quantity: item.quantity + 1 }
       });
-
-      setCartItems(prev =>
-        prev.map(i => i.id === productId ? { ...i, quantity: i.quantity + 1 } : i)
-      );
+      setCartItems(normalizeCartItems(response.data));
     } catch (error) {
       console.error("Quantity update failed", error);
+      alert(error.response?.data || "Could not update quantity.");
     }
   };
 
@@ -72,29 +79,28 @@ const Cart = () => {
     if (!item || item.quantity <= 1) return;
 
     try {
-      await axios.put("http://localhost:8080/api/cart/update", null, {
+      const response = await axios.put("http://localhost:8080/api/cart/update", null, {
         params: { userId, productId, quantity: item.quantity - 1 }
       });
-
-      setCartItems(prev =>
-        prev.map(i => i.id === productId ? { ...i, quantity: i.quantity - 1 } : i)
-      );
+      setCartItems(normalizeCartItems(response.data));
     } catch (error) {
       console.error("Quantity update failed", error);
+      alert(error.response?.data || "Could not update quantity.");
     }
   };
 
   const handleRemoveFromCart = async (productId) => {
     try {
-      await axios.delete("http://localhost:8080/api/cart/remove", {
+      const response = await axios.delete("http://localhost:8080/api/cart/remove", {
         params: { 
           userId: userId, 
           productId: productId 
         }
       });
-      setCartItems(prev => prev.filter(item => item.id !== productId));
+      setCartItems(normalizeCartItems(response.data));
     } catch (error) {
       console.error("Backend failed to delete item:", error);
+      alert(error.response?.data || "Could not remove item from cart.");
     }
   };
 

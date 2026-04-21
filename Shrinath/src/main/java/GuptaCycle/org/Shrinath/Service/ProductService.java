@@ -34,6 +34,10 @@ public class ProductService {
     }
 
     public Product addProduct(Product product, MultipartFile imgFile) throws IOException {
+        if (product.getQuantity() < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative.");
+        }
+
         product.setImgName(imgFile.getOriginalFilename());
         product.setImgType(imgFile.getContentType());
         product.setImgData(imgFile.getBytes());
@@ -46,6 +50,10 @@ public class ProductService {
         if (optional.isEmpty()) return null;
 
         Product existing = optional.get();
+
+        if (newProduct.getQuantity() < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative.");
+        }
 
         // Update all fields
         existing.setName(newProduct.getName());

@@ -7,10 +7,14 @@ function CheckoutPopup() {
   const navigate = useNavigate();
 
   const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const userId = user?.id;
+  let user = null;
+  try {
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    user = null;
+  }
 
-  // BUG FIX: Read cart from backend, not from React Context (which is empty)
+  const userId = user?.id;
   const [cartItems, setCartItems] = useState([]);
   const [loadingCart, setLoadingCart] = useState(true);
   const [address, setAddress] = useState("");
@@ -24,26 +28,28 @@ function CheckoutPopup() {
       return;
     }
 
-    // Fetch cart from backend
     fetch(`http://localhost:8080/api/cart/users/${userId}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch cart");
+        if (!res.ok) {
+          throw new Error("Failed to fetch cart");
+        }
         return res.json();
       })
       .then((data) => {
-        if (data && data.items) {
+        if (data?.items) {
           setCartItems(
             data.items.map((ci) => ({
               ...ci.product,
               quantity: ci.quantity,
             }))
           );
+        } else {
+          setCartItems([]);
         }
       })
       .catch(() => alert("Could not load your cart. Please go back and try again."))
       .finally(() => setLoadingCart(false));
 
-    // Auto-detect location
     getUserLocation();
   }, [userId, navigate]);
 
@@ -72,10 +78,12 @@ function CheckoutPopup() {
               addr.postcode || "",
               addr.country || "",
             ]
-              .filter((s) => s !== "")
+              .filter((segment) => segment !== "")
               .join(", ");
-            setAddress(fullAddress || data.display_name);
-            setManualAddress(fullAddress || data.display_name);
+
+            const resolvedAddress = fullAddress || data.display_name || "";
+            setAddress(resolvedAddress);
+            setManualAddress(resolvedAddress);
             setLocationError("");
           } catch {
             setLocationError("Unable to detect location. Please enter your address manually.");
@@ -114,8 +122,8 @@ function CheckoutPopup() {
         productId: item.id,
         name: item.name,
         price: item.price,
+        quantity: item.quantity || 1,
       })),
-      totalAmount: totalPrice,
       address: finalAddress,
     };
 
@@ -128,16 +136,15 @@ function CheckoutPopup() {
       });
 
       if (res.ok) {
-        // Clear the cart in the backend
-        await fetch(
-          `http://localhost:8080/api/cart/remove?userId=${userId}`,
-          { method: "DELETE" }
-        ).catch(() => {}); // Best effort clear
+        await fetch(`http://localhost:8080/api/cart/clear?userId=${userId}`, {
+          method: "DELETE",
+        }).catch(() => {});
 
-        alert("🎉 Order placed successfully!");
+        alert("Order placed successfully!");
         navigate("/orders");
       } else {
-        alert("Failed to place order. Please try again.");
+        const errorMessage = await res.text();
+        alert(errorMessage || "Failed to place order. Please try again.");
       }
     } catch (err) {
       alert("Network error. Please check your connection.");
@@ -146,7 +153,9 @@ function CheckoutPopup() {
     }
   };
 
-  if (!userId) return null;
+  if (!userId) {
+    return null;
+  }
 
   return (
     <div className="checkout-page">
@@ -158,18 +167,14 @@ function CheckoutPopup() {
         <h1 className="checkout-title">Checkout</h1>
 
         <div className="checkout-layout">
-          {/* LEFT: Address + Items */}
           <div className="checkout-left">
-            {/* Delivery Address */}
             <div className="checkout-section-card">
               <div className="section-title">
                 <FaMapMarkerAlt className="section-icon" />
                 <h2>Delivery Address</h2>
               </div>
 
-              {locationError && (
-                <p className="location-error">{locationError}</p>
-              )}
+              {locationError && <p className="location-error">{locationError}</p>}
 
               <textarea
                 className="address-input"
@@ -184,7 +189,6 @@ function CheckoutPopup() {
               </button>
             </div>
 
-            {/* Order Items */}
             <div className="checkout-section-card">
               <div className="section-title">
                 <FaShoppingBag className="section-icon" />
@@ -216,7 +220,7 @@ function CheckoutPopup() {
                         <p>Qty: {item.quantity}</p>
                       </div>
                       <div className="checkout-item-price">
-                        ₹{(Number(item.price) * item.quantity).toLocaleString("en-IN")}
+                        Rs. {(Number(item.price) * item.quantity).toLocaleString("en-IN")}
                       </div>
                     </li>
                   ))}
@@ -225,7 +229,6 @@ function CheckoutPopup() {
             </div>
           </div>
 
-          {/* RIGHT: Order Summary */}
           <div className="checkout-right">
             <div className="order-summary-card">
               <h2>Order Summary</h2>
@@ -233,7 +236,7 @@ function CheckoutPopup() {
               <div className="summary-lines">
                 <div className="summary-line">
                   <span>Subtotal ({cartItems.length} items)</span>
-                  <span>₹{totalPrice.toLocaleString("en-IN")}</span>
+                  <span>Rs. {totalPrice.toLocaleString("en-IN")}</span>
                 </div>
                 <div className="summary-line">
                   <span>Delivery</span>
@@ -241,7 +244,7 @@ function CheckoutPopup() {
                 </div>
                 <div className="summary-line total-line">
                   <span>Total Amount</span>
-                  <span>₹{totalPrice.toLocaleString("en-IN")}</span>
+                  <span>Rs. {totalPrice.toLocaleString("en-IN")}</span>
                 </div>
               </div>
 
@@ -253,7 +256,7 @@ function CheckoutPopup() {
                 {placing ? "Placing Order..." : "Confirm Order"}
               </button>
 
-              <p className="secure-note">🔒 Safe & Secure Checkout</p>
+              <p className="secure-note">Safe and secure checkout</p>
             </div>
           </div>
         </div>

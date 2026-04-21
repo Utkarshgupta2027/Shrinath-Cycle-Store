@@ -5,9 +5,14 @@ import "./Orders.css";
 
 export default function Orders() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const userId = user?.id;
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch (error) {
+    user = null;
+  }
 
+  const userId = user?.id;
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -20,7 +25,9 @@ export default function Orders() {
 
     fetch(`http://localhost:8080/api/orders/user/${userId}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch orders");
+        if (!res.ok) {
+          throw new Error("Failed to fetch orders");
+        }
         return res.json();
       })
       .then(setOrders)
@@ -34,7 +41,9 @@ export default function Orders() {
         <div className="orders-empty">
           <FaBoxOpen className="empty-icon" />
           <h2>Please login to view your orders</h2>
-          <button onClick={() => navigate("/login")} className="orders-action-btn">Login</button>
+          <button onClick={() => navigate("/login")} className="orders-action-btn">
+            Login
+          </button>
         </div>
       </div>
     );
@@ -49,13 +58,8 @@ export default function Orders() {
 
         <h1 className="orders-title">My Orders</h1>
 
-        {loading && (
-          <div className="orders-loading">Loading your orders...</div>
-        )}
-
-        {error && (
-          <div className="orders-error">{error}</div>
-        )}
+        {loading && <div className="orders-loading">Loading your orders...</div>}
+        {error && <div className="orders-error">{error}</div>}
 
         {!loading && orders.length === 0 && !error && (
           <div className="orders-empty">
@@ -69,7 +73,7 @@ export default function Orders() {
         )}
 
         <div className="orders-list">
-          {orders.map((order, index) => (
+          {orders.map((order) => (
             <div key={order.id} className="order-card">
               <div className="order-header">
                 <div className="order-header-left">
@@ -91,7 +95,6 @@ export default function Orders() {
               </div>
 
               <div className="order-body">
-                {/* Address */}
                 {order.address && (
                   <div className="order-address">
                     <FaMapMarkerAlt className="address-icon" />
@@ -99,7 +102,6 @@ export default function Orders() {
                   </div>
                 )}
 
-                {/* Items */}
                 <div className="order-items">
                   <h4>Items Ordered</h4>
                   {order.items && order.items.length > 0 ? (
@@ -110,12 +112,16 @@ export default function Orders() {
                             <img
                               src={`http://localhost:8080/api/product/${item.productId || item.id}/image`}
                               alt={item.name}
-                              onError={(e) => { e.target.src = "https://via.placeholder.com/60"; }}
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/60";
+                              }}
                             />
                           </div>
                           <div className="order-item-info">
                             <span className="order-item-name">{item.name}</span>
-                            <span className="order-item-price">₹{Number(item.price).toLocaleString("en-IN")}</span>
+                            <span className="order-item-price">
+                              Qty: {item.quantity || 1} | Rs. {Number(item.price).toLocaleString("en-IN")}
+                            </span>
                           </div>
                         </li>
                       ))}
@@ -129,7 +135,7 @@ export default function Orders() {
               <div className="order-footer">
                 <span className="order-total-label">Total Amount</span>
                 <span className="order-total-value">
-                  ₹{Number(order.totalAmount).toLocaleString("en-IN")}
+                  Rs. {Number(order.totalAmount).toLocaleString("en-IN")}
                 </span>
               </div>
             </div>
