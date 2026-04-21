@@ -1,0 +1,163 @@
+/* PAGE CENTERING - OBSIDIAN PREMIUM */
+.update-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 5rem;
+  background: #0a0c14; /* Obsidian */
+  min-height: 100vh;
+  color: #f1f5f9;
+}
+
+/* MAIN CARD */
+.update-card {
+  width: 850px;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeIn 0.4s ease;
+}
+
+/* TITLE */
+.update-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #ffffff;
+}
+
+/* FORM GRID */
+.update-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* WIDER FIELDS */
+.full {
+  grid-column: span 2;
+}
+
+/* FORM GROUP */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder {
+  color: #64748b;
+}
+
+.form-group select option {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+/* FOCUS EFFECT */
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #c9a84c;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+}
+
+/* IMAGE PREVIEW */
+.preview-img {
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* CHECKBOX */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  grid-column: span 2;
+  margin-top: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  accent-color: #c9a84c;
+  width: 18px;
+  height: 18px;
+}
+
+.checkbox-group label {
+  color: #cbd5e1;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+/* SUBMIT BUTTON */
+.submit-btn {
+  grid-column: span 2;
+  padding: 12px;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14; /* Dark text for contrast against gold */
+  font-size: 17px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+}
+
+/* BACK BUTTON */
+.back-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

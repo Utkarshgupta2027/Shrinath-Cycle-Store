@@ -1,0 +1,188 @@
+/* Main Container - OBSIDIAN PREMIUM */
+.checkout-container {
+  max-width: 900px;
+  margin: 120px auto;
+  padding: 30px 25px;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeIn 0.7s ease-in-out;
+  color: #f1f5f9;
+}
+
+.checkout-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+/* Sections */
+.checkout-section {
+  margin-bottom: 30px;
+}
+
+.checkout-section h3 {
+  color: #e2c678; /* Gold section headers */
+  margin-bottom: 12px;
+  font-size: 1.3rem;
+}
+
+/* Address Box */
+.address-box {
+  background: rgba(201, 168, 76, 0.05); /* Slight gold tint */
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  color: #ffffff;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.5s ease-out;
+}
+
+/* CART ITEMS LIST */
+.checkout-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checkout-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.checkout-item img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  margin-right: 18px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+.checkout-item h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.checkout-item p {
+  margin: 5px 0 0;
+  font-weight: 600;
+  color: #c9a84c; /* Gold price */
+}
+
+/* TOTAL PRICE */
+.total-price {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #e2c678; /* Light gold */
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+/* PAYMENT OPTIONS */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+/* Hover Effect */
+.payment-option:hover {
+  background: rgba(201, 168, 76, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+/* Pay Now Button */
+.confirm-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.3rem;
+  color: #0a0c14;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 25px;
+  box-shadow: 0px 6px 20px rgba(201, 168, 76, 0.3);
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+  box-shadow: 0px 8px 25px rgba(201, 168, 76, 0.4);
+}
+
+/* Error Text */
+.error-text {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-weight: 600;
+  margin-top: 10px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .checkout-container {
+    margin: 100px 15px;
+    padding: 20px;
+  }
+
+  .checkout-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .checkout-item img {
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+}

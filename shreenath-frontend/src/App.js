@@ -3,22 +3,22 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import AppProvider from "./Context/AppProvider";
 
-import Navbar from "./component/Navbar";
-import Footer from "./component/Footer";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
-import Home from "./component/Home";
-import Login from "./component/Login";
-import Register from "./component/Register";
-import AddProduct from "./component/AddProduct";
-import Cart from "./component/Cart";
-import Product from "./component/Product";
-import UpdateProduct from "./component/UpdateProduct";
-import CheckoutPopup from "./component/CheckoutPopup";
-import MakePayment from "./component/MakePayment";
-import UserAccount from "./component/UserAccount";
-import Orders from "./component/orders.jsx";
-import Wishlist from "./component/Wishlist.jsx";
-import Settings from "./component/Settings.jsx";
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import AddProduct from "./components/AddProduct";
+import Cart from "./components/Cart";
+import Product from "./components/Product";
+import UpdateProduct from "./components/UpdateProduct";
+import CheckoutPopup from "./components/CheckoutPopup";
+import MakePayment from "./components/MakePayment";
+import UserAccount from "./components/UserAccount";
+import Orders from "./components/orders.jsx";
+import Wishlist from "./components/Wishlist.jsx";
+import Settings from "./components/Settings.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 

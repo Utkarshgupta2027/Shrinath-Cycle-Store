@@ -1,0 +1,108 @@
+/* ----------- Login Container - OBSIDIAN PREMIUM ----------- */
+.auth-container {
+  width: 380px;
+  margin: 120px auto;
+  padding: 30px 25px;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  box-shadow: 0px 10px 35px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+  color: #f1f5f9;
+}
+
+/* Fade Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Title */
+.auth-container h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+/* Input Fields */
+.auth-container input {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.auth-container input:focus {
+  border-color: #c9a84c;
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+}
+
+.auth-container input::placeholder {
+  color: #64748b;
+}
+
+/* Login Button */
+.auth-container button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14; /* Dark text for contrast against gold */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+}
+
+.auth-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+}
+
+/* Message */
+.auth-container p {
+  margin-top: 12px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* Link to Register */
+.auth-container a {
+  color: #c9a84c; /* Gold link */
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-container a:hover {
+  color: #e2c678;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-container {
+    width: 90%;
+    margin-top: 100px;
+    padding: 25px 20px;
+  }
+
+  .auth-container h2 {
+    font-size: 1.6rem;
+  }
+}

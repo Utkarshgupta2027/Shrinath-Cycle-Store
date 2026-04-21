@@ -1,0 +1,128 @@
+/* ============================================
+   🔒 AUTH PAGES - OBSIDIAN PREMIUM
+   ============================================ */
+.auth-page {
+  padding: 60px 24px;
+  background: #0a0c14; /* Obsidian background */
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #f1f5f9;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.auth-card h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.auth-subtitle {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.input-group input {
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.input-group input::placeholder {
+  color: #64748b;
+}
+
+.input-group input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+}
+
+.auth-submit-btn {
+  margin-top: 10px;
+  padding: 16px;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14; /* Dark text for contrast against gold */
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+}
+
+.auth-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+}
+
+.auth-message {
+  margin-top: 20px;
+  text-align: center;
+  color: #fca5a5;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.auth-switch {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+
+.auth-switch a {
+  color: #c9a84c; /* Gold link */
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.3s ease;
+}
+
+.auth-switch a:hover {
+  color: #e2c678;
+  text-decoration: underline;
+}
