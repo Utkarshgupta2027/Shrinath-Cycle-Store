@@ -290,9 +290,19 @@ function Home() {
 
   // Filter products
   const filteredProducts = products.filter((p) => {
-    const matchSearch = searchQuery
-      ? p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.desc?.toLowerCase().includes(searchQuery.toLowerCase())
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+    const searchableText = [
+      p.name,
+      p.brand,
+      p.category,
+      p.desc,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    const matchSearch = normalizedSearch
+      ? searchableText.includes(normalizedSearch)
       : true;
     const matchCat = matchesCategory(p, activeCategory);
     return matchSearch && matchCat;
