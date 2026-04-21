@@ -833,6 +833,31 @@ body {
   font-size: 1.2rem;
 }
 
+.featured-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -4px 0 22px;
+}
+
+.featured-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  font-family: var(--font-display);
+}
+
+.featured-meta-pill.active-filter {
+  border-color: var(--gold-border);
+  background: var(--gold-subtle);
+  color: var(--gold-light);
+}
+
 
 /* ═══════════════════════════════════════════════
    🧊 PRODUCT CARD

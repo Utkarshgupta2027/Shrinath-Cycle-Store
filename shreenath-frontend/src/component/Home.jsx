@@ -182,6 +182,15 @@ function Home() {
     scrollToProducts();
   };
 
+  const getReleaseTime = (product) => {
+    if (!product?.releaseDate) {
+      return 0;
+    }
+
+    const parsedDate = new Date(product.releaseDate);
+    return Number.isNaN(parsedDate.getTime()) ? 0 : parsedDate.getTime();
+  };
+
   const goToSlide = (idx) => {
     clearInterval(autoSlideRef.current);
     setActiveSlide(idx);
@@ -288,6 +297,30 @@ function Home() {
     const matchCat = matchesCategory(p, activeCategory);
     return matchSearch && matchCat;
   });
+
+  const featuredProducts = [...filteredProducts]
+    .sort((a, b) => {
+      const availabilityScoreA = (a.available ? 1 : 0) + (a.quantity > 0 ? 1 : 0);
+      const availabilityScoreB = (b.available ? 1 : 0) + (b.quantity > 0 ? 1 : 0);
+
+      if (availabilityScoreA !== availabilityScoreB) {
+        return availabilityScoreB - availabilityScoreA;
+      }
+
+      if ((b.quantity || 0) !== (a.quantity || 0)) {
+        return (b.quantity || 0) - (a.quantity || 0);
+      }
+
+      return getReleaseTime(b) - getReleaseTime(a);
+    })
+    .slice(0, 8);
+
+  const isFilteredView = activeCategory !== "All" || Boolean(searchQuery);
+  const productsToRender = isFilteredView ? filteredProducts : featuredProducts;
+  const sectionTitle = isFilteredView ? "Product Results" : "Featured Products";
+  const sectionSubtitle = isFilteredView
+    ? "Browse products based on your selected category and search."
+    : "A handpicked mix of our most in-stock and latest products.";
 
   const slide = HERO_SLIDES[activeSlide];
 
@@ -431,14 +464,25 @@ function Home() {
           <div className="section-heading-row">
             <div className="section-heading">
               <h2>
-                <FaFire className="fire-icon" /> Featured Products
+                <FaFire className="fire-icon" /> {sectionTitle}
                 {searchQuery && <span className="search-result-chip">Results for "{searchQuery}"</span>}
               </h2>
-              <p>Handpicked premium selection for every cyclist</p>
+              <p>{sectionSubtitle}</p>
             </div>
             <Link to="/cart" className="view-cart-btn">
               <FaShoppingCart /> View Cart
             </Link>
+          </div>
+
+          <div className="featured-meta-row">
+            <span className="featured-meta-pill">
+              Showing {productsToRender.length} {productsToRender.length === 1 ? "product" : "products"}
+            </span>
+            {activeCategory !== "All" && (
+              <span className="featured-meta-pill active-filter">
+                Active Filter: {activeCategory}
+              </span>
+            )}
           </div>
 
           {/* Category filter pills */}
@@ -456,8 +500,8 @@ function Home() {
 
           {/* Product grid */}
           <div className="product-grid">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
+            {productsToRender.length > 0 ? (
+              productsToRender.map((product) => (
                 <div className="product-card" key={product.id}>
                   <Link to={`/product/${product.id}`} className="product-img-wrapper">
                     <img
