@@ -1,12 +1,13 @@
 /* ============================================
-   ❤️ WISHLIST PAGE
+   ❤️ WISHLIST PAGE - OBSIDIAN PREMIUM
    ============================================ */
 .wishlist-page {
   padding: 40px 24px;
-  background: #f8fafc;
+  background: #0a0c14; /* Obsidian background */
   min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
+  color: #f1f5f9;
 }
 
 .wishlist-container {
@@ -17,7 +18,7 @@
 .back-link {
   background: none;
   border: none;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -25,18 +26,18 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
   padding: 0;
 }
 
 .back-link:hover {
-  color: #0f172a;
+  color: #c9a84c; /* Gold accent */
 }
 
 .wishlist-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff;
   margin-bottom: 32px;
   letter-spacing: -0.025em;
 }
@@ -45,13 +46,13 @@
   text-align: center;
   padding: 80px;
   font-size: 1.1rem;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .wishlist-error {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 24px;
@@ -68,26 +69,28 @@
   justify-content: center;
   padding: 80px 24px;
   text-align: center;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism card */
+  backdrop-filter: blur(12px);
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .empty-icon {
   font-size: 4rem;
-  color: #e2e8f0;
+  color: rgba(255, 255, 255, 0.2);
   margin-bottom: 24px;
 }
 
 .wishlist-empty-state h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #0f172a;
+  color: #ffffff;
   margin-bottom: 12px;
 }
 
 .wishlist-empty-state p {
-  color: #64748b;
+  color: #94a3b8;
   margin-bottom: 24px;
   font-size: 1rem;
 }
@@ -95,19 +98,22 @@
 .wishlist-browse-btn,
 .wishlist-login-btn {
   padding: 12px 28px;
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
 }
 
 .wishlist-browse-btn:hover,
 .wishlist-login-btn:hover {
-  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
 }
 
 /* ============================================
@@ -120,24 +126,26 @@
 }
 
 .wishlist-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism card */
+  backdrop-filter: blur(12px);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 
 .wishlist-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-color: rgba(201, 168, 76, 0.3); /* Gold border on hover */
 }
 
 .wishlist-img-link {
   display: block;
-  background: #f8fafc;
+  background: rgba(0, 0, 0, 0.2);
   height: 220px;
   display: flex;
   align-items: center;
@@ -149,12 +157,12 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  mix-blend-mode: multiply;
-  transition: transform 0.3s ease;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .wishlist-card:hover .wishlist-img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .wishlist-info {
@@ -165,21 +173,22 @@
 .wishlist-name {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #0f172a;
+  color: #ffffff;
   text-decoration: none;
   display: block;
   margin-bottom: 8px;
   line-height: 1.4;
+  transition: color 0.3s ease;
 }
 
 .wishlist-name:hover {
-  color: #2563eb;
+  color: #c9a84c;
 }
 
 .wishlist-price {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #2563eb;
+  color: #e2c678; /* Light gold price */
 }
 
 /* ============================================
@@ -189,15 +198,15 @@
   display: flex;
   gap: 10px;
   padding: 16px 20px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .add-to-cart-btn {
   flex: 1;
   padding: 10px;
-  background: #0f172a;
-  color: white;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -206,22 +215,25 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-  background: #334155;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
 }
 
 .add-to-cart-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .remove-btn {
-  background: #fee2e2;
-  color: #ef4444;
-  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -229,13 +241,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
   font-size: 0.95rem;
   flex-shrink: 0;
 }
 
 .remove-btn:hover {
-  background: #fecaca;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
 }
 
 @media (max-width: 768px) {

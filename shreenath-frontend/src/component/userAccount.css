@@ -1,240 +1,250 @@
 /* ===========================
-   👤 USER PROFILE PAGE
+   👤 USER PROFILE PAGE - OBSIDIAN PREMIUM
    =========================== */
-   .user-account-page {
-    padding: 40px 24px;
-    min-height: calc(100vh - 80px); /* Subtract navbar height */
-    background: #f8fafc;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .account-container {
-    width: 100%;
-    max-width: 900px;
-  }
-  
-  .page-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 30px;
-    letter-spacing: -0.025em;
-  }
-  
-  /* ===========================
-     PROFILE CARD
-     =========================== */
-  .profile-section {
-    margin-bottom: 30px;
-  }
-  
+.user-account-page {
+  padding: 40px 24px;
+  min-height: calc(100vh - 80px); /* Subtract navbar height */
+  background: #0a0c14; /* Obsidian background */
+  display: flex;
+  justify-content: center;
+  color: #f1f5f9;
+}
+
+.account-container {
+  width: 100%;
+  max-width: 900px;
+}
+
+.page-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 30px;
+  letter-spacing: -0.025em;
+}
+
+/* ===========================
+   PROFILE CARD
+   =========================== */
+.profile-section {
+  margin-bottom: 30px;
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(201, 168, 76, 0.1);
+  border: 2px solid rgba(201, 168, 76, 0.3);
+  color: #c9a84c;
+}
+
+.avatar-icon {
+  font-size: 130px; /* fills the container */
+  color: rgba(201, 168, 76, 0.2);
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-info h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.user-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 1.05rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.role-badge {
+  display: inline-block;
+  background: rgba(201, 168, 76, 0.1);
+  color: #c9a84c;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.empty-state p {
+  color: #94a3b8;
+  font-size: 1.05rem;
+}
+
+/* ===========================
+   DASHBOARD GRID
+   =========================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  border-color: rgba(201, 168, 76, 0.3); /* Gold hover */
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+}
+
+.orders-icon {
+  background: rgba(201, 168, 76, 0.1);
+  color: #c9a84c;
+}
+
+.wishlist-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+}
+
+.admin-icon {
+  background: rgba(139, 92, 246, 0.1);
+  color: #c4b5fd;
+}
+
+.card-content h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.card-content p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* ===========================
+   AUTH SECTION
+   =========================== */
+.auth-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 768px) {
   .profile-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 40px;
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    border: 1px solid #f1f5f9;
-  }
-  
-  .profile-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #f1f5f9;
-    color: #94a3b8;
-  }
-  
-  .avatar-icon {
-    font-size: 130px; /* fills the container */
-    color: #cbd5e1;
-  }
-  
-  .user-info {
-    flex: 1;
-  }
-  
-  .user-info h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 20px;
-  }
-  
-  .user-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-  }
-  
-  .detail-item {
-    display: flex;
     flex-direction: column;
-    gap: 4px;
-  }
-  
-  .detail-label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  .detail-value {
-    font-size: 1.05rem;
-    color: #1e293b;
-    font-weight: 500;
-  }
-  
-  .role-badge {
-    display: inline-block;
-    background: #eff6ff;
-    color: #2563eb;
-    padding: 4px 12px;
-    border-radius: 9999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    width: fit-content;
-  }
-  
-  .empty-state p {
-    color: #64748b;
-    font-size: 1.05rem;
-  }
-  
-  /* ===========================
-     DASHBOARD GRID
-     =========================== */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    text-align: center;
     gap: 24px;
-    margin-bottom: 40px;
+    padding: 30px 20px;
   }
-  
-  .dashboard-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    text-decoration: none;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    transition: all 0.3s ease;
+
+  .user-details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
-  
-  .dashboard-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    border-color: #e2e8f0;
-  }
-  
-  .card-icon {
-    display: flex;
+
+  .detail-item {
     align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    font-size: 1.5rem;
   }
-  
-  .orders-icon {
-    background: #eff6ff;
-    color: #3b82f6;
-  }
-  
-  .wishlist-icon {
-    background: #fef2f2;
-    color: #ef4444;
-  }
-  
-  .admin-icon {
-    background: #f5f3ff;
-    color: #8b5cf6;
-  }
-  
-  .card-content h3 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #0f172a;
-    margin-bottom: 6px;
-  }
-  
-  .card-content p {
-    font-size: 0.9rem;
-    color: #64748b;
-    line-height: 1.5;
-  }
-  
-  /* ===========================
-     AUTH SECTION
-     =========================== */
-  .auth-section {
-    display: flex;
-    justify-content: center;
-    padding-top: 20px;
-    border-top: 1px solid #e2e8f0;
-  }
-  
-  .auth-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 32px;
-    border-radius: 8px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-  }
-  
-  .logout-btn {
-    background: #fee2e2;
-    color: #ef4444;
-  }
-  
-  .logout-btn:hover {
-    background: #fecaca;
-    color: #b91c1c;
-  }
-  
-  .login-btn {
-    background: #2563eb;
-    color: #ffffff;
-  }
-  
-  .login-btn:hover {
-    background: #1d4ed8;
-  }
-  
-  /* ===========================
-     RESPONSIVE
-     =========================== */
-  @media (max-width: 768px) {
-    .profile-card {
-      flex-direction: column;
-      text-align: center;
-      gap: 24px;
-      padding: 30px 20px;
-    }
-  
-    .user-details-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-  
-    .detail-item {
-      align-items: center;
-    }
-  }
+}

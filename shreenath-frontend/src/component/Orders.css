@@ -1,12 +1,13 @@
 /* ============================================
-   📦 ORDERS PAGE
+   📦 ORDERS PAGE - OBSIDIAN PREMIUM
    ============================================ */
 .orders-page {
   padding: 40px 24px;
-  background: #f8fafc;
+  background: #0a0c14; /* Obsidian background */
   min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
+  color: #f1f5f9;
 }
 
 .orders-container {
@@ -17,7 +18,7 @@
 .back-link {
   background: none;
   border: none;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -25,18 +26,18 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
   padding: 0;
 }
 
 .back-link:hover {
-  color: #0f172a;
+  color: #c9a84c; /* Gold hover */
 }
 
 .orders-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff;
   margin-bottom: 32px;
   letter-spacing: -0.025em;
 }
@@ -44,14 +45,14 @@
 .orders-loading {
   text-align: center;
   padding: 60px;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 1rem;
 }
 
 .orders-error {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 8px;
   padding: 14px 18px;
   margin-bottom: 24px;
@@ -67,43 +68,48 @@
   justify-content: center;
   padding: 80px 24px;
   text-align: center;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .empty-icon {
   font-size: 4rem;
-  color: #e2e8f0;
+  color: rgba(255, 255, 255, 0.1);
   margin-bottom: 24px;
 }
 
 .orders-empty h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #0f172a;
+  color: #ffffff;
   margin-bottom: 12px;
 }
 
 .orders-empty p {
-  color: #64748b;
+  color: #94a3b8;
   margin-bottom: 24px;
 }
 
 .orders-action-btn {
   padding: 12px 28px;
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14; /* Dark text for contrast against gold */
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
 }
 
 .orders-action-btn:hover {
-  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
 }
 
 /* ============================================
@@ -116,16 +122,18 @@
 }
 
 .order-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .order-card:hover {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  border-color: rgba(201, 168, 76, 0.3); /* Gold hover border */
 }
 
 /* Header */
@@ -134,8 +142,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  background: #f8fafc;
-  border-bottom: 1px solid #f1f5f9;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .order-header-left {
@@ -146,7 +154,7 @@
 
 .order-number {
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff;
   font-size: 1rem;
 }
 
@@ -158,8 +166,9 @@
 }
 
 .order-status.placed {
-  background: #eff6ff;
-  color: #2563eb;
+  background: rgba(201, 168, 76, 0.1);
+  color: #c9a84c;
+  border: 1px solid rgba(201, 168, 76, 0.2);
 }
 
 .order-meta {
@@ -167,7 +176,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.9rem;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Body */
@@ -181,14 +190,15 @@
   gap: 10px;
   margin-bottom: 20px;
   padding: 12px 16px;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   font-size: 0.9rem;
-  color: #475569;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .address-icon {
-  color: #2563eb;
+  color: #c9a84c;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -196,7 +206,7 @@
 .order-items h4 {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #64748b;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 16px;
@@ -220,7 +230,7 @@
 .order-item-img-wrap {
   width: 60px;
   height: 60px;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -233,7 +243,7 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  mix-blend-mode: multiply;
+  /* mix-blend-mode: multiply; removed for dark theme */
 }
 
 .order-item-info {
@@ -245,12 +255,12 @@
 .order-item-name {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #0f172a;
+  color: #ffffff;
 }
 
 .order-item-price {
   font-size: 0.9rem;
-  color: #2563eb;
+  color: #c9a84c;
   font-weight: 600;
 }
 
@@ -265,18 +275,18 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-top: 1px solid #f1f5f9;
-  background: #f8fafc;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .order-total-label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .order-total-value {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff;
 }

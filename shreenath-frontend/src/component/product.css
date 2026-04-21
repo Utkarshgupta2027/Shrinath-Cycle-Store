@@ -1,205 +1,216 @@
 /* ============================================
-   🛍️ PRODUCT PAGE
+   🛍️ PRODUCT PAGE - OBSIDIAN PREMIUM
    ============================================ */
-   .product-page {
-    padding: 40px 24px;
-    background: #f8fafc;
-    min-height: calc(100vh - 80px);
-    display: flex;
-    justify-content: center;
-  }
-  
-  .product-container {
-    width: 100%;
-    max-width: 1100px;
-  }
-  
-  .back-link {
-    background: none;
-    border: none;
-    color: #64748b;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    transition: color 0.2s ease;
-  }
-  
-  .back-link:hover {
-    color: #0f172a;
-  }
-  
+.product-page {
+  padding: 40px 24px;
+  background: #0a0c14; /* Obsidian background */
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  color: #f1f5f9;
+}
+
+.product-container {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #c9a84c; /* Gold accent */
+}
+
+.product-layout {
+  display: flex;
+  gap: 48px;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism card */
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.product-image-box {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.product-image {
+  width: 100%;
+  max-width: 450px;
+  object-fit: contain;
+  /* mix-blend-mode: multiply; -> remove for dark theme, otherwise images disappear */
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-brand {
+  color: #c9a84c; /* Gold brand */
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.product-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.product-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e2c678; /* Lighter gold for price */
+  margin-bottom: 32px;
+}
+
+.product-description {
+  margin-bottom: 40px;
+}
+
+.product-description h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.product-description p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+/* Buttons */
+.product-buttons {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14; /* Dark text for contrast against gold */
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+}
+
+/* Admin Buttons */
+.admin-actions {
+  display: flex;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.update-btn {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.update-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #c9a84c;
+  color: #c9a84c;
+}
+
+.delete-btn {
+  flex: 1;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  padding: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.loading, .error-box {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
   .product-layout {
-    display: flex;
-    gap: 48px;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    border: 1px solid #f1f5f9;
+    flex-direction: column;
+    padding: 24px;
+    gap: 32px;
   }
-  
-  .product-image-box {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 20px;
-  }
-  
+
   .product-image {
-    width: 100%;
-    max-width: 450px;
-    object-fit: contain;
-    mix-blend-mode: multiply;
+    max-width: 100%;
   }
-  
-  .product-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .product-brand {
-    color: #2563eb;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-  }
-  
-  .product-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 16px;
-    line-height: 1.2;
-  }
-  
-  .product-price {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 32px;
-  }
-  
-  .product-description {
-    margin-bottom: 40px;
-  }
-  
-  .product-description h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #0f172a;
-    margin-bottom: 12px;
-  }
-  
-  .product-description p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #475569;
-  }
-  
-  /* Buttons */
-  .product-buttons {
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .add-btn {
-    width: 100%;
-    padding: 16px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .add-btn:hover {
-    background: #1d4ed8;
-  }
-  
-  /* Admin Buttons */
-  .admin-actions {
-    display: flex;
-    gap: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
-  }
-  
-  .update-btn {
-    flex: 1;
-    background-color: #f1f5f9;
-    color: #0f172a;
-    padding: 12px;
-    border: 1px solid #cbd5e1;
-    font-size: 0.95rem;
-    cursor: pointer;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  
-  .update-btn:hover {
-    background-color: #e2e8f0;
-  }
-  
-  .delete-btn {
-    flex: 1;
-    background-color: #fee2e2;
-    color: #ef4444;
-    padding: 12px;
-    border: 1px solid #fca5a5;
-    font-size: 0.95rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  
-  .delete-btn:hover {
-    background-color: #fecaca;
-  }
-  
-  .loading, .error-box {
-    text-align: center;
-    padding: 40px;
-    font-size: 1.1rem;
-    color: #475569;
-  }
-  
-  @media (max-width: 768px) {
-    .product-layout {
-      flex-direction: column;
-      padding: 24px;
-      gap: 32px;
-    }
-  
-    .product-image {
-      max-width: 100%;
-    }
-  }
+}

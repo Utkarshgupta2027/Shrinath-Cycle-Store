@@ -1,19 +1,27 @@
+/* ===========================
+   ✏️ EDIT PROFILE - OBSIDIAN PREMIUM
+   =========================== */
 .edit-profile-container {
   width: 100%;
   max-width: 500px;
   margin: 60px auto;
   padding: 35px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  backdrop-filter: blur(12px);
   border-radius: 18px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
 }
 
 .edit-profile-container h2 {
   text-align: center;
   font-size: 26px;
+  font-weight: 700;
   margin-bottom: 25px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 10px;
+  color: #ffffff;
 }
 
 .edit-profile-form {
@@ -25,42 +33,60 @@
 .edit-profile-form label {
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: #ffffff;
 }
 
 .edit-profile-form input {
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.edit-profile-form input:focus {
+  border-color: #c9a84c;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
 }
 
 .edit-profile-form input:disabled {
-  background: #f3f4f6;
+  background: rgba(0, 0, 0, 0.2);
+  color: #94a3b8;
   cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.02);
 }
 
 .edit-profile-form button {
   margin-top: 20px;
   padding: 14px;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: white;
+  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
+  color: #0a0c14; /* Dark text for contrast against gold */
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
 }
 
 .edit-profile-form button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
+  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
 }
 
 .success-msg {
   text-align: center;
-  color: #15803d;
+  color: #a3e635; /* Lime green for dark themes */
   font-weight: 600;
   margin-bottom: 15px;
+  background: rgba(132, 204, 22, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(132, 204, 22, 0.3);
 }
