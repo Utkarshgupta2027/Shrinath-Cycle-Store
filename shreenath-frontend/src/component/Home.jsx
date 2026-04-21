@@ -115,7 +115,7 @@ function Home() {
     fetch(`http://localhost:8080/api/wishlist/${user.id}`)
       .then((res) => res.json())
       .then((data) => setWishlistIds(data.map((item) => item.productId)))
-      .catch(() => {});
+      .catch(() => { });
   }, [user?.id]);
 
   const showToast = (msg) => {
@@ -169,7 +169,7 @@ function Home() {
   const filteredProducts = products.filter((p) => {
     const matchSearch = searchQuery
       ? p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.desc?.toLowerCase().includes(searchQuery.toLowerCase())
+      p.desc?.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     const matchCat = activeCategory === "All" ? true : p.category?.toLowerCase() === activeCategory.toLowerCase();
     return matchSearch && matchCat;
@@ -217,7 +217,7 @@ function Home() {
             <div className="hero-stat-divider" />
             <div className="hero-stat"><span className="stat-num">10k+</span><span>Happy Riders</span></div>
             <div className="hero-stat-divider" />
-            <div className="hero-stat"><span className="stat-num">15+</span><span>Years Experience</span></div>
+            <div className="hero-stat"><span className="stat-num">50+</span><span>Years Experience</span></div>
           </div>
         </div>
 
@@ -266,7 +266,7 @@ function Home() {
           <div className="category-cards">
             {[
               { label: "Ladies Cycles", img: ladiesCycle, filter: "Ladies" },
-              { label: "City Cycles",   img: normalCycle,  filter: "City"   },
+              { label: "City Cycles", img: normalCycle, filter: "City" },
               { label: "Mountain / MTB", img: rangerCycle, filter: "Mountain" },
             ].map((c) => (
               <button
@@ -358,7 +358,7 @@ function Home() {
 
                     {/* Star rating (static display, can be dynamic) */}
                     <div className="product-rating">
-                      {[1,2,3,4,5].map((s) => (
+                      {[1, 2, 3, 4, 5].map((s) => (
                         <FaStar key={s} className={s <= 4 ? "star filled" : "star"} />
                       ))}
                       <span className="rating-count">(24)</span>
@@ -418,17 +418,17 @@ function Home() {
             <div className="contact-card">
               <FaMapMarkerAlt className="contact-icon" />
               <h4>Address</h4>
-              <p>Shreenath Cycle Store<br />Main Market Road, Agra<br />Uttar Pradesh – 282001</p>
+              <p>Shreenath Cycle Store<br />Dhanush Chauraha Karwi, Chitrakoot<br />Uttar Pradesh – 210205</p>
             </div>
             <div className="contact-card">
               <FaPhoneAlt className="contact-icon" />
               <h4>Phone</h4>
-              <p>+91 70520 50415<br />Mon – Sat: 9 AM to 8 PM</p>
+              <p>+91 70520 50415<br />Mon – Sun: 9 AM to 8 PM</p>
             </div>
             <div className="contact-card">
               <FaClock className="contact-icon" />
               <h4>Store Hours</h4>
-              <p>Monday – Saturday<br />9:00 AM – 8:00 PM<br />Sunday: 10 AM – 6 PM</p>
+              <p>Monday – Sunday<br />9:00 AM – 8:00 PM<br />Saturday: 10 AM – 6 PM</p>
             </div>
           </div>
         </div>
