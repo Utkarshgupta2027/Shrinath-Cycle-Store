@@ -17,7 +17,14 @@ import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 import "./AdminPanel.css";
 
 const API_BASE = "http://localhost:8080";
-const PRODUCT_CATEGORIES = ["Desi", "Ranger", "Ladies", "Mountain", "Raw Material"];
+const CATEGORY_OPTIONS = {
+  Bicycle: ["Mountain", "City", "Kids", "Ladies", "Sports", "Electric"],
+  Parts: ["Parts", "Spare Parts", "Tyre", "Tube", "Chain", "Brake", "Pedal", "Rim", "Seat", "Handle", "Frame"],
+  Accessories: ["Accessories", "Helmet", "Light", "Lock", "Bottle", "Carrier", "Bag", "Pump", "Bell"],
+  Tools: ["Tools", "Repair Kit", "Wrench", "Spanner", "Allen Key", "Maintenance Kit"],
+  "New Arrivals": ["New Arrivals"],
+};
+const CATEGORY_CHOICES = Object.values(CATEGORY_OPTIONS).flat();
 const ORDER_STATUSES = ["PLACED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
 const INITIAL_PRODUCT_FORM = {
   id: null,
@@ -31,12 +38,37 @@ const INITIAL_PRODUCT_FORM = {
   available: true,
 };
 
+const getErrorMessage = (error, fallbackMessage) => {
+  const responseData = error?.response?.data;
+
+  if (typeof responseData === "string" && responseData.trim()) {
+    return responseData;
+  }
+
+  if (typeof responseData?.message === "string" && responseData.message.trim()) {
+    return responseData.message;
+  }
+
+  if (typeof error?.message === "string" && error.message.trim()) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+};
+
 const formatDateForInput = (value) => {
   if (!value) {
     return "";
   }
 
-  const date = new Date(value);
+  const normalizedValue = String(value).trim();
+  const ddMmYyyyMatch = normalizedValue.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (ddMmYyyyMatch) {
+    const [, dd, mm, yyyy] = ddMmYyyyMatch;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  const date = new Date(normalizedValue);
   if (Number.isNaN(date.getTime())) {
     return "";
   }
@@ -163,15 +195,11 @@ function AdminPanel() {
         analyticsResponse.status === "rejected" ||
         usersResponse.status === "rejected"
       ) {
-        setError("Products loaded, but some admin order analytics could not be loaded.");
+        setError("Products loaded, but some admin dashboard sections could not be loaded.");
       }
     } catch (loadError) {
       console.error(loadError);
-      setError(
-        typeof loadError.response?.data === "string"
-          ? loadError.response.data
-          : "Failed to load admin dashboard data."
-      );
+      setError(getErrorMessage(loadError, "Failed to load admin dashboard data."));
     } finally {
       setLoading(false);
     }
@@ -208,6 +236,14 @@ function AdminPanel() {
       });
     }
   }, [activeSection, isAdmin, loadAnalytics, loadOrders, loadUsers]);
+
+  useEffect(() => {
+    return () => {
+      if (productPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(productPreview);
+      }
+    };
+  }, [productPreview]);
 
   const inventorySummary = useMemo(() => {
     const totalValue = products.reduce(
@@ -268,6 +304,9 @@ function AdminPanel() {
   const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
 
   const openCreateModal = () => {
+    if (productPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(productPreview);
+    }
     setProductForm(INITIAL_PRODUCT_FORM);
     setProductImage(null);
     setProductPreview("");
@@ -280,12 +319,15 @@ function AdminPanel() {
       name: product.name || "",
       brand: product.brand || "",
       desc: product.desc || "",
-      price: product.price || "",
+      price: product.price ?? "",
       category: product.category || "",
-      quantity: product.quantity || "",
+      quantity: product.quantity ?? "",
       releaseDate: formatDateForInput(product.releaseDate),
       available: Boolean(product.available),
     });
+    if (productPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(productPreview);
+    }
     setProductImage(null);
     setProductPreview(`${API_BASE}/api/product/${product.id}/image`);
     setShowProductModal(true);
@@ -296,6 +338,9 @@ function AdminPanel() {
       return;
     }
 
+    if (productPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(productPreview);
+    }
     setShowProductModal(false);
     setProductForm(INITIAL_PRODUCT_FORM);
     setProductImage(null);
@@ -313,8 +358,15 @@ function AdminPanel() {
   const handleProductImageChange = (event) => {
     const file = event.target.files?.[0] || null;
     setProductImage(file);
+    if (productPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(productPreview);
+    }
     if (file) {
       setProductPreview(URL.createObjectURL(file));
+    } else if (productForm.id) {
+      setProductPreview(`${API_BASE}/api/product/${productForm.id}/image`);
+    } else {
+      setProductPreview("");
     }
   };
 
@@ -357,7 +409,7 @@ function AdminPanel() {
 
       if (productForm.id) {
         await axios.put(`${API_BASE}/api/product/${productForm.id}`, formData, {
-          headers: { ...getAuthHeaders(), "Content-Type": "multipart/form-data" },
+          headers: getAuthHeaders(),
         });
       } else {
         await axios.post(`${API_BASE}/api/product`, formData, {
@@ -369,11 +421,7 @@ function AdminPanel() {
       closeProductModal();
     } catch (submitError) {
       console.error(submitError);
-      alert(
-        typeof submitError.response?.data === "string"
-          ? submitError.response.data
-          : "Failed to save product."
-      );
+      alert(getErrorMessage(submitError, "Failed to save product."));
     } finally {
       setSavingProduct(false);
     }
@@ -392,11 +440,7 @@ function AdminPanel() {
       await loadDashboard();
     } catch (deleteError) {
       console.error(deleteError);
-      alert(
-        typeof deleteError.response?.data === "string"
-          ? deleteError.response.data
-          : "Unable to delete product."
-      );
+      alert(getErrorMessage(deleteError, "Unable to delete product."));
     }
   };
 
@@ -411,11 +455,7 @@ function AdminPanel() {
       await loadDashboard();
     } catch (statusError) {
       console.error(statusError);
-      alert(
-        typeof statusError.response?.data === "string"
-          ? statusError.response.data
-          : "Unable to update order."
-      );
+      alert(getErrorMessage(statusError, "Unable to update order."));
     } finally {
       setUpdatingOrderId(null);
     }
@@ -434,11 +474,7 @@ function AdminPanel() {
       await loadDashboard();
     } catch (deleteError) {
       console.error(deleteError);
-      alert(
-        typeof deleteError.response?.data === "string"
-          ? deleteError.response.data
-          : "Unable to delete order."
-      );
+      alert(getErrorMessage(deleteError, "Unable to delete order."));
     } finally {
       setUpdatingOrderId(null);
     }
@@ -989,7 +1025,7 @@ function AdminPanel() {
                     <label className="form-label">Category</label>
                     <select className="form-select" name="category" value={productForm.category} onChange={handleProductChange}>
                       <option value="">Select category</option>
-                      {PRODUCT_CATEGORIES.map((category) => (
+                      {CATEGORY_CHOICES.map((category) => (
                         <option key={category} value={category}>
                           {category}
                         </option>

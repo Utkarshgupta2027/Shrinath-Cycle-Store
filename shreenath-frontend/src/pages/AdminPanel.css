@@ -680,7 +680,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  z-index: 1000;
+  z-index: 2200;
 }
 
 .admin-modal {
@@ -691,6 +691,8 @@
   background: linear-gradient(180deg, #111521 0%, #0c1019 100%);
   border: 1px solid var(--border);
   box-shadow: 0 40px 80px rgba(0, 0, 0, 0.38);
+  position: relative;
+  z-index: 2201;
 }
 
 .wide-modal {

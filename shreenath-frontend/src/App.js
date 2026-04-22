@@ -24,7 +24,8 @@ import AdminPanel from "./pages/AdminPanel.jsx";
 
 function AppLayout() {
   const location = useLocation();
-  const hideNavbar = location.pathname === "/login" || location.pathname === "/register";
+  const hideNavbar = ["/login", "/register", "/addproduct"].includes(location.pathname)
+    || location.pathname.startsWith("/updateproduct/");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
