@@ -98,15 +98,42 @@ function AdminPanel() {
       setError("");
 
       const headers = getAuthHeaders();
-      const [productsResponse, ordersResponse, analyticsResponse] = await Promise.all([
+      const [productsResponse, ordersResponse, analyticsResponse] = await Promise.allSettled([
         axios.get(`${API_BASE}/api/products`),
         axios.get(`${API_BASE}/api/orders/admin`, { headers }),
         axios.get(`${API_BASE}/api/orders/admin/analytics`, { headers }),
       ]);
 
-      setProducts(productsResponse.data || []);
-      setOrders(ordersResponse.data || []);
-      setAnalytics(analyticsResponse.data || null);
+      if (productsResponse.status === "fulfilled") {
+        setProducts(productsResponse.value.data || []);
+      } else {
+        console.error(productsResponse.reason);
+        setProducts([]);
+      }
+
+      if (ordersResponse.status === "fulfilled") {
+        setOrders(ordersResponse.value.data || []);
+      } else {
+        console.error(ordersResponse.reason);
+        setOrders([]);
+      }
+
+      if (analyticsResponse.status === "fulfilled") {
+        setAnalytics(analyticsResponse.value.data || null);
+      } else {
+        console.error(analyticsResponse.reason);
+        setAnalytics(null);
+      }
+
+      if (
+        productsResponse.status === "rejected" &&
+        ordersResponse.status === "rejected" &&
+        analyticsResponse.status === "rejected"
+      ) {
+        setError("Failed to load admin dashboard data.");
+      } else if (ordersResponse.status === "rejected" || analyticsResponse.status === "rejected") {
+        setError("Products loaded, but some admin order analytics could not be loaded.");
+      }
     } catch (loadError) {
       console.error(loadError);
       setError(
@@ -416,7 +443,7 @@ function AdminPanel() {
         {loading ? <div className="admin-loading">Loading dashboard...</div> : null}
         {error ? <div className="admin-error">{error}</div> : null}
 
-        {!loading && !error && (
+        {!loading && (
           <>
             {(activeSection === "overview" || activeSection === "analytics") && analytics ? (
               <>
@@ -524,9 +551,6 @@ function AdminPanel() {
                     <h2>Inventory Management</h2>
                     <p>Search, review stock health, upload, edit, and delete products quickly.</p>
                   </div>
-                  <button className="add-product-btn" onClick={openCreateModal}>
-                    <FaPlus /> Add Product
-                  </button>
                 </div>
 
                 <div className="inventory-summary">
