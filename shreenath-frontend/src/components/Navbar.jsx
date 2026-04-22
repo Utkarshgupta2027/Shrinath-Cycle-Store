@@ -15,7 +15,7 @@ import {
   FaIdBadge,
 } from "react-icons/fa";
 import logo from "../assets/images/logo.png";
-import { getStoredUser, isAdminUser } from "../utils/auth";
+import { clearStoredAuth, getStoredUser, isAdminUser } from "../utils/auth";
 import "../styles/components/Navbar.css";
 
 const Navbar = () => {
@@ -79,10 +79,10 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    clearStoredAuth();
     setShowUserMenu(false);
-    navigate("/login");
+    setMobileOpen(false);
+    navigate("/login", { state: { resetAuthForm: Date.now() } });
   };
 
   const userName = user ? (user.name || user.email || `User #${user.id}`) : null;

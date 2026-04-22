@@ -1,12 +1,21 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import "../styles/components/auth.css";
 
 export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setPhoneNumber("");
+    setPassword("");
+    setShowPassword(false);
+    setMsg("");
+  }, [location.key, location.state]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,6 +50,10 @@ export default function Login() {
       localStorage.setItem("userId", String(data.userId));
       localStorage.setItem("token", data.token);
 
+      setPhoneNumber("");
+      setPassword("");
+      setShowPassword(false);
+      setMsg("");
       setMsg("Login successful");
       setTimeout(() => navigate("/"), 500);
     } catch (err) {
@@ -55,26 +68,41 @@ export default function Login() {
         <h2>Welcome Back</h2>
         <p className="auth-subtitle">Login to your account</p>
 
-        <form onSubmit={handleLogin} className="auth-form">
+        <form onSubmit={handleLogin} className="auth-form" autoComplete="off">
           <div className="input-group">
             <label>Phone Number</label>
             <input
+              type="tel"
+              name="login-phone"
               required
               placeholder="Enter your 10 digit number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
+              autoComplete="off"
+              inputMode="numeric"
             />
           </div>
 
           <div className="input-group">
             <label>Password</label>
-            <input
-              required
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="password-field">
+              <input
+                required
+                name="login-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="auth-submit-btn">Login</button>

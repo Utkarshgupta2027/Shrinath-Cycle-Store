@@ -31,6 +31,10 @@ import hero4 from "../assets/images/hero4.jpeg";
 import ladiesCycle from "../assets/images/ladies.webp";
 import normalCycle from "../assets/images/normal.webp";
 import rangerCycle from "../assets/images/ranger.webp";
+import accesories from "../assets/images/accesories.png";
+import tools from "../assets/images/tools.png";
+import newArrivals from "../assets/images/new_arrivals.png";
+import part from "../assets/images/parts.png";
 import { getStoredUser } from "../utils/auth";
 
 const HERO_SLIDES = [
@@ -90,7 +94,7 @@ const CATEGORY_GROUPS = [
     description: "Frames, tyres, chains, brakes, and essential replacements to keep every ride moving.",
     icon: <FaCogs />,
     accentClass: "parts",
-    image: normalCycle,
+    image: part,
   },
   {
     key: "Accessories",
@@ -98,7 +102,7 @@ const CATEGORY_GROUPS = [
     description: "Helmets, lights, carriers, bottles, and add-ons that make each ride better.",
     icon: <FaGift />,
     accentClass: "accessories",
-    image: ladiesCycle,
+    image: accesories,
   },
   {
     key: "New Arrivals",
@@ -106,7 +110,7 @@ const CATEGORY_GROUPS = [
     description: "Fresh stock and the latest additions from the newest launches in store.",
     icon: <FaRocket />,
     accentClass: "new-arrivals",
-    image: rangerCycle,
+    image: newArrivals,
   },
   {
     key: "Tools",
@@ -114,7 +118,7 @@ const CATEGORY_GROUPS = [
     description: "Repair kits, service tools, and workshop essentials for quick fixes and upkeep.",
     icon: <FaTools />,
     accentClass: "tools",
-    image: normalCycle,
+    image: tools,
   },
 ];
 

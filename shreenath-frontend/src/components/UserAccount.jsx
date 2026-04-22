@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaShoppingBag, FaHeart, FaUserShield, FaSignOutAlt, FaSignInAlt } from "react-icons/fa";
-import { isAdminUser } from "../utils/auth";
+import { clearStoredAuth, isAdminUser } from "../utils/auth";
 import "../styles/components/userAccount.css";
 
 export default function UserAccount() {
@@ -16,11 +16,9 @@ export default function UserAccount() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
+    clearStoredAuth();
     alert("You have been logged out.");
-    navigate("/");
+    navigate("/login", { state: { resetAuthForm: Date.now() } });
   };
 
   const handleLoginRedirect = () => {

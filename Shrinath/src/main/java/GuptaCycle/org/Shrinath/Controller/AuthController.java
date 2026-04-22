@@ -32,15 +32,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-        String identifier = loginRequest.get("phoneNumber");
+        String phoneNumber = loginRequest.get("phoneNumber");
         String password = loginRequest.get("password");
 
-        if (identifier == null || identifier.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Phone number and password are required."));
         }
 
-        User user = authService.authenticate(identifier, password);
+        User user = authService.authenticate(phoneNumber, password);
 
         if (user == null) {
             return ResponseEntity.status(401)

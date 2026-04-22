@@ -57,8 +57,7 @@ public class AuthService {
             return null;
         }
 
-        User user = userRepository.findByPhoneNumber(normalizedPhoneNumber)
-                .orElse(null);
+        User user = userRepository.findByPhoneNumber(normalizedPhoneNumber).orElse(null);
 
         if (user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
             return user;

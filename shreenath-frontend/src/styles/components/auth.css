@@ -76,6 +76,32 @@
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
 }
 
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 78px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #c9a84c;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.password-toggle-btn:hover {
+  color: #e2c678;
+}
+
 .auth-submit-btn {
   margin-top: 10px;
   padding: 16px;

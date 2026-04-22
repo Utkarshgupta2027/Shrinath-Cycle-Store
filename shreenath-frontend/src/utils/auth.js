@@ -20,3 +20,10 @@ export function getAuthHeaders() {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+export function clearStoredAuth() {
+  localStorage.removeItem("user");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("token");
+  sessionStorage.removeItem("authDraft");
+}

@@ -4,7 +4,7 @@ import {
   FaUser, FaLock, FaBell, FaShieldAlt, FaSignOutAlt,
   FaTrash, FaMoon, FaSun, FaChevronRight, FaIdBadge
 } from "react-icons/fa";
-import { getStoredUser } from "../utils/auth";
+import { clearStoredAuth, getStoredUser } from "../utils/auth";
 import "../styles/components/Settings.css";
 
 export default function Settings() {
@@ -17,9 +17,8 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate("/login");
+    clearStoredAuth();
+    navigate("/login", { state: { resetAuthForm: Date.now() } });
   };
 
   const handleSave = () => {
