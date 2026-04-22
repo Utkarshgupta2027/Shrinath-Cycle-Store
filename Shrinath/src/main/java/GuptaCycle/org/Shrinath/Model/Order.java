@@ -22,6 +22,10 @@ public class Order {
 
     private LocalDateTime orderDate = LocalDateTime.now();
 
+    private String status = "PLACED";
+
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
     private List<OrderItem> items;

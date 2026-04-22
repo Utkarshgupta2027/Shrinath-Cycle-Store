@@ -171,6 +171,26 @@
   border: 1px solid rgba(201, 168, 76, 0.2);
 }
 
+.order-status.processing,
+.order-status.shipped {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.24);
+}
+
+.order-status.delivered {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.24);
+}
+
+.order-status.cancelled,
+.order-status.returned {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.24);
+}
+
 .order-meta {
   display: flex;
   align-items: center;

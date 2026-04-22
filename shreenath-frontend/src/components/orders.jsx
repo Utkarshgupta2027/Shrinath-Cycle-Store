@@ -35,6 +35,8 @@ export default function Orders() {
       .finally(() => setLoading(false));
   }, [userId]);
 
+  const getStatusClass = (status) => (status || "PLACED").toLowerCase();
+
   if (!user) {
     return (
       <div className="orders-page">
@@ -78,7 +80,9 @@ export default function Orders() {
               <div className="order-header">
                 <div className="order-header-left">
                   <span className="order-number">Order #{order.id}</span>
-                  <span className="order-status placed">Placed</span>
+                  <span className={`order-status ${getStatusClass(order.status)}`}>
+                    {order.status || "PLACED"}
+                  </span>
                 </div>
                 <div className="order-header-right">
                   <span className="order-meta">
