@@ -1,5 +1,8 @@
 package GuptaCycle.org.Shrinath.Controller;
 
+import GuptaCycle.org.Shrinath.DTO.PasswordChangeRequest;
+import GuptaCycle.org.Shrinath.DTO.UserAccountResponse;
+import GuptaCycle.org.Shrinath.DTO.UserProfileUpdateRequest;
 import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
@@ -72,6 +75,77 @@ public class AuthController {
         return ResponseEntity.ok(authService.getRegisteredUsers());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        String phoneNumber = authorizeAuthenticatedUser(authorizationHeader);
+        if (phoneNumber == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Authentication is required."));
+        }
+
+        try {
+            return ResponseEntity.ok(authService.getAccountSummary(phoneNumber));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/me/profile")
+    public ResponseEntity<?> updateCurrentUserProfile(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
+            @RequestBody UserProfileUpdateRequest request) {
+        String currentPhoneNumber = authorizeAuthenticatedUser(authorizationHeader);
+        if (currentPhoneNumber == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Authentication is required."));
+        }
+
+        try {
+            UserAccountResponse updatedUser = authService.updateAccount(currentPhoneNumber, request);
+            String token = jwtUtils.generateToken(updatedUser.getPhoneNumber());
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Profile updated successfully.",
+                    "token", token,
+                    "user", updatedUser
+            ));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<?> changePassword(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
+            @RequestBody PasswordChangeRequest request) {
+        String phoneNumber = authorizeAuthenticatedUser(authorizationHeader);
+        if (phoneNumber == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Authentication is required."));
+        }
+
+        try {
+            authService.changePassword(phoneNumber, request);
+            return ResponseEntity.ok(Map.of("message", "Password changed successfully."));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deleteCurrentUser(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        String phoneNumber = authorizeAuthenticatedUser(authorizationHeader);
+        if (phoneNumber == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Authentication is required."));
+        }
+
+        try {
+            authService.deleteAccount(phoneNumber);
+            return ResponseEntity.ok(Map.of("message", "Account deleted successfully."));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
     private ResponseEntity<?> authorizeAdmin(String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("message", "Admin authorization is required."));
@@ -88,5 +162,18 @@ public class AuthController {
         }
 
         return null;
+    }
+
+    private String authorizeAuthenticatedUser(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null;
+        }
+
+        String token = authorizationHeader.substring(7);
+        if (!jwtUtils.validateJwtToken(token)) {
+            return null;
+        }
+
+        return jwtUtils.getUserNameFromJwtToken(token);
     }
 }

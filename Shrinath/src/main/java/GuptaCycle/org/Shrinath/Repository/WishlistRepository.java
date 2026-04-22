@@ -25,4 +25,8 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     @Modifying
     @Transactional
     void deleteByProductId(Integer productId);
+
+    @Modifying
+    @Transactional
+    void deleteByUser(User user);
 }
