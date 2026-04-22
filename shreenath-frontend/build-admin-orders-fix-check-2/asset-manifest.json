@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.9ed2476f.css",
+    "main.js": "/static/js/main.8a136b38.js",
+    "static/js/453.a3a676a3.chunk.js": "/static/js/453.a3a676a3.chunk.js",
+    "static/media/accesories.png": "/static/media/accesories.05ab8d597edc4c5ef048.png",
+    "static/media/tools.png": "/static/media/tools.beb17d0e686e7b4daf3d.png",
+    "static/media/new_arrivals.png": "/static/media/new_arrivals.8d09ac3d5aeed12fcde3.png",
+    "static/media/parts.png": "/static/media/parts.0e80c537c739a6773b28.png",
+    "static/media/hero1.webp": "/static/media/hero1.9a4cd8a21b4cae214180.webp",
+    "static/media/hero2.webp": "/static/media/hero2.5c355b73a2e770541bc2.webp",
+    "static/media/hero3.webp": "/static/media/hero3.7bb40ae4be2e032c3c18.webp",
+    "static/media/ranger.webp": "/static/media/ranger.113d46890d65280e1edc.webp",
+    "static/media/ladies.webp": "/static/media/ladies.fc5fd649ac0a6d2c4235.webp",
+    "static/media/normal.webp": "/static/media/normal.37063744780899c5be91.webp",
+    "static/media/logo.png": "/static/media/logo.23983ffb0257e65214a1.png",
+    "index.html": "/index.html",
+    "main.9ed2476f.css.map": "/static/css/main.9ed2476f.css.map",
+    "main.8a136b38.js.map": "/static/js/main.8a136b38.js.map",
+    "453.a3a676a3.chunk.js.map": "/static/js/453.a3a676a3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9ed2476f.css",
+    "static/js/main.8a136b38.js"
+  ]
+}

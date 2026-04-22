@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   FaChartLine,
@@ -92,35 +92,47 @@ function AdminPanel() {
 
   const isAdmin = isAdminUser(user);
 
-  const loadDashboard = async () => {
+  const loadProducts = useCallback(async () => {
+    const productsResponse = await axios.get(`${API_BASE}/api/products`);
+    setProducts(productsResponse.data || []);
+  }, []);
+
+  const loadOrders = useCallback(async () => {
+    const ordersResponse = await axios.get(`${API_BASE}/api/orders/admin`, {
+      headers: getAuthHeaders(),
+    });
+    setOrders(ordersResponse.data || []);
+  }, []);
+
+  const loadAnalytics = useCallback(async () => {
+    const analyticsResponse = await axios.get(`${API_BASE}/api/orders/admin/analytics`, {
+      headers: getAuthHeaders(),
+    });
+    setAnalytics(analyticsResponse.data || null);
+  }, []);
+
+  const loadDashboard = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const headers = getAuthHeaders();
       const [productsResponse, ordersResponse, analyticsResponse] = await Promise.allSettled([
-        axios.get(`${API_BASE}/api/products`),
-        axios.get(`${API_BASE}/api/orders/admin`, { headers }),
-        axios.get(`${API_BASE}/api/orders/admin/analytics`, { headers }),
+        loadProducts(),
+        loadOrders(),
+        loadAnalytics(),
       ]);
 
-      if (productsResponse.status === "fulfilled") {
-        setProducts(productsResponse.value.data || []);
-      } else {
+      if (productsResponse.status === "rejected") {
         console.error(productsResponse.reason);
         setProducts([]);
       }
 
-      if (ordersResponse.status === "fulfilled") {
-        setOrders(ordersResponse.value.data || []);
-      } else {
+      if (ordersResponse.status === "rejected") {
         console.error(ordersResponse.reason);
         setOrders([]);
       }
 
-      if (analyticsResponse.status === "fulfilled") {
-        setAnalytics(analyticsResponse.value.data || null);
-      } else {
+      if (analyticsResponse.status === "rejected") {
         console.error(analyticsResponse.reason);
         setAnalytics(null);
       }
@@ -144,7 +156,7 @@ function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadAnalytics, loadOrders, loadProducts]);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -152,7 +164,25 @@ function AdminPanel() {
     }
 
     loadDashboard();
-  }, [isAdmin]);
+  }, [isAdmin, loadDashboard]);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      return;
+    }
+
+    if (activeSection === "orders" || activeSection === "overview") {
+      loadOrders().catch((error) => {
+        console.error(error);
+      });
+    }
+
+    if (activeSection === "analytics" || activeSection === "overview") {
+      loadAnalytics().catch((error) => {
+        console.error(error);
+      });
+    }
+  }, [activeSection, isAdmin, loadAnalytics, loadOrders]);
 
   const inventorySummary = useMemo(() => {
     const totalValue = products.reduce(
