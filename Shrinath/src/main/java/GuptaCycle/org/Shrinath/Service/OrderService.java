@@ -63,17 +63,11 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUser(Long userId) {
-        return orderRepo.findByUserId(userId);
+        return orderRepo.findByUserIdOrderByOrderDateDesc(userId);
     }
 
     public List<Order> getAllOrders() {
-        return orderRepo.findAll().stream()
-                .sorted((first, second) -> {
-                    LocalDateTime firstDate = first.getOrderDate() == null ? LocalDateTime.MIN : first.getOrderDate();
-                    LocalDateTime secondDate = second.getOrderDate() == null ? LocalDateTime.MIN : second.getOrderDate();
-                    return secondDate.compareTo(firstDate);
-                })
-                .collect(Collectors.toList());
+        return orderRepo.findAllByOrderByOrderDateDesc();
     }
 
     public Order updateOrderStatus(Long orderId, String status) {

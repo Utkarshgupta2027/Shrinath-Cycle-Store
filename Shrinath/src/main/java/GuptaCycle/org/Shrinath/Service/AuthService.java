@@ -1,11 +1,15 @@
 package GuptaCycle.org.Shrinath.Service;
 
+import GuptaCycle.org.Shrinath.DTO.AdminUserSummaryResponse;
 import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -72,6 +76,20 @@ public class AuthService {
 
     public boolean isAdminPhoneNumber(String phoneNumber) {
         return normalize(phoneNumber).equals(normalize(adminPhoneNumber));
+    }
+
+    public List<AdminUserSummaryResponse> getRegisteredUsers() {
+        return userRepository.findAll().stream()
+                .sorted(Comparator.comparing(User::getId))
+                .map(user -> new AdminUserSummaryResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getPhoneNumber(),
+                        user.isVerified(),
+                        isAdminPhoneNumber(user.getPhoneNumber()) ? "ADMIN" : "CUSTOMER"
+                ))
+                .toList();
     }
 
     private String normalize(String value) {

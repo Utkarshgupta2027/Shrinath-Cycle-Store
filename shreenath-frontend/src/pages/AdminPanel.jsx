@@ -75,6 +75,7 @@ function AdminPanel() {
   const user = getStoredUser();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -111,15 +112,23 @@ function AdminPanel() {
     setAnalytics(analyticsResponse.data || null);
   }, []);
 
+  const loadUsers = useCallback(async () => {
+    const usersResponse = await axios.get(`${API_BASE}/api/auth/admin/users`, {
+      headers: getAuthHeaders(),
+    });
+    setUsers(usersResponse.data || []);
+  }, []);
+
   const loadDashboard = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const [productsResponse, ordersResponse, analyticsResponse] = await Promise.allSettled([
+      const [productsResponse, ordersResponse, analyticsResponse, usersResponse] = await Promise.allSettled([
         loadProducts(),
         loadOrders(),
         loadAnalytics(),
+        loadUsers(),
       ]);
 
       if (productsResponse.status === "rejected") {
@@ -137,13 +146,23 @@ function AdminPanel() {
         setAnalytics(null);
       }
 
+      if (usersResponse.status === "rejected") {
+        console.error(usersResponse.reason);
+        setUsers([]);
+      }
+
       if (
         productsResponse.status === "rejected" &&
         ordersResponse.status === "rejected" &&
-        analyticsResponse.status === "rejected"
+        analyticsResponse.status === "rejected" &&
+        usersResponse.status === "rejected"
       ) {
         setError("Failed to load admin dashboard data.");
-      } else if (ordersResponse.status === "rejected" || analyticsResponse.status === "rejected") {
+      } else if (
+        ordersResponse.status === "rejected" ||
+        analyticsResponse.status === "rejected" ||
+        usersResponse.status === "rejected"
+      ) {
         setError("Products loaded, but some admin order analytics could not be loaded.");
       }
     } catch (loadError) {
@@ -156,7 +175,7 @@ function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  }, [loadAnalytics, loadOrders, loadProducts]);
+  }, [loadAnalytics, loadOrders, loadProducts, loadUsers]);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -182,7 +201,13 @@ function AdminPanel() {
         console.error(error);
       });
     }
-  }, [activeSection, isAdmin, loadAnalytics, loadOrders]);
+
+    if (activeSection === "users" || activeSection === "overview") {
+      loadUsers().catch((error) => {
+        console.error(error);
+      });
+    }
+  }, [activeSection, isAdmin, loadAnalytics, loadOrders, loadUsers]);
 
   const inventorySummary = useMemo(() => {
     const totalValue = products.reduce(
@@ -458,6 +483,7 @@ function AdminPanel() {
             { key: "overview", label: "Overview" },
             { key: "inventory", label: "Inventory" },
             { key: "orders", label: "Orders" },
+            { key: "users", label: "Users" },
             { key: "analytics", label: "Analytics" },
           ].map((section) => (
             <button
@@ -490,8 +516,8 @@ function AdminPanel() {
                   </div>
                   <div className="stat-card">
                     <span className="stat-icon"><FaUsers /></span>
-                    <span className="stat-value">{analytics.customerTraffic}</span>
-                    <span className="stat-label">Traffic</span>
+                    <span className="stat-value">{users.length}</span>
+                    <span className="stat-label">Registered Users</span>
                   </div>
                   <div className="stat-card">
                     <span className="stat-icon"><FaUndoAlt /></span>
@@ -796,6 +822,53 @@ function AdminPanel() {
                   ))}
                   {filteredOrders.length === 0 ? (
                     <div className="empty-inline-state">No orders match your current order filters.</div>
+                  ) : null}
+                </div>
+              </section>
+            )}
+
+            {(activeSection === "overview" || activeSection === "users") && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>Registered Users</h2>
+                    <p>All users registered on the website with their mobile numbers.</p>
+                  </div>
+                  <div className="orders-highlight">
+                    <FaUsers />
+                    <span>{users.length} users</span>
+                  </div>
+                </div>
+
+                <div className="admin-table-wrap">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Role</th>
+                        <th>Verified</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((registeredUser) => (
+                        <tr key={registeredUser.id}>
+                          <td>{registeredUser.name || "N/A"}</td>
+                          <td>{registeredUser.email || "N/A"}</td>
+                          <td className="phone-cell">{registeredUser.phoneNumber || "N/A"}</td>
+                          <td>
+                            <span className={`order-status-chip ${getStatusClass(registeredUser.role)}`}>
+                              {registeredUser.role}
+                            </span>
+                          </td>
+                          <td>{registeredUser.verified ? "Yes" : "No"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {users.length === 0 ? (
+                    <div className="empty-inline-state">No registered users found.</div>
                   ) : null}
                 </div>
               </section>

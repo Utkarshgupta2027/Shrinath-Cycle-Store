@@ -4,6 +4,7 @@ import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,5 +59,34 @@ public class AuthController {
                 "email", user.getEmail(),
                 "role", role
         ));
+    }
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<?> getRegisteredUsers(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
+        return ResponseEntity.ok(authService.getRegisteredUsers());
+    }
+
+    private ResponseEntity<?> authorizeAdmin(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("message", "Admin authorization is required."));
+        }
+
+        String token = authorizationHeader.substring(7);
+        if (!jwtUtils.validateJwtToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired token."));
+        }
+
+        String phoneNumber = jwtUtils.getUserNameFromJwtToken(token);
+        if (!authService.isAdminPhoneNumber(phoneNumber)) {
+            return ResponseEntity.status(403).body(Map.of("message", "Only the admin can view registered users."));
+        }
+
+        return null;
     }
 }
