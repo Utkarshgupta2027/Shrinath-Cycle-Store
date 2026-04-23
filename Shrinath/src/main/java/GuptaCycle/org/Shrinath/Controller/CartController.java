@@ -20,6 +20,17 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<?> getCartSummary(
+            @RequestParam Long userId,
+            @RequestParam(required = false) String couponCode) {
+        try {
+            return ResponseEntity.ok(cartService.getCartSummary(userId, couponCode));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(
             @RequestParam Long userId,
@@ -50,6 +61,19 @@ public class CartController {
             @RequestParam Long productId) {
         try {
             return ResponseEntity.ok(cartService.removeItem(userId, productId));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+    @PostMapping("/move-to-wishlist")
+    public ResponseEntity<?> moveToWishlist(
+            @RequestParam Long userId,
+            @RequestParam Long productId) {
+        try {
+            return ResponseEntity.ok(cartService.moveItemToWishlist(userId, productId));
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }

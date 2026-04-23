@@ -29,7 +29,6 @@ import hero1 from "../assets/images/hero1.webp";
 import hero2 from "../assets/images/hero2.webp";
 import hero3 from "../assets/images/hero3.webp";
 import hero4 from "../assets/images/hero4.jpeg";
-import ladiesCycle from "../assets/images/ladies.webp";
 import normalCycle from "../assets/images/normal.webp";
 import rangerCycle from "../assets/images/ranger.webp";
 import accesories from "../assets/images/accesories.png";
