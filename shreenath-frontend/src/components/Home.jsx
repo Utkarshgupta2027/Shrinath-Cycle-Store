@@ -8,6 +8,7 @@ import {
   FaRegHeart,
   FaArrowRight,
   FaStar,
+  FaRegStar,
   FaFire,
   FaChevronLeft,
   FaChevronRight,
@@ -345,6 +346,15 @@ function Home() {
     ? "Browse products based on your selected category and search."
     : "A handpicked mix of our most in-stock and latest products.";
 
+  const renderRatingStars = (value) =>
+    [1, 2, 3, 4, 5].map((star) =>
+      star <= Math.round(value || 0) ? (
+        <FaStar key={star} className="star filled" />
+      ) : (
+        <FaRegStar key={star} className="star" />
+      )
+    );
+
   const slide = HERO_SLIDES[activeSlide];
 
   return (
@@ -587,10 +597,12 @@ function Home() {
 
                     {/* Star rating (static display, can be dynamic) */}
                     <div className="product-rating">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <FaStar key={s} className={s <= 4 ? "star filled" : "star"} />
-                      ))}
-                      <span className="rating-count">(24)</span>
+                      {renderRatingStars(product.averageRating)}
+                      <span className="rating-count">
+                        {product.reviewCount > 0
+                          ? `${(product.averageRating || 0).toFixed(1)} (${product.reviewCount})`
+                          : "No reviews yet"}
+                      </span>
                     </div>
 
                     {product.desc && (

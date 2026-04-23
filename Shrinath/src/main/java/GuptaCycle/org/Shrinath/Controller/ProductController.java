@@ -1,5 +1,6 @@
 package GuptaCycle.org.Shrinath.Controller;
 
+import GuptaCycle.org.Shrinath.DTO.ProductResponse;
 import GuptaCycle.org.Shrinath.Model.Product;
 import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
@@ -24,7 +25,7 @@ public class ProductController {
     private AuthService authService;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
         return new ResponseEntity<>(service.getAllProducts(), HttpStatus.OK);
     }
     @PutMapping("/product/{id}")
@@ -70,8 +71,8 @@ public class ProductController {
 
     // Add this inside ProductController.java
     @GetMapping("/product/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable int id) {
-        Product product = service.getProductById(id);
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable int id) {
+        ProductResponse product = service.getProductResponseById(id);
 
         if (product != null) {
             return new ResponseEntity<>(product, HttpStatus.OK);

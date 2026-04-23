@@ -1,8 +1,10 @@
 package GuptaCycle.org.Shrinath.Service;
 
+import GuptaCycle.org.Shrinath.DTO.ProductResponse;
 import GuptaCycle.org.Shrinath.Model.Product;
 import GuptaCycle.org.Shrinath.Repository.CartItemRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.ReviewRepository;
 import GuptaCycle.org.Shrinath.Repository.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,12 +27,23 @@ public class ProductService {
     @Autowired
     private WishlistRepository wishlistRepo;
 
-    public List<Product> getAllProducts() {
-        return repo.findAll();
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    public List<ProductResponse> getAllProducts() {
+        return repo.findAll()
+                .stream()
+                .map(this::toProductResponse)
+                .toList();
     }
 
     public Product getProductById(int id) {
         return repo.findById(id).orElse(null);
+    }
+
+    public ProductResponse getProductResponseById(int id) {
+        Product product = getProductById(id);
+        return product == null ? null : toProductResponse(product);
     }
 
     public Product addProduct(Product product, MultipartFile imgFile) throws IOException {
@@ -84,7 +97,29 @@ public class ProductService {
         // Remove foreign key dependencies first
         cartItemRepo.deleteByProductId(id);
         wishlistRepo.deleteByProductId(id);
+        reviewRepository.deleteByProductId(id);
         
         repo.deleteById(id);
+    }
+
+    private ProductResponse toProductResponse(Product product) {
+        Double averageRating = reviewRepository.findAverageRatingByProductId(product.getId());
+        long reviewCount = reviewRepository.countByProductId(product.getId());
+
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDesc(),
+                product.getBrand(),
+                product.getPrice(),
+                product.getCategory(),
+                product.getReleaseDate(),
+                product.isAvailable(),
+                product.getQuantity(),
+                product.getImgName(),
+                product.getImgType(),
+                averageRating == null ? 0 : Math.round(averageRating * 10.0) / 10.0,
+                reviewCount
+        );
     }
 }
