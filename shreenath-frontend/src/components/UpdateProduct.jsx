@@ -41,6 +41,8 @@ const UpdateProduct = () => {
 
   const [image, setImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [updateProduct, setUpdateProduct] = useState({
     id: null,
     name: "",
@@ -79,7 +81,7 @@ const UpdateProduct = () => {
         setPreviewUrl(`http://localhost:8080/api/product/${id}/image`);
       } catch (error) {
         console.error("Error fetching product or image:", error);
-        alert("Failed to load product details.");
+        setErrorMessage("Failed to load product details.");
       }
     };
 
@@ -90,11 +92,12 @@ const UpdateProduct = () => {
     e.preventDefault();
 
     if (!isAdmin) {
-      alert("Only the admin can update products.");
+      setErrorMessage("Only the admin can update products.");
       navigate("/");
       return;
     }
 
+    setErrorMessage("");
     const form = new FormData();
 
     if (image) {
@@ -122,11 +125,11 @@ const UpdateProduct = () => {
       await axios.put(`http://localhost:8080/api/product/${id}`, form, {
         headers: { "Content-Type": "multipart/form-data", ...getAuthHeaders() },
       });
-      alert("Product updated successfully!");
+      setStatusMessage("Product updated successfully.");
       navigate("/admin");
     } catch (error) {
       console.error("Error updating:", error.response ? error.response.data : error);
-      alert(error.response?.data || "Failed to update product.");
+      setErrorMessage(error.response?.data || "Failed to update product.");
     }
   };
 
@@ -150,6 +153,8 @@ const UpdateProduct = () => {
         ) : (
           <>
             <h1 className="update-title">Update Product</h1>
+            {statusMessage ? <div className="alert alert-success">{statusMessage}</div> : null}
+            {errorMessage ? <div className="alert alert-danger">{errorMessage}</div> : null}
 
             <form onSubmit={handleSubmit} className="update-form">
               <div className="form-group">

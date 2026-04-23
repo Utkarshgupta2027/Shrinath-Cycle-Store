@@ -1,12 +1,13 @@
 import React, { useState } from "react";
+import { getStoredUser, setStoredUser } from "../utils/auth";
 import "../styles/components/editProfile.css";
 
 export default function EditProfile() {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedUser = getStoredUser();
 
   const [name, setName] = useState(storedUser?.name || "");
   const [email] = useState(storedUser?.email || "");
-  const [phone, setPhone] = useState(storedUser?.phone || "");
+  const [phone, setPhone] = useState(storedUser?.phoneNo || storedUser?.phoneNumber || "");
   const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
@@ -15,10 +16,12 @@ export default function EditProfile() {
     const updatedUser = {
       ...storedUser,
       name,
-      phone,
+      username: name,
+      phoneNo: phone,
+      phoneNumber: phone,
     };
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setStoredUser(updatedUser);
     setMessage("Profile updated successfully!");
   };
 

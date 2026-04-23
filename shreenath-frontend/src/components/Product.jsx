@@ -5,6 +5,7 @@ import AppContext from "../Context/Context";
 import "../styles/components/product.css";
 import axios from "axios";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
+import { confirmAction, copyTextToClipboard } from "../utils/browser";
 import {
   FaArrowLeft,
   FaBicycle,
@@ -150,7 +151,7 @@ const Product = () => {
   };
 
   const handleDelete = async () => {
-    if (!product || !window.confirm(`Delete ${product.name}?`)) {
+    if (!product || !confirmAction(`Delete ${product.name}?`)) {
       return;
     }
 
@@ -158,10 +159,10 @@ const Product = () => {
       await axios.delete(`http://localhost:8080/api/product/${product.id}`, {
         headers: getAuthHeaders(),
       });
-      alert("Product deleted!");
+      setActionMessage("Product deleted.");
       navigate("/admin");
     } catch (err) {
-      alert(
+      setActionMessage(
         err.response?.data ||
           "Failed to delete. The product may be linked to other records."
       );
@@ -172,7 +173,7 @@ const Product = () => {
     const userId = user?.id;
 
     if (!userId) {
-      alert("Please login to add items to cart");
+      setActionMessage("Please login to add items to cart.");
       navigate("/login");
       return false;
     }
@@ -238,7 +239,7 @@ const Product = () => {
     e.preventDefault();
 
     if (!user?.id) {
-      alert("Please login to leave a review.");
+      setReviewStatus("Please login to leave a review.");
       navigate("/login");
       return;
     }
@@ -293,12 +294,12 @@ const Product = () => {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href);
+      } else {
+        await copyTextToClipboard(window.location.href);
         setActionMessage("Product link copied to clipboard.");
       }
     } catch {
-      setActionMessage("Sharing was cancelled.");
+      setActionMessage("Sharing is not available right now.");
     }
   };
 

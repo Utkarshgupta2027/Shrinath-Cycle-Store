@@ -39,6 +39,18 @@ const AddProduct = () => {
   });
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const showSuccess = (message) => {
+    setErrorMessage("");
+    setStatusMessage(message);
+  };
+
+  const showError = (message) => {
+    setStatusMessage("");
+    setErrorMessage(message);
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -56,21 +68,22 @@ const AddProduct = () => {
     e.preventDefault();
 
     if (!isAdmin) {
-      alert("Only the admin can add products.");
+      showError("Only the admin can add products.");
       navigate("/");
       return;
     }
 
     if (!product.name || !product.price || !product.quantity) {
-      alert("Please fill name, price and quantity.");
+      showError("Please fill name, price and quantity.");
       return;
     }
 
     if (!image) {
-      alert("Please upload a product image.");
+      showError("Please upload a product image.");
       return;
     }
 
+    setErrorMessage("");
     setLoading(true);
 
     try {
@@ -98,7 +111,7 @@ const AddProduct = () => {
         headers: getAuthHeaders(),
       });
 
-      alert("Product added successfully");
+      showSuccess("Product added successfully.");
       setProduct({
         name: "",
         brand: "",
@@ -117,7 +130,7 @@ const AddProduct = () => {
         typeof err.response?.data === "string"
           ? err.response.data
           : "Failed to add product. See console for details.";
-      alert(detail);
+      showError(detail);
     } finally {
       setLoading(false);
     }
@@ -130,6 +143,8 @@ const AddProduct = () => {
           <h3>Only the admin can access this page.</h3>
         ) : (
           <form className="row g-3 pt-5" onSubmit={submitHandler}>
+            {statusMessage ? <div className="col-12"><div className="alert alert-success">{statusMessage}</div></div> : null}
+            {errorMessage ? <div className="col-12"><div className="alert alert-danger">{errorMessage}</div></div> : null}
             <div className="col-md-6">
               <label className="form-label"><h6>Name</h6></label>
               <input

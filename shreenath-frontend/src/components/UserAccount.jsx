@@ -31,6 +31,7 @@ import {
   getStoredUser,
   isAdminUser,
   normalizeStoredUser,
+  readStoredJson,
   setStoredUser,
 } from "../utils/auth";
 import "../styles/components/userAccount.css";
@@ -42,12 +43,8 @@ const getAccountStorageKey = (userId, key) => `account:${userId}:${key}`;
 const readStoredList = (userId, key, fallback) => {
   if (!userId) return fallback;
 
-  try {
-    const stored = JSON.parse(localStorage.getItem(getAccountStorageKey(userId, key)) || "null");
-    return Array.isArray(stored) ? stored : fallback;
-  } catch {
-    return fallback;
-  }
+  const stored = readStoredJson(getAccountStorageKey(userId, key), null);
+  return Array.isArray(stored) ? stored : fallback;
 };
 
 const getErrorMessage = (error, fallback) => {
@@ -128,18 +125,17 @@ export default function UserAccount() {
       ])
     );
 
-    try {
-      const savedNotifications = JSON.parse(
-        localStorage.getItem(getAccountStorageKey(user.id, "notifications")) || "null"
-      );
-      if (savedNotifications) {
-        setNotifications({
-          orderUpdates: savedNotifications.orderUpdates ?? true,
-          offers: savedNotifications.offers ?? true,
-          priceDrops: savedNotifications.priceDrops ?? true,
-        });
-      }
-    } catch {
+    const savedNotifications = readStoredJson(
+      getAccountStorageKey(user.id, "notifications"),
+      null
+    );
+    if (savedNotifications) {
+      setNotifications({
+        orderUpdates: savedNotifications.orderUpdates ?? true,
+        offers: savedNotifications.offers ?? true,
+        priceDrops: savedNotifications.priceDrops ?? true,
+      });
+    } else {
       setNotifications({ orderUpdates: true, offers: true, priceDrops: true });
     }
   }, [defaultAddress, user]);

@@ -12,6 +12,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { getStoredUser } from "../utils/auth";
+import { copyTextToClipboard } from "../utils/browser";
 import "../styles/components/Wishlist.css";
 
 const API_BASE = "http://localhost:8080/api";
@@ -195,12 +196,12 @@ export default function Wishlist() {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href);
+      } else {
+        await copyTextToClipboard(window.location.href);
         setMessage("Wishlist link copied to clipboard.");
       }
     } catch {
-      setMessage("Wishlist sharing was cancelled.");
+      setMessage("Wishlist sharing is not available right now.");
     }
   };
 

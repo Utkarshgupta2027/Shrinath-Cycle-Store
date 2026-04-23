@@ -31,8 +31,10 @@ import {
   getAuthHeaders,
   getStoredUser,
   normalizeStoredUser,
+  readStoredJson,
   setStoredUser,
 } from "../utils/auth";
+import { downloadBlob } from "../utils/browser";
 import { applyTheme, getSettingsKey, notifyThemeChange } from "../utils/theme";
 import "../styles/components/Settings.css";
 
@@ -106,7 +108,7 @@ export default function Settings() {
     if (!user?.id || !settingsKey) return;
 
     try {
-      const stored = JSON.parse(localStorage.getItem(settingsKey) || "{}");
+      const stored = readStoredJson(settingsKey, {});
       const nextSettings = {
         ...defaultSettings,
         ...stored,
@@ -328,21 +330,18 @@ export default function Settings() {
   };
 
   const handleExportData = () => {
-    const exportData = {
-      user,
-      settings,
-      exportedAt: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `shreenath-user-data-${user.id}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    showSuccess("User data export prepared.");
+    try {
+      const exportData = {
+        user,
+        settings,
+        exportedAt: new Date().toISOString(),
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      downloadBlob(blob, `shreenath-user-data-${user.id}.json`);
+      showSuccess("User data export prepared.");
+    } catch {
+      showError("Export is not available in this browser right now.");
+    }
   };
 
   const handleLogout = () => {

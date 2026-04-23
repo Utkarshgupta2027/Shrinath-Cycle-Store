@@ -22,6 +22,7 @@ import {
   FaWallet,
 } from "react-icons/fa";
 import { getStoredUser, readStoredJson } from "../utils/auth";
+import { copyTextToClipboard, downloadBlob } from "../utils/browser";
 import "../styles/components/MakePayment.css";
 
 const API_BASE = "http://localhost:8080/api";
@@ -323,13 +324,13 @@ function MakePayment() {
 
   const downloadReceipt = (paymentStatus) => {
     if (!paymentStatus) return;
-    const blob = new Blob([buildReceiptText(paymentStatus)], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `${paymentStatus.receiptId}.txt`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    try {
+      const blob = new Blob([buildReceiptText(paymentStatus)], { type: "text/plain;charset=utf-8" });
+      downloadBlob(blob, `${paymentStatus.receiptId}.txt`);
+      setMessage("Receipt downloaded.");
+    } catch {
+      setMessage("Receipt download is not available right now.");
+    }
   };
 
   const startPayment = () => {
@@ -392,7 +393,7 @@ function MakePayment() {
 
   const copyDemoQr = async () => {
     try {
-      await navigator.clipboard.writeText("upi://pay?pa=shreenathcycles@upi&pn=Shreenath%20Cycle%20Store");
+      await copyTextToClipboard("upi://pay?pa=shreenathcycles@upi&pn=Shreenath%20Cycle%20Store");
       setMessage("Demo UPI QR link copied.");
     } catch {
       setMessage("Could not copy QR link.");

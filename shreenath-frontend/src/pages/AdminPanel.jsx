@@ -14,6 +14,7 @@ import {
   FaWarehouse,
 } from "react-icons/fa";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
+import { confirmAction } from "../utils/browser";
 import "./AdminPanel.css";
 
 const API_BASE = "http://localhost:8080";
@@ -374,12 +375,12 @@ function AdminPanel() {
     event.preventDefault();
 
     if (!productForm.name || !productForm.price || productForm.quantity === "") {
-      alert("Please fill product name, price and quantity.");
+      setError("Please fill product name, price and quantity.");
       return;
     }
 
     if (!productForm.id && !productImage) {
-      alert("Please upload a product image.");
+      setError("Please upload a product image.");
       return;
     }
 
@@ -421,14 +422,14 @@ function AdminPanel() {
       closeProductModal();
     } catch (submitError) {
       console.error(submitError);
-      alert(getErrorMessage(submitError, "Failed to save product."));
+      setError(getErrorMessage(submitError, "Failed to save product."));
     } finally {
       setSavingProduct(false);
     }
   };
 
   const handleDeleteProduct = async (productId, productName) => {
-    if (!window.confirm(`Delete "${productName}"? This cannot be undone.`)) {
+    if (!confirmAction(`Delete "${productName}"? This cannot be undone.`)) {
       return;
     }
 
@@ -440,7 +441,7 @@ function AdminPanel() {
       await loadDashboard();
     } catch (deleteError) {
       console.error(deleteError);
-      alert(getErrorMessage(deleteError, "Unable to delete product."));
+      setError(getErrorMessage(deleteError, "Unable to delete product."));
     }
   };
 
@@ -455,14 +456,14 @@ function AdminPanel() {
       await loadDashboard();
     } catch (statusError) {
       console.error(statusError);
-      alert(getErrorMessage(statusError, "Unable to update order."));
+      setError(getErrorMessage(statusError, "Unable to update order."));
     } finally {
       setUpdatingOrderId(null);
     }
   };
 
   const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm(`Delete order #${orderId}?`)) {
+    if (!confirmAction(`Delete order #${orderId}?`)) {
       return;
     }
 
@@ -474,7 +475,7 @@ function AdminPanel() {
       await loadDashboard();
     } catch (deleteError) {
       console.error(deleteError);
-      alert(getErrorMessage(deleteError, "Unable to delete order."));
+      setError(getErrorMessage(deleteError, "Unable to delete order."));
     } finally {
       setUpdatingOrderId(null);
     }
