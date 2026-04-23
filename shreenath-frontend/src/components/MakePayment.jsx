@@ -21,7 +21,7 @@ import {
   FaUniversity,
   FaWallet,
 } from "react-icons/fa";
-import { getStoredUser } from "../utils/auth";
+import { getStoredUser, readStoredJson } from "../utils/auth";
 import "../styles/components/MakePayment.css";
 
 const API_BASE = "http://localhost:8080/api";
@@ -142,7 +142,7 @@ function MakePayment() {
       return;
     }
 
-    const savedAddressList = JSON.parse(localStorage.getItem(getAccountKey(userId, "addresses")) || "[]");
+    const savedAddressList = readStoredJson(getAccountKey(userId, "addresses"), []);
     if (savedAddressList.length > 0) {
       const primary = savedAddressList[0];
       setDeliveryAddress({
@@ -156,7 +156,7 @@ function MakePayment() {
       });
     }
 
-    const storedMethods = JSON.parse(localStorage.getItem(getAccountKey(userId, "payments")) || "[]");
+    const storedMethods = readStoredJson(getAccountKey(userId, "payments"), []);
     const normalizedMethods = storedMethods.map((method) => ({
       id: method.id,
       label: method.label,
@@ -282,7 +282,7 @@ function MakePayment() {
   const persistSavedMethod = () => {
     if (!saveMethod || !userId) return;
 
-    const existing = JSON.parse(localStorage.getItem(getAccountKey(userId, "payments")) || "[]");
+    const existing = readStoredJson(getAccountKey(userId, "payments"), []);
     let nextMethod = null;
 
     if (selectedMethod === "card") {

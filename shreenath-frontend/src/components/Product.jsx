@@ -196,7 +196,7 @@ const Product = () => {
       if (response.status === 200 || response.status === 201) {
         addToCart(selectedProduct);
         if (shouldCheckout) {
-          navigate("/cart");
+          navigate("/checkout");
         } else {
           setActionMessage(`${selectedProduct.name} added to cart.`);
         }

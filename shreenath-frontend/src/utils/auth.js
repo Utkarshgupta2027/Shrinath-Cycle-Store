@@ -1,15 +1,5 @@
 export function getStoredUser() {
-  const storedUser = localStorage.getItem("user");
-
-  if (!storedUser) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(storedUser);
-  } catch (error) {
-    return null;
-  }
+  return readStoredJson("user", null);
 }
 
 export function normalizeStoredUser(user) {
@@ -38,6 +28,21 @@ export function setStoredUser(user) {
   }
 
   localStorage.setItem("user", JSON.stringify(normalizedUser));
+}
+
+export function readStoredJson(key, fallback = null) {
+  const rawValue = localStorage.getItem(key);
+
+  if (!rawValue) {
+    return fallback;
+  }
+
+  try {
+    return JSON.parse(rawValue);
+  } catch (error) {
+    localStorage.removeItem(key);
+    return fallback;
+  }
 }
 
 export function isAdminUser(user = getStoredUser()) {

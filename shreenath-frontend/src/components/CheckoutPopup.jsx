@@ -14,7 +14,7 @@ import {
   FaTruck,
   FaUniversity,
 } from "react-icons/fa";
-import { getStoredUser } from "../utils/auth";
+import { getStoredUser, readStoredJson } from "../utils/auth";
 import "../styles/components/CheckoutPopup.css";
 
 const API_BASE = "http://localhost:8080/api";
@@ -68,12 +68,13 @@ function CheckoutPopup() {
     deliveryCharges: 0,
     finalTotal: 0,
   });
+  const [pageMessage, setPageMessage] = useState("");
 
   const loadSavedAddresses = useCallback(() => {
     if (!userId) return;
 
-    const accountAddresses = JSON.parse(localStorage.getItem(getAccountKey(userId, "addresses")) || "[]");
-    const settingsData = JSON.parse(localStorage.getItem(getSettingsKey(userId)) || "{}");
+    const accountAddresses = readStoredJson(getAccountKey(userId, "addresses"), []);
+    const settingsData = readStoredJson(getSettingsKey(userId), {});
     const settingsAddresses = Array.isArray(settingsData.addresses) ? settingsData.addresses : [];
     const merged = [...accountAddresses, ...settingsAddresses].filter(Boolean);
     const unique = merged.filter((address, index, list) => (
@@ -159,7 +160,7 @@ function CheckoutPopup() {
         setCartItems(items);
         fetchCartSummary("", items);
       })
-      .catch(() => alert("Could not load your cart. Please go back and try again."))
+      .catch(() => setPageMessage("Could not load your cart. Please go back and try again."))
       .finally(() => setLoadingCart(false));
 
     loadSavedAddresses();
@@ -242,7 +243,7 @@ function CheckoutPopup() {
   const handleSavePaymentMethod = () => {
     if (!userId || !savePaymentMethod) return;
     const key = getAccountKey(userId, "payments");
-    const saved = JSON.parse(localStorage.getItem(key) || "[]");
+    const saved = readStoredJson(key, []);
     const method = PAYMENT_METHODS.find((item) => item.key === paymentMethod);
     if (!method || saved.some((item) => item.id === method.key)) return;
 
@@ -262,7 +263,7 @@ function CheckoutPopup() {
     }
 
     if (cartItems.length === 0) {
-      alert("Your cart is empty. Add some products first.");
+      setPageMessage("Your cart is empty. Add some products first.");
       navigate("/");
       return;
     }
@@ -274,7 +275,7 @@ function CheckoutPopup() {
     }
 
     if (!acceptTerms) {
-      alert("Please accept the terms and policies before placing your order.");
+      setPageMessage("Please accept the terms and policies before placing your order.");
       return;
     }
 
@@ -311,10 +312,10 @@ function CheckoutPopup() {
         setCartItems([]);
       } else {
         const errorMessage = await res.text();
-        alert(errorMessage || "Failed to place order. Please try again.");
+        setPageMessage(errorMessage || "Failed to place order. Please try again.");
       }
     } catch {
-      alert("Network error. Please check your connection.");
+      setPageMessage("Network error. Please check your connection.");
     } finally {
       setPlacing(false);
     }
@@ -345,6 +346,8 @@ function CheckoutPopup() {
             <FaLock /> 256-bit secure order flow
           </div>
         </header>
+
+        {pageMessage && <div className="coupon-message">{pageMessage}</div>}
 
         {confirmation && (
           <div className="order-confirmation">

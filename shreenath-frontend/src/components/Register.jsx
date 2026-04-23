@@ -13,16 +13,19 @@ const INITIAL_FORM_DATA = {
 function Register() {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     setFormData(INITIAL_FORM_DATA);
     setShowPassword(false);
+    setMessage("");
   }, [location.key, location.state]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setMessage("");
 
     try {
       const payload = {
@@ -39,10 +42,10 @@ function Register() {
 
       setFormData(INITIAL_FORM_DATA);
       setShowPassword(false);
-      alert(response.data.message);
-      navigate("/login");
+      setMessage(response.data?.message || "Registration successful.");
+      setTimeout(() => navigate("/login"), 500);
     } catch (error) {
-      alert(
+      setMessage(
         "Registration failed: " +
           (error.response?.data?.message || error.message)
       );
@@ -124,6 +127,8 @@ function Register() {
 
           <button type="submit" className="auth-submit-btn">Register</button>
         </form>
+
+        {message && <p className="auth-message">{message}</p>}
 
         <p className="auth-switch">
           Already have an account? <Link to="/login">Login here</Link>

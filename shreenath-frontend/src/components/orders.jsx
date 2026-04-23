@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { getStoredUser } from "../utils/auth";
 import "../styles/components/Orders.css";
 
 export default function Orders() {
   const navigate = useNavigate();
-  let user = null;
-  try {
-    user = JSON.parse(localStorage.getItem("user"));
-  } catch (error) {
-    user = null;
-  }
+  const user = getStoredUser();
 
   const userId = user?.id;
   const [orders, setOrders] = useState([]);

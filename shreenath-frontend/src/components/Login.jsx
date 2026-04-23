@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { setStoredUser } from "../utils/auth";
 import "../styles/components/auth.css";
 
 export default function Login() {
@@ -31,7 +32,7 @@ export default function Login() {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setMsg(data.message || "Invalid credentials");
@@ -46,7 +47,7 @@ export default function Login() {
         role: data.role,
       };
 
-      localStorage.setItem("user", JSON.stringify(user));
+      setStoredUser(user);
       localStorage.setItem("userId", String(data.userId));
       localStorage.setItem("token", data.token);
 
