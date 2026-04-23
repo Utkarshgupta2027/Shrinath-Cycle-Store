@@ -196,6 +196,32 @@ function Home() {
     scrollToProducts();
   };
 
+  const getListPrice = (product) => {
+    const currentPrice = Number(product?.price || 0);
+    return currentPrice ? Math.round(currentPrice * 1.15) : 0;
+  };
+
+  const getDiscountDetails = (product) => {
+    const currentPrice = Number(product?.price || 0);
+    const listPrice = getListPrice(product);
+    const savings = Math.max(listPrice - currentPrice, 0);
+    const savingsPercent = listPrice > 0 ? Math.round((savings / listPrice) * 100) : 0;
+
+    return { currentPrice, listPrice, savings, savingsPercent };
+  };
+
+  const getStockDetails = (product) => {
+    if (!product.available || product.quantity <= 0) {
+      return { label: "Out of stock", tone: "out", detail: "Currently unavailable for purchase" };
+    }
+
+    if (product.quantity <= 5) {
+      return { label: "Low stock", tone: "low", detail: `Only ${product.quantity} left in stock` };
+    }
+
+    return { label: "In stock", tone: "in", detail: `${product.quantity} units ready to order` };
+  };
+
   const getReleaseTime = (product) => {
     if (!product?.releaseDate) {
       return 0;
@@ -559,7 +585,11 @@ function Home() {
           {/* Product grid */}
           <div className="product-grid">
             {productsToRender.length > 0 ? (
-              productsToRender.map((product) => (
+              productsToRender.map((product) => {
+                const { listPrice, savings, savingsPercent } = getDiscountDetails(product);
+                const stock = getStockDetails(product);
+
+                return (
                 <div className="product-card" key={product.id}>
                   <Link to={`/product/${product.id}`} className="product-img-wrapper">
                     <img
@@ -578,6 +608,10 @@ function Home() {
                     {/* Mock featured for aesthetic purposes */}
                     {product.id % 2 !== 0 && product.quantity > 0 && (
                       <span className="badge badge-hot">🔥 Hot</span>
+                    )}
+
+                    {savingsPercent > 0 && (
+                      <div className="floating-discount-badge">Save {savingsPercent}%</div>
                     )}
 
                     {/* Wishlist */}
@@ -616,6 +650,21 @@ function Home() {
                       )}
                     </div>
 
+                    <div className="product-pricing-note">
+                      {savings > 0 ? (
+                        <span className="product-discount">
+                          Transparent pricing: save Rs. {savings.toLocaleString("en-IN")} versus list price of Rs. {listPrice.toLocaleString("en-IN")}
+                        </span>
+                      ) : (
+                        <span className="product-discount neutral">Transparent pricing: this product is currently listed at its regular price</span>
+                      )}
+                    </div>
+
+                    <div className={`stock-status stock-${stock.tone}`}>
+                      <span className="stock-label">{stock.label}</span>
+                      <span className="stock-detail">{stock.detail}</span>
+                    </div>
+
                     <div className="product-card-actions">
                       <button
                         className="add-to-cart-btn"
@@ -634,7 +683,7 @@ function Home() {
                     </div>
                   </div>
                 </div>
-              ))
+              )})
             ) : (
               <div className="empty-products">
                 <FaFilter />

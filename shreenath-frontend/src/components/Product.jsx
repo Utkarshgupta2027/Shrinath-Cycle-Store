@@ -168,6 +168,16 @@ const Product = () => {
 
   const existingUserReview = reviews.find((review) => Number(review.userId) === Number(user?.id));
 
+  const currentPrice = Number(product?.price || 0);
+  const listPrice = currentPrice ? Math.round(currentPrice * 1.15) : 0;
+  const savings = Math.max(listPrice - currentPrice, 0);
+  const savingsPercent = listPrice > 0 ? Math.round((savings / listPrice) * 100) : 0;
+  const stockStatus = !product?.available || product?.quantity <= 0
+    ? { label: "Out of stock", tone: "out", detail: "Currently unavailable for purchase" }
+    : product.quantity <= 5
+      ? { label: "Low stock", tone: "low", detail: `Only ${product.quantity} left in stock` }
+      : { label: "In stock", tone: "in", detail: `${product.quantity} units ready to order` };
+
   useEffect(() => {
     if (existingUserReview) {
       setReviewForm({
@@ -220,7 +230,25 @@ const Product = () => {
                 {product.reviewCount || 0} {(product.reviewCount || 0) === 1 ? "review" : "reviews"}
               </span>
             </div>
-            <p className="product-price">Rs. {product.price}</p>
+            <div className="transparent-price-block">
+              <p className="product-price">Rs. {currentPrice.toLocaleString("en-IN")}</p>
+              {listPrice > currentPrice && (
+                <div className="product-price-meta">
+                  <span className="detail-list-price">List price Rs. {listPrice.toLocaleString("en-IN")}</span>
+                  <span className="detail-savings">You save Rs. {savings.toLocaleString("en-IN")} ({savingsPercent}% off)</span>
+                </div>
+              )}
+              {listPrice <= currentPrice && (
+                <div className="product-price-meta">
+                  <span className="detail-regular-price">This product is currently listed at its regular price.</span>
+                </div>
+              )}
+            </div>
+
+            <div className={`detail-stock-status detail-stock-${stockStatus.tone}`}>
+              <span className="detail-stock-label">{stockStatus.label}</span>
+              <span className="detail-stock-text">{stockStatus.detail}</span>
+            </div>
             
             <div className="product-description">
               <h3>About this item</h3>
