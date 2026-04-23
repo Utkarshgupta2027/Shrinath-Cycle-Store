@@ -5,6 +5,7 @@ import GuptaCycle.org.Shrinath.Model.Product;
 import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Model.Wishlist;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.ReviewRepository;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
 import GuptaCycle.org.Shrinath.Repository.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class WishlistService {
 
     @Autowired
     private ProductRepo productRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     public void addToWishlist(Long userId, Long productId) {
         User user = userRepository.findById(userId)
@@ -50,13 +54,25 @@ public class WishlistService {
         List<Wishlist> items = wishlistRepository.findByUser(user);
 
         // 3. Map the entities to WishlistProductDTO
-        return items.stream().map(item -> new WishlistProductDTO(
-                item.getId(),                          // wishlistId
-                Long.valueOf(item.getProduct().getId()), // productId
-                item.getProduct().getName(),           // name
-                item.getProduct().getPrice(),          // price
-                "http://localhost:8080/api/product/" + item.getProduct().getId() + "/image" // imageUrl
-        )).collect(Collectors.toList());
+        return items.stream().map(item -> {
+            Product product = item.getProduct();
+            Double averageRating = reviewRepository.findAverageRatingByProductId(product.getId());
+            long reviewCount = reviewRepository.countByProductId(product.getId());
+
+            return new WishlistProductDTO(
+                    item.getId(),
+                    Long.valueOf(product.getId()),
+                    product.getName(),
+                    product.getPrice(),
+                    "http://localhost:8080/api/product/" + product.getId() + "/image",
+                    product.getBrand(),
+                    product.getCategory(),
+                    product.isAvailable(),
+                    product.getQuantity(),
+                    averageRating == null ? 0 : Math.round(averageRating * 10.0) / 10.0,
+                    reviewCount
+            );
+        }).collect(Collectors.toList());
     }
 
     @Transactional
