@@ -49,9 +49,10 @@ public class OrderService {
                 })
                 .collect(Collectors.toList());
 
-        double totalAmount = items.stream()
+        double itemSubtotal = items.stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
                 .sum();
+        double totalAmount = req.getTotalAmount() > 0 ? req.getTotalAmount() : itemSubtotal;
 
         order.setTotalAmount(totalAmount);
         order.setAddress(req.getAddress());
