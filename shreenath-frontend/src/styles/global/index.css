@@ -46,14 +46,14 @@ body.app-theme-dark {
 
 body.app-theme-light {
   color-scheme: light;
-  --app-bg: #eef2f7;
-  --app-bg-soft: #f8fafc;
-  --app-surface: #ffffff;
-  --app-surface-2: #e2e8f0;
-  --app-border: rgba(15, 23, 42, 0.1);
-  --app-text: #0f172a;
-  --app-text-muted: #475569;
-  --app-card-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+  --app-bg: #f6f1e8;
+  --app-bg-soft: #fffaf2;
+  --app-surface: rgba(255, 252, 247, 0.92);
+  --app-surface-2: #efe6d8;
+  --app-border: rgba(92, 73, 48, 0.12);
+  --app-text: #1f2937;
+  --app-text-muted: #5f6b7a;
+  --app-card-shadow: 0 18px 40px rgba(95, 74, 49, 0.08);
   background-color: var(--app-bg);
   color: var(--app-text);
 }
@@ -67,8 +67,11 @@ body.app-theme-light .product-page,
 body.app-theme-light .user-account-page,
 body.app-theme-light .admin-page,
 body.app-theme-light .auth-page {
-  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%) !important;
-  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(201, 168, 76, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 24%),
+    linear-gradient(180deg, #fffaf2 0%, #f2eadf 100%) !important;
+  color: #1f2937;
 }
 
 body.app-theme-light .cart-container,
@@ -80,7 +83,7 @@ body.app-theme-light .product-container,
 body.app-theme-light .account-container,
 body.app-theme-light .admin-container,
 body.app-theme-light .auth-card {
-  color: #0f172a;
+  color: #1f2937;
 }
 
 body.app-theme-light .cart-main-card,
@@ -102,8 +105,8 @@ body.app-theme-light .admin-panel-card,
 body.app-theme-light .stat-card,
 body.app-theme-light .inventory-tile,
 body.app-theme-light .snapshot-card {
-  background: rgba(255, 255, 255, 0.86) !important;
-  border-color: rgba(15, 23, 42, 0.1) !important;
+  background: rgba(255, 251, 245, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.12) !important;
   box-shadow: var(--app-card-shadow);
 }
 
@@ -113,7 +116,331 @@ body.app-theme-light .payment-header,
 body.app-theme-light .wishlist-header,
 body.app-theme-light .account-hero,
 body.app-theme-light .admin-header {
-  background: rgba(255, 255, 255, 0.84) !important;
-  border-color: rgba(15, 23, 42, 0.1) !important;
-  color: #0f172a;
+  background: rgba(255, 249, 241, 0.88) !important;
+  border-color: rgba(92, 73, 48, 0.12) !important;
+  color: #1f2937;
+}
+
+body.app-theme-light .back-link,
+body.app-theme-light .cart-header p,
+body.app-theme-light .checkout-header p,
+body.app-theme-light .wishlist-header p,
+body.app-theme-light .orders-loading,
+body.app-theme-light .empty-cart p,
+body.app-theme-light .wishlist-empty-state p,
+body.app-theme-light .orders-empty p,
+body.app-theme-light .auth-subtitle,
+body.app-theme-light .auth-switch,
+body.app-theme-light .review-login-note,
+body.app-theme-light .review-status,
+body.app-theme-light .review-date,
+body.app-theme-light .delivery-info,
+body.app-theme-light .stock-detail,
+body.app-theme-light .checkout-note,
+body.app-theme-light .delivery-estimate,
+body.app-theme-light .summary-line,
+body.app-theme-light .product-rating-value,
+body.app-theme-light .product-rating-count,
+body.app-theme-light .detail-regular-price,
+body.app-theme-light .fit-note,
+body.app-theme-light .detail-stock-text,
+body.app-theme-light .review-panel-header p,
+body.app-theme-light .review-overview-count,
+body.app-theme-light .wishlist-rating,
+body.app-theme-light .recommendation-empty,
+body.app-theme-light .save-empty,
+body.app-theme-light .support-card-cart p,
+body.app-theme-light .support-card p,
+body.app-theme-light .info-panel p,
+body.app-theme-light .faq-item p,
+body.app-theme-light .order-address,
+body.app-theme-light .order-meta,
+body.app-theme-light .no-items,
+body.app-theme-light .settings-header p,
+body.app-theme-light .settings-section-copy {
+  color: #5f6b7a !important;
+}
+
+body.app-theme-light .cart-header h1,
+body.app-theme-light .checkout-header h1,
+body.app-theme-light .wishlist-header h1,
+body.app-theme-light .orders-title,
+body.app-theme-light .product-title,
+body.app-theme-light .empty-cart h1,
+body.app-theme-light .empty-cart h2,
+body.app-theme-light .wishlist-empty-state h1,
+body.app-theme-light .wishlist-empty-state h2,
+body.app-theme-light .auth-card h2,
+body.app-theme-light .order-confirmation h2,
+body.app-theme-light .section-title h2,
+body.app-theme-light .order-summary-card h2,
+body.app-theme-light .coupon-card h2,
+body.app-theme-light .cart-summary h2,
+body.app-theme-light .support-card-cart h2,
+body.app-theme-light .info-panel h2,
+body.app-theme-light .faq-panel h2,
+body.app-theme-light .support-card h2,
+body.app-theme-light .related-section h2,
+body.app-theme-light .review-panel-header h2,
+body.app-theme-light .review-form-header h3,
+body.app-theme-light .wishlist-section-title h2,
+body.app-theme-light .product-video-card strong,
+body.app-theme-light .section-heading h2,
+body.app-theme-light .cart-section-title h2,
+body.app-theme-light .order-number,
+body.app-theme-light .order-item-name,
+body.app-theme-light .settings-header h1,
+body.app-theme-light .settings-header-user strong,
+body.app-theme-light .settings-toggle-row strong,
+body.app-theme-light .settings-mini-card strong,
+body.app-theme-light .activity-item span {
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .item-name,
+body.app-theme-light .wishlist-name,
+body.app-theme-light .product-link h3,
+body.app-theme-light .product-info h3,
+body.app-theme-light .checkout-item-details h4,
+body.app-theme-light .related-card,
+body.app-theme-light .recommendation-card,
+body.app-theme-light .saved-card,
+body.app-theme-light .spec-item strong,
+body.app-theme-light .policy-list span,
+body.app-theme-light .faq-item,
+body.app-theme-light .trust-card div,
+body.app-theme-light .secure-badges span,
+body.app-theme-light .trust-strip div,
+body.app-theme-light .dropdown-name,
+body.app-theme-light .mobile-user-name {
+  color: #243041 !important;
+}
+
+body.app-theme-light .cart-item,
+body.app-theme-light .saved-card,
+body.app-theme-light .wishlist-card,
+body.app-theme-light .recommendation-card,
+body.app-theme-light .related-card,
+body.app-theme-light .checkout-item,
+body.app-theme-light .saved-address-card,
+body.app-theme-light .checkout-mode-row button,
+body.app-theme-light .delivery-option-grid button,
+body.app-theme-light .payment-method-grid button,
+body.app-theme-light .product-video-card,
+body.app-theme-light .spec-item,
+body.app-theme-light .faq-item,
+body.app-theme-light .review-form,
+body.app-theme-light .review-card,
+body.app-theme-light .no-reviews,
+body.app-theme-light .orders-empty,
+body.app-theme-light .order-card,
+body.app-theme-light .order-header,
+body.app-theme-light .order-footer,
+body.app-theme-light .order-address,
+body.app-theme-light .order-item-img-wrap,
+body.app-theme-light .auth-card,
+body.app-theme-light .wishlist-panel,
+body.app-theme-light .wishlist-recommendations,
+body.app-theme-light .wishlist-empty-state,
+body.app-theme-light .product-layout,
+body.app-theme-light .review-panel,
+body.app-theme-light .faq-panel,
+body.app-theme-light .support-card,
+body.app-theme-light .related-section {
+  background: rgba(255, 253, 248, 0.84) !important;
+  border-color: rgba(92, 73, 48, 0.1) !important;
+  box-shadow: 0 14px 34px rgba(95, 74, 49, 0.08) !important;
+}
+
+body.app-theme-light .cart-item-image-wrapper,
+body.app-theme-light .wishlist-img-link,
+body.app-theme-light .checkout-item-img-wrap,
+body.app-theme-light .product-image-box,
+body.app-theme-light .thumbnail-btn,
+body.app-theme-light .delivery-check,
+body.app-theme-light .review-overview,
+body.app-theme-light .mobile-user-header {
+  background: rgba(239, 230, 216, 0.65) !important;
+  border-color: rgba(92, 73, 48, 0.12) !important;
+}
+
+body.app-theme-light .input-group input,
+body.app-theme-light .coupon-form input,
+body.app-theme-light .address-form-grid input,
+body.app-theme-light .delivery-check input,
+body.app-theme-light .review-textarea,
+body.app-theme-light .details-grid input,
+body.app-theme-light .details-grid select,
+body.app-theme-light .upi-panel input,
+body.app-theme-light .otp-box input {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.14) !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .input-group input::placeholder,
+body.app-theme-light .coupon-form input::placeholder,
+body.app-theme-light .address-form-grid input::placeholder,
+body.app-theme-light .delivery-check input::placeholder,
+body.app-theme-light .review-textarea::placeholder,
+body.app-theme-light .details-grid input::placeholder,
+body.app-theme-light .upi-panel input::placeholder,
+body.app-theme-light .otp-box input::placeholder {
+  color: #8b96a5 !important;
+}
+
+body.app-theme-light .input-group label,
+body.app-theme-light .variant-section h3,
+body.app-theme-light .delivery-check label,
+body.app-theme-light .rating-input-label,
+body.app-theme-light .section-heading span,
+body.app-theme-light .section-heading .support-copy,
+body.app-theme-light .cart-section-title span,
+body.app-theme-light .wishlist-section-title span,
+body.app-theme-light .settings-field span,
+body.app-theme-light .settings-select-row label {
+  color: #5f6b7a !important;
+}
+
+body.app-theme-light .continue-btn,
+body.app-theme-light .move-btn,
+body.app-theme-light .move-cart-btn,
+body.app-theme-light .view-details-btn,
+body.app-theme-light .wishlist-detail-btn,
+body.app-theme-light .price-alert-btn,
+body.app-theme-light .share-row button,
+body.app-theme-light .share-row a,
+body.app-theme-light .update-btn,
+body.app-theme-light .settings-secondary-btn,
+body.app-theme-light .settings-card-actions button,
+body.app-theme-light .theme-choice-row button,
+body.app-theme-light .device-item button,
+body.app-theme-light .modal-cancel {
+  background: rgba(102, 84, 59, 0.06) !important;
+  border-color: rgba(92, 73, 48, 0.12) !important;
+  color: #243041 !important;
+}
+
+body.app-theme-light .checkout-btn,
+body.app-theme-light .share-wishlist-btn,
+body.app-theme-light .wishlist-browse-btn,
+body.app-theme-light .wishlist-login-btn,
+body.app-theme-light .order-confirmation button,
+body.app-theme-light .one-click-btn,
+body.app-theme-light .confirm-order-btn,
+body.app-theme-light .add-btn,
+body.app-theme-light .auth-submit-btn,
+body.app-theme-light .pay-now-btn,
+body.app-theme-light .settings-primary-btn,
+body.app-theme-light .settings-login-btn {
+  box-shadow: 0 12px 24px rgba(168, 116, 26, 0.18) !important;
+}
+
+body.app-theme-light .buy-btn,
+body.app-theme-light .wishlist-buy-btn {
+  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.16) !important;
+}
+
+body.app-theme-light .item-brand,
+body.app-theme-light .product-brand,
+body.app-theme-light .wishlist-brand,
+body.app-theme-light .checkout-eyebrow,
+body.app-theme-light .payment-eyebrow,
+body.app-theme-light .settings-eyebrow {
+  background: rgba(168, 116, 26, 0.1) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .product-category {
+  background: rgba(14, 165, 233, 0.1) !important;
+  color: #0369a1 !important;
+}
+
+body.app-theme-light .product-price,
+body.app-theme-light .wishlist-price-row strong,
+body.app-theme-light .related-card p,
+body.app-theme-light .recommendation-card p,
+body.app-theme-light .saved-card p,
+body.app-theme-light .checkout-item-price,
+body.app-theme-light .item-total strong,
+body.app-theme-light .order-total-value,
+body.app-theme-light .review-overview-score {
+  color: #a8741a !important;
+}
+
+body.app-theme-light .item-price,
+body.app-theme-light .checkout-item-details p,
+body.app-theme-light .detail-list-price,
+body.app-theme-light .wishlist-list-price,
+body.app-theme-light .recommendation-card span,
+body.app-theme-light .related-card span,
+body.app-theme-light .saved-card span,
+body.app-theme-light .spec-item span,
+body.app-theme-light .order-total-label,
+body.app-theme-light .order-items h4 {
+  color: #738093 !important;
+}
+
+body.app-theme-light .location-error,
+body.app-theme-light .orders-error,
+body.app-theme-light .auth-message {
+  background: rgba(208, 93, 98, 0.1) !important;
+  border-color: rgba(208, 93, 98, 0.24) !important;
+  color: #b94a50 !important;
+}
+
+body.app-theme-light .coupon-message,
+body.app-theme-light .wishlist-message,
+body.app-theme-light .cart-message,
+body.app-theme-light .product-action-message {
+  background: rgba(168, 116, 26, 0.08) !important;
+  border-color: rgba(168, 116, 26, 0.18) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .cart-header-badge,
+body.app-theme-light .checkout-header-badge,
+body.app-theme-light .stock-in,
+body.app-theme-light .detail-stock-in,
+body.app-theme-light .wishlist-discount,
+body.app-theme-light .product-discount,
+body.app-theme-light .applied-coupon {
+  background: rgba(47, 143, 107, 0.1) !important;
+  border-color: rgba(47, 143, 107, 0.2) !important;
+  color: #2f8f6b !important;
+}
+
+body.app-theme-light .stock-low,
+body.app-theme-light .detail-stock-low,
+body.app-theme-light .badge-low {
+  background: rgba(200, 138, 31, 0.1) !important;
+  border-color: rgba(200, 138, 31, 0.18) !important;
+  color: #b77912 !important;
+}
+
+body.app-theme-light .stock-out,
+body.app-theme-light .detail-stock-out,
+body.app-theme-light .badge-out {
+  background: rgba(208, 93, 98, 0.1) !important;
+  border-color: rgba(208, 93, 98, 0.18) !important;
+  color: #b94a50 !important;
+}
+
+body.app-theme-light .badge-hot,
+body.app-theme-light .floating-discount-badge,
+body.app-theme-light .featured-meta-pill.active-filter,
+body.app-theme-light .filter-pill:hover,
+body.app-theme-light .price-alert-btn.active,
+body.app-theme-light .price-alert-btn:hover,
+body.app-theme-light .faq-item.active {
+  background: rgba(168, 116, 26, 0.08) !important;
+  border-color: rgba(168, 116, 26, 0.18) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .trust-strip div,
+body.app-theme-light .trust-card div,
+body.app-theme-light .secure-badges span,
+body.app-theme-light .policy-list span {
+  background: transparent !important;
 }
