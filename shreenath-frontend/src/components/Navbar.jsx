@@ -13,10 +13,13 @@ import {
   FaTimes,
   FaChevronDown,
   FaIdBadge,
+  FaBicycle,
 } from "react-icons/fa";
 import logo from "../assets/images/logo.png";
 import { clearStoredAuth, getStoredUser, isAdminUser } from "../utils/auth";
 import "../styles/components/Navbar.css";
+
+const SHOP_CATEGORIES = ["Bicycle", "Parts", "Accessories", "New Arrivals", "Tools"];
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -86,6 +89,11 @@ const Navbar = () => {
   };
 
   const userName = user ? (user.name || user.email || `User #${user.id}`) : null;
+  const isHomePage = location.pathname === "/";
+  const categoryLinks = SHOP_CATEGORIES.map((category) => ({
+    label: category,
+    to: `/?category=${encodeURIComponent(category)}#products`,
+  }));
 
   return (
     <nav className={`global-navbar${scrolled ? " scrolled" : ""}`}>
@@ -109,6 +117,36 @@ const Navbar = () => {
           />
           <button type="submit" className="search-btn">Search</button>
         </form>
+
+        <div className="desktop-menu">
+          <Link to="/" className={`menu-link${location.pathname === "/" ? " active" : ""}`}>
+            Home
+          </Link>
+          <a href={isHomePage ? "#categories" : "/#categories"} className="menu-link">
+            Categories
+          </a>
+          <a href={isHomePage ? "#products" : "/#products"} className="menu-link">
+            Products
+          </a>
+          <a href={isHomePage ? "#contact" : "/#contact"} className="menu-link">
+            Contact
+          </a>
+
+          <div className="menu-dropdown">
+            <button type="button" className="menu-dropdown-trigger">
+              <FaBicycle />
+              Shop
+              <FaChevronDown className="menu-dropdown-chevron" />
+            </button>
+            <div className="menu-dropdown-panel">
+              {categoryLinks.map((item) => (
+                <Link key={item.label} to={item.to} className="menu-dropdown-link">
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Right nav */}
         <ul className="nav-links">
@@ -237,6 +275,17 @@ const Navbar = () => {
           )}
           <nav className="mobile-nav">
             <Link to="/" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Home</Link>
+            <a href={isHomePage ? "#categories" : "/#categories"} className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Categories</a>
+            <a href={isHomePage ? "#products" : "/#products"} className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Products</a>
+            <a href={isHomePage ? "#contact" : "/#contact"} className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Contact</a>
+            <div className="mobile-nav-group">
+              <div className="mobile-nav-group-label">Shop by category</div>
+              {categoryLinks.map((item) => (
+                <Link key={item.label} to={item.to} className="mobile-nav-link mobile-sub-link" onClick={() => setMobileOpen(false)}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
             <Link to="/cart" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
               Cart {cartCount > 0 && <span className="mobile-badge">{cartCount}</span>}
             </Link>

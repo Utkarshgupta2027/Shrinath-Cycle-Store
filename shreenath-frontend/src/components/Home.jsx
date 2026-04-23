@@ -154,6 +154,7 @@ function Home() {
 
   // Handle URL search param
   const searchQuery = new URLSearchParams(location.search).get("search") || "";
+  const categoryQuery = new URLSearchParams(location.search).get("category") || "";
 
   // Fetch products
   useEffect(() => {
@@ -171,6 +172,14 @@ function Home() {
       .then((data) => setWishlistIds(data.map((item) => item.productId)))
       .catch(() => { });
   }, [user?.id]);
+
+  useEffect(() => {
+    if (FILTER_PILLS.includes(categoryQuery)) {
+      setActiveCategory(categoryQuery);
+    } else if (!categoryQuery) {
+      setActiveCategory("All");
+    }
+  }, [categoryQuery]);
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -418,11 +427,24 @@ function Home() {
       </section>
 
       {/* ============ SHOP CATEGORIES ============ */}
-      <section className="categories-section">
+      <section className="categories-section" id="categories">
         <div className="section-container">
           <div className="section-heading">
             <h2>Shop by Category</h2>
-            <p>Browse bicycles, parts, accessories, new arrivals, and tools from one place.</p>
+            <p>Use the quick menu below to jump straight to bicycles, parts, accessories, new arrivals, or tools.</p>
+          </div>
+
+          <div className="category-quick-nav" aria-label="Category quick navigation">
+            {CATEGORY_GROUPS.map((group) => (
+              <button
+                key={group.key}
+                className={`category-quick-link${activeCategory === group.key ? " active" : ""}`}
+                onClick={() => handleCategorySelect(group.key)}
+              >
+                <span className="category-quick-icon">{group.icon}</span>
+                <span>{group.title}</span>
+              </button>
+            ))}
           </div>
 
           <div className="category-group-grid">
@@ -500,12 +522,24 @@ function Home() {
           </div>
 
           {/* Category filter pills */}
-          <div className="filter-pills">
+          <div className="filter-toolbar">
+            <div className="filter-toolbar-copy">
+              <span className="filter-toolbar-label">Quick filters</span>
+              <p>Choose a main category or a bicycle type to narrow the product list.</p>
+            </div>
+            {activeCategory !== "All" && (
+              <button className="clear-filter-btn" onClick={() => setActiveCategory("All")}>
+                Clear Filter
+              </button>
+            )}
+          </div>
+
+          <div className="filter-pills" aria-label="Product category filters">
             {FILTER_PILLS.map((cat) => (
               <button
                 key={cat}
                 className={`filter-pill${activeCategory === cat ? " active" : ""}`}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => handleCategorySelect(cat)}
               >
                 {cat}
               </button>
