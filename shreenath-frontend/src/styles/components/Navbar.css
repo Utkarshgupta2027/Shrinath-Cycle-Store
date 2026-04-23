@@ -43,6 +43,21 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+body.app-theme-light {
+  --nav-bg: rgba(248, 250, 252, 0.88);
+  --nav-bg-scrolled: rgba(255, 255, 255, 0.96);
+  --nav-border: rgba(15, 23, 42, 0.08);
+  --ink: #0f172a;
+  --ink-muted: rgba(15, 23, 42, 0.68);
+  --ink-dim: rgba(15, 23, 42, 0.4);
+  --surface-1: rgba(15, 23, 42, 0.04);
+  --surface-2: rgba(15, 23, 42, 0.08);
+  --surface-hover: rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.16);
+}
+
 /* ── Base ── */
 .global-navbar {
   width: 100%;
@@ -158,6 +173,24 @@
   padding: 8px;
   display: none;
   z-index: 2100;
+}
+
+body.app-theme-light .menu-dropdown-panel,
+body.app-theme-light .user-dropdown,
+body.app-theme-light .mobile-drawer {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+body.app-theme-light .dropdown-header {
+  background:
+    linear-gradient(135deg, rgba(201, 168, 76, 0.1) 0%, rgba(167, 139, 250, 0.06) 100%),
+    #ffffff;
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+body.app-theme-light .nav-badge {
+  border-color: #ffffff;
 }
 
 .menu-dropdown:hover .menu-dropdown-panel {

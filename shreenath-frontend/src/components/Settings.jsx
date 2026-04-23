@@ -33,11 +33,10 @@ import {
   normalizeStoredUser,
   setStoredUser,
 } from "../utils/auth";
+import { applyTheme, getSettingsKey, notifyThemeChange } from "../utils/theme";
 import "../styles/components/Settings.css";
 
 const API_BASE = "http://localhost:8080";
-
-const getSettingsKey = (userId) => `settingsCenter:${userId}`;
 
 const getErrorMessage = (error, fallbackMessage) => {
   const responseData = error?.response?.data;
@@ -55,7 +54,7 @@ const defaultSettings = {
   profileVisible: true,
   orderHistoryVisible: false,
   personalizedOffers: true,
-  theme: "dark",
+  theme: "light",
   language: "English",
   region: "India",
   connectedAccounts: {
@@ -160,8 +159,8 @@ export default function Settings() {
   }, [user]);
 
   useEffect(() => {
-    document.body.classList.toggle("settings-light-mode", settings.theme === "light");
-    return () => document.body.classList.remove("settings-light-mode");
+    applyTheme(settings.theme);
+    notifyThemeChange(settings.theme);
   }, [settings.theme]);
 
   useEffect(() => {
@@ -181,6 +180,10 @@ export default function Settings() {
     setSettings(nextSettings);
     if (settingsKey) {
       localStorage.setItem(settingsKey, JSON.stringify(nextSettings));
+    }
+    if (nextSettings.theme) {
+      applyTheme(nextSettings.theme);
+      notifyThemeChange(nextSettings.theme);
     }
     showSuccess(message);
   };
@@ -343,8 +346,9 @@ export default function Settings() {
   };
 
   const handleLogout = () => {
-    document.body.classList.remove("settings-light-mode");
     clearStoredAuth();
+    applyTheme("dark");
+    notifyThemeChange("dark");
     navigate("/login", { state: { resetAuthForm: Date.now() } });
   };
 
@@ -357,8 +361,9 @@ export default function Settings() {
     try {
       setDeletingAccount(true);
       await axios.delete(`${API_BASE}/api/auth/me`, { headers: getAuthHeaders() });
-      document.body.classList.remove("settings-light-mode");
       clearStoredAuth();
+      applyTheme("dark");
+      notifyThemeChange("dark");
       navigate("/register");
     } catch (error) {
       showError(getErrorMessage(error, "Failed to delete account."));

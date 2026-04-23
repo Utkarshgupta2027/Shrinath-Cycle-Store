@@ -55,10 +55,28 @@
   --font-body: 'DM Sans', sans-serif;
 }
 
+body.app-theme-light {
+  --ink: #0f172a;
+  --ink-muted: rgba(15, 23, 42, 0.72);
+  --ink-dim: rgba(15, 23, 42, 0.48);
+  --obsidian: #f8fafc;
+  --obsidian-2: #eef2f7;
+  --obsidian-3: #ffffff;
+  --obsidian-4: #e2e8f0;
+  --surface-1: rgba(15, 23, 42, 0.04);
+  --surface-2: rgba(15, 23, 42, 0.07);
+  --surface-hover: rgba(15, 23, 42, 0.08);
+  --border: rgba(15, 23, 42, 0.08);
+  --border-gold: rgba(201, 168, 76, 0.24);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 8px 28px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.16);
+}
+
 /* ── Global page reset ── */
 body {
-  background: var(--obsidian);
-  color: var(--ink);
+  background: var(--app-bg, var(--obsidian));
+  color: var(--app-text, var(--ink));
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }

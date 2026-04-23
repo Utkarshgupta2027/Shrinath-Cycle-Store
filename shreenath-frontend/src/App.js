@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import AppProvider from "./Context/AppProvider";
@@ -21,11 +21,30 @@ import Wishlist from "./components/Wishlist.jsx";
 import Settings from "./components/Settings.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
+import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
 
 function AppLayout() {
   const location = useLocation();
   const hideNavbar = ["/login", "/register", "/addproduct"].includes(location.pathname)
     || location.pathname.startsWith("/updateproduct/");
+
+  useEffect(() => {
+    syncThemeFromStorage();
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const syncTheme = () => {
+      syncThemeFromStorage();
+    };
+
+    window.addEventListener("storage", syncTheme);
+    window.addEventListener(THEME_EVENT, syncTheme);
+
+    return () => {
+      window.removeEventListener("storage", syncTheme);
+      window.removeEventListener(THEME_EVENT, syncTheme);
+    };
+  }, []);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
