@@ -805,14 +805,27 @@
     padding: 26px 14px 40px;
   }
 
-  .admin-header,
-  .card-heading,
-  .order-admin-header,
-  .order-admin-meta,
-  .order-admin-actions,
-  .admin-header-actions {
+  .admin-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    padding: 20px;
+  }
+
+  .admin-header-actions {
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-header-actions button {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .admin-title {
+    font-size: 1.8rem;
   }
 
   .admin-stats,
@@ -827,10 +840,11 @@
 
   .admin-table-wrap {
     overflow-x: auto;
+    border-radius: 12px;
   }
 
   .admin-table {
-    min-width: 760px;
+    min-width: 800px;
   }
 
   .chart-bars {
@@ -841,5 +855,29 @@
 
   .behavior-row {
     grid-template-columns: 80px 1fr 32px;
+  }
+
+  .admin-modal {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .modal-footer {
+    padding: 16px;
+    flex-direction: column;
+  }
+
+  .modal-footer button {
+    width: 100%;
   }
 }

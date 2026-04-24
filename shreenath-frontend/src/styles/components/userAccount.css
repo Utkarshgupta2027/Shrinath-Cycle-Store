@@ -529,9 +529,16 @@
   line-height: 1.65;
 }
 
+/* ═══════════════════════════════════════════════
+   📱 RESPONSIVE
+═══════════════════════════════════════════════ */
+
+/* Tablet (980px and down) */
 @media (max-width: 980px) {
   .account-hero {
-    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-columns: 96px 1fr;
+    gap: 20px;
+    padding: 24px;
   }
 
   .account-avatar {
@@ -542,7 +549,8 @@
 
   .account-hero-actions {
     grid-column: 1 / -1;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .account-grid,
@@ -550,9 +558,11 @@
   .grid-form,
   .address-form {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
+/* Mobile (640px and down) */
 @media (max-width: 640px) {
   .user-account-page {
     padding: 24px 14px 44px;
@@ -562,19 +572,31 @@
   .account-panel,
   .account-login-card,
   .logout-section {
-    padding: 18px;
+    padding: 20px;
     border-radius: 20px;
   }
 
-  .account-hero,
-  .account-hero-actions,
-  .personal-details-list,
-  .account-order-card {
+  .account-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .account-avatar {
+    margin: 0 auto;
+  }
+
+  .account-hero-actions {
     grid-template-columns: 1fr;
   }
 
-  .account-hero {
-    text-align: left;
+  .personal-details-list {
+    grid-template-columns: 1fr;
+  }
+
+  .account-order-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .account-section-title,
@@ -582,6 +604,7 @@
   .logout-section {
     align-items: flex-start;
     flex-direction: column;
+    gap: 16px;
   }
 
   .order-detail-actions {
@@ -593,5 +616,17 @@
   .account-secondary-btn,
   .logout-btn {
     width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Small Mobile (480px and down) */
+@media (max-width: 480px) {
+  .user-account-page {
+    padding: 20px 12px 40px;
+  }
+
+  .account-hero h1 {
+    font-size: 2rem;
   }
 }

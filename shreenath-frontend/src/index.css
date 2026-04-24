@@ -6,14 +6,67 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Breakpoints */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1536px;
+
+  /* Global Container */
+  --container-max: 1400px;
+  --container-padding: 32px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --container-padding: 16px;
+  }
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8fafc; /* Very light gray/blue background */
+  background-color: #f8fafc;
   color: #0f172a;
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+}
+
+/* Responsive Utilities */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.hide-on-mobile {
+  @media (max-width: 640px) {
+    display: none !important;
+  }
+}
+
+.hide-on-tablet {
+  @media (max-width: 1024px) {
+    display: none !important;
+  }
+}
+
+.show-on-mobile {
+  display: none !important;
+  @media (max-width: 640px) {
+    display: block !important;
+  }
 }
 
 code {

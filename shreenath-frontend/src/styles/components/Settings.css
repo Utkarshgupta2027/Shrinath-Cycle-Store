@@ -598,10 +598,23 @@ body.settings-light-mode {
   background: #f8fafc;
 }
 
+/* ═══════════════════════════════════════════════
+   📱 RESPONSIVE
+═══════════════════════════════════════════════ */
+
+/* Tablet (980px and down) */
 @media (max-width: 980px) {
-  .settings-grid,
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .settings-inline-form,
-  .settings-address-form,
+  .settings-address-form {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
   .settings-card-grid {
     grid-template-columns: 1fr;
   }
@@ -609,6 +622,7 @@ body.settings-light-mode {
   .settings-header {
     align-items: flex-start;
     flex-direction: column;
+    padding: 24px;
   }
 
   .settings-header-user {
@@ -617,6 +631,7 @@ body.settings-light-mode {
   }
 }
 
+/* Mobile (640px and down) */
 @media (max-width: 640px) {
   .settings-page {
     padding: 24px 14px 44px;
@@ -626,7 +641,7 @@ body.settings-light-mode {
   .settings-section,
   .settings-login-prompt,
   .modal-box {
-    padding: 18px;
+    padding: 20px;
     border-radius: 20px;
   }
 
@@ -634,19 +649,39 @@ body.settings-light-mode {
   .danger-actions {
     align-items: flex-start;
     flex-direction: column;
+    gap: 16px;
   }
 
   .settings-select-row,
   .theme-choice-row,
   .modal-actions {
     grid-template-columns: 1fr;
-    flex-direction: column;
+    gap: 12px;
   }
 
   .settings-primary-btn,
   .settings-secondary-btn,
   .modal-delete,
-  .modal-cancel {
+  .modal-cancel,
+  .settings-login-btn {
     width: 100%;
+    justify-content: center;
+  }
+
+  .settings-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}
+
+/* Small Mobile (480px and down) */
+@media (max-width: 480px) {
+  .settings-page {
+    padding: 20px 12px 40px;
+  }
+
+  .settings-header h1 {
+    font-size: 2rem;
   }
 }

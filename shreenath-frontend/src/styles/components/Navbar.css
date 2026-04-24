@@ -919,44 +919,104 @@ body.app-theme-light .nav-badge {
 /* ════════════════════════════════
    RESPONSIVE
 ════════════════════════════════ */
-@media (max-width: 900px) {
-  .search-form {
-    max-width: 260px;
+
+/* Laptop / Large Tablet (1024px and down) */
+@media (max-width: 1024px) {
+  .nav-container {
+    padding: 0 20px;
+    gap: 16px;
   }
 
+  .search-form {
+    max-width: 320px;
+  }
+
+  .desktop-menu {
+    gap: 4px;
+  }
+
+  .menu-link,
+  .menu-dropdown-trigger {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablet (900px and down) */
+@media (max-width: 900px) {
   .search-btn {
     display: none;
+  }
+
+  .search-form {
+    max-width: 220px;
   }
 
   .user-name-chip {
     display: none;
   }
 
-  .desktop-menu {
-    gap: 6px;
-  }
-
-  .menu-link,
-  .menu-dropdown-trigger {
-    padding: 9px 10px;
-    font-size: 0.78rem;
+  .nav-links {
+    gap: 12px;
   }
 }
 
-@media (max-width: 640px) {
+/* Small Tablet / Mobile (768px and down) */
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none;
+  }
+
   .search-form {
     display: none;
   }
 
-  .desktop-menu {
-    display: none;
+  /* Show hamburger but keep cart/wishlist icons */
+  .mobile-menu-btn {
+    display: flex;
+    order: 4;
   }
 
   .nav-links {
-    display: none;
+    margin-left: auto;
+    gap: 8px;
   }
 
-  .mobile-menu-btn {
-    display: flex;
+  .nav-icon-link {
+    padding: 6px;
+    font-size: 1.15rem;
+  }
+
+  .logo {
+    height: 38px;
+  }
+}
+
+/* Mobile (480px and down) */
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0 16px;
+  }
+
+  .nav-links li:not(.user-menu-wrapper) {
+    display: none; /* Hide icons to give space to logo and user menu on very small screens */
+  }
+
+  .nav-links {
+    gap: 8px;
+  }
+
+  .user-menu-trigger {
+    padding: 3px;
+    border-radius: 50%;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .chevron {
+    display: none;
   }
 }

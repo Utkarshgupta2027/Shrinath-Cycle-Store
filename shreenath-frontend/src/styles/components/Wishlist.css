@@ -466,37 +466,22 @@
   }
 
   .wishlist-img-link {
-    width: 130px;
-    height: 130px;
+  .wishlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 
-  .wishlist-actions {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .recommendation-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .wishlist-page-title {
+    font-size: 2.5rem;
   }
 }
 
+/* Mobile (640px and down) */
 @media (max-width: 640px) {
   .wishlist-page {
     padding: 24px 14px 44px;
   }
 
-  .wishlist-header,
-  .wishlist-panel,
-  .wishlist-empty-state,
-  .wishlist-recommendations {
-    padding: 18px;
-    border-radius: 20px;
-  }
-
-  .wishlist-header,
-  .wishlist-section-title {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .share-wishlist-btn {
