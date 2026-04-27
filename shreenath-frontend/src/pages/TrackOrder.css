@@ -1,0 +1,251 @@
+.track-page {
+  padding: 40px 24px;
+  background: #0a0c14;
+  min-height: calc(100vh - 80px);
+  color: #f1f5f9;
+}
+
+.track-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.track-container.loading,
+.track-container.error {
+  text-align: center;
+  padding: 100px 24px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  transition: color 0.3s;
+}
+
+.back-btn:hover {
+  color: #c9a84c;
+}
+
+.track-header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.order-date {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+.tracking-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 48px;
+  padding: 20px 0;
+  position: relative;
+}
+
+.timeline-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-icon-wrap {
+  width: 50px;
+  height: 50px;
+  background: #1e293b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #64748b;
+  margin-bottom: 12px;
+  border: 2px solid #334155;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.timeline-step.completed .step-icon-wrap {
+  background: rgba(201, 168, 76, 0.1);
+  color: #c9a84c;
+  border-color: #c9a84c;
+}
+
+.timeline-step.current .step-icon-wrap {
+  box-shadow: 0 0 15px rgba(201, 168, 76, 0.4);
+  transform: scale(1.1);
+}
+
+.check-mark {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #0a0c14;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.step-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.step-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.timeline-step.completed .step-label {
+  color: #f1f5f9;
+}
+
+.current-badge {
+  font-size: 0.7rem;
+  color: #c9a84c;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.step-line {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: #334155;
+  z-index: -1;
+}
+
+.timeline-step.completed .step-line {
+  background: #c9a84c;
+}
+
+.order-summary-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 32px;
+}
+
+.order-summary-card h3 {
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summary-row span:first-child {
+  color: #94a3b8;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.placed { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+.status-badge.processing { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+.status-badge.shipped { background: rgba(139, 92, 246, 0.1); color: #a78bfa; }
+.status-badge.delivered { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+
+.track-address {
+  max-width: 60%;
+  text-align: right;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.summary-items {
+  margin-top: 24px;
+}
+
+.summary-items h4 {
+  margin-bottom: 16px;
+  color: #94a3b8;
+}
+
+.track-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.track-total {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 1.1rem;
+}
+
+.cancelled-status {
+  text-align: center;
+  padding: 40px;
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.1);
+  margin-bottom: 32px;
+}
+
+.cancel-icon {
+  font-size: 3rem;
+  color: #fca5a5;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+  .tracking-timeline {
+    flex-direction: column;
+    gap: 32px;
+    padding-left: 20px;
+  }
+  
+  .timeline-step {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .step-line {
+    width: 2px;
+    height: 100%;
+    top: 50px;
+    left: 25px;
+  }
+  
+  .step-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

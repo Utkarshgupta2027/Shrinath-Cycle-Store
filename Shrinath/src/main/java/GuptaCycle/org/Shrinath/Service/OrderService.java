@@ -67,6 +67,11 @@ public class OrderService {
         return orderRepo.findByUserIdOrderByOrderDateDesc(userId);
     }
 
+    public Order getOrderById(Long orderId) {
+        return orderRepo.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
+    }
+
     public List<Order> getAllOrders() {
         return orderRepo.findAllByOrderByOrderDateDesc();
     }

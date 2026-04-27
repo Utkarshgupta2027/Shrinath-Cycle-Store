@@ -21,6 +21,7 @@ import Wishlist from "./components/Wishlist.jsx";
 import Settings from "./components/Settings.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
+import TrackOrder from "./pages/TrackOrder.jsx";
 import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
 
 function AppLayout() {
@@ -66,6 +67,7 @@ function AppLayout() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/track/:orderId" element={<TrackOrder />} />
         </Routes>
       </div>
       <Footer />

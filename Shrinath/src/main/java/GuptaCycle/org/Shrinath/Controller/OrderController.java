@@ -42,6 +42,15 @@ public class OrderController {
         return orderService.getOrdersByUser(userId);
     }
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
+        try {
+            return ResponseEntity.ok(orderService.getOrderById(orderId));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
     @GetMapping("/admin")
     public ResponseEntity<?> getAllOrders(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);

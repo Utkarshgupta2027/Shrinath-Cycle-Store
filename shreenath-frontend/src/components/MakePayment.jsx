@@ -189,7 +189,7 @@ function MakePayment() {
         setMessage("Could not load your cart right now. Check backend connection.");
       })
       .finally(() => setLoadingCart(false));
-  }, [user?.name, user?.phoneNo, user?.phoneNumber, user?.username, userId]);
+  }, [user?.name, user?.phoneNo, user?.phoneNumber, user?.username, userId, navigate, orderFromState]);
 
   const subtotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0),

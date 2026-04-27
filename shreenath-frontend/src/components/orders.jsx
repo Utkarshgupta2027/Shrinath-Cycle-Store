@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo } from "react-icons/fa";
 import { getStoredUser } from "../utils/auth";
@@ -16,7 +16,7 @@ export default function Orders() {
   const [newAddress, setNewAddress] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchOrders = () => {
+  const fetchOrders = useCallback(() => {
     if (!userId) return;
     setLoading(true);
     fetch(`http://localhost:8080/api/orders/user/${userId}`)
@@ -27,11 +27,11 @@ export default function Orders() {
       .then(setOrders)
       .catch(() => setError("Unable to load your orders. Please try again."))
       .finally(() => setLoading(false));
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchOrders();
-  }, [userId]);
+  }, [fetchOrders]);
 
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
@@ -229,6 +229,12 @@ export default function Orders() {
                 </div>
                 
                 <div className="order-actions-section">
+                  <button 
+                    className="track-order-btn" 
+                    onClick={() => navigate(`/track/${order.id}`)}
+                  >
+                    Track Order
+                  </button>
                   {(order.status === "PLACED" || order.status === "PROCESSING" || !order.status) && (
                     <button 
                       className="cancel-order-btn" 
