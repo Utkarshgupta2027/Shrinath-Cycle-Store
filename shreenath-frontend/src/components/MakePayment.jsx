@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaArrowLeft,
   FaBolt,
@@ -93,6 +93,8 @@ const maskCardNumber = (value) => {
 function MakePayment() {
   const navigate = useNavigate();
   const user = getStoredUser();
+  const location = useLocation();
+  const orderFromState = location.state?.order;
   const userId = user?.id;
 
   const [cartItems, setCartItems] = useState([]);
@@ -140,6 +142,12 @@ function MakePayment() {
     if (!userId) {
       setLoadingCart(false);
       setMessage("Please login to complete payment.");
+      return;
+    }
+
+    if (!orderFromState) {
+      setMessage("No order details found. Redirecting to cart...");
+      setTimeout(() => navigate("/cart"), 2000);
       return;
     }
 
@@ -202,7 +210,9 @@ function MakePayment() {
 
   const convenienceFee = selectedMethod === "card" ? 49 : 0;
   const deliveryFee = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
-  const totalPayable = Math.max(subtotal - couponDiscount - walletApplied + convenienceFee + deliveryFee, 0);
+  
+  // Use amount from order state if available to ensure consistency
+  const totalPayable = orderFromState?.totalAmount || Math.max(subtotal - couponDiscount - walletApplied + convenienceFee + deliveryFee, 0);
   const codAllowed = totalPayable > 0 && totalPayable <= COD_LIMIT;
   const emiAllowed = totalPayable >= HIGH_VALUE_EMI_THRESHOLD;
   const fraudRisk = totalPayable >= 20000 || selectedMethod === "card";
@@ -375,11 +385,46 @@ function MakePayment() {
         gateway,
       };
 
-      persistSavedMethod();
-      setResult(paymentStatus);
-      setPaymentState("success");
-      setOtpRequired(false);
-      setLoadingMessage("");
+      // Place the actual order in the backend now that payment is "confirmed"
+      if (orderFromState) {
+        const finalOrder = {
+          ...orderFromState,
+          // Update address with payment info if not already there
+          address: orderFromState.address.includes("Payment:") 
+            ? orderFromState.address 
+            : `${orderFromState.address} | Payment: ${paymentStatus.method}`
+        };
+
+        fetch(`${API_BASE}/orders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(finalOrder),
+        })
+        .then(res => {
+          if (res.ok) {
+            fetch(`${API_BASE}/cart/clear?userId=${userId}`, { method: "DELETE" }).catch(() => {});
+            persistSavedMethod();
+            setResult(paymentStatus);
+            setPaymentState("success");
+            setOtpRequired(false);
+            setLoadingMessage("");
+          } else {
+            return res.text().then(text => { throw new Error(text || "Backend order failed"); });
+          }
+        })
+        .catch(err => {
+          setPaymentState("failed");
+          setMessage(`Payment processed but order placement failed: ${err.message}`);
+          setLoadingMessage("");
+        });
+      } else {
+        // Fallback for unexpected cases
+        persistSavedMethod();
+        setResult(paymentStatus);
+        setPaymentState("success");
+        setOtpRequired(false);
+        setLoadingMessage("");
+      }
     }, 2200);
   };
 

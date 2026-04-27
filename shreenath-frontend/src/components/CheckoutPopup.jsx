@@ -256,6 +256,16 @@ function CheckoutPopup() {
     );
   };
 
+  const validateForm = () => {
+    if (!addressForm.name.trim()) return "Receiver name is required.";
+    if (!addressForm.phone.trim()) return "Phone number is required.";
+    if (!addressForm.line1.trim()) return "Address line is required.";
+    if (!addressForm.city.trim()) return "City is required.";
+    if (!addressForm.state.trim()) return "State is required.";
+    if (!addressForm.pincode.trim()) return "Pincode is required.";
+    return "";
+  };
+
   const handleConfirm = async () => {
     if (!userId) {
       navigate("/login");
@@ -268,9 +278,12 @@ function CheckoutPopup() {
       return;
     }
 
-    const finalAddress = getFullAddress();
-    if (!finalAddress.trim()) {
-      setLocationError("Please provide a delivery address.");
+    const validationError = validateForm();
+    if (validationError) {
+      setLocationError(validationError);
+      // Scroll to address section if needed or just show error
+      const element = document.querySelector(".address-form-grid");
+      if (element) element.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
@@ -279,6 +292,7 @@ function CheckoutPopup() {
       return;
     }
 
+    const finalAddress = getFullAddress();
     const order = {
       userId,
       totalAmount: finalTotal,
@@ -290,6 +304,12 @@ function CheckoutPopup() {
       })),
       address: `${finalAddress} | Delivery: ${DELIVERY_OPTIONS[deliveryOption].label} | Payment: ${PAYMENT_METHODS.find((method) => method.key === paymentMethod)?.label}`,
     };
+
+    // If not COD, go to MakePayment page
+    if (paymentMethod !== "cod") {
+      navigate("/makepayment", { state: { order } });
+      return;
+    }
 
     setPlacing(true);
     try {
