@@ -113,6 +113,11 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrderPost(@PathVariable Long orderId) {
+        return cancelOrder(orderId);
+    }
+
     private ResponseEntity<?> authorizeAdmin(String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

@@ -38,18 +38,24 @@ export default function Orders() {
 
     setActionLoading(true);
     try {
+      console.log(`Attempting to cancel order ${orderId}...`);
       const res = await fetch(`http://localhost:8080/api/orders/${orderId}/cancel`, {
         method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}), // Some servers require a body for PUT
       });
+      
       if (res.ok) {
         alert("Order cancelled successfully.");
         fetchOrders();
       } else {
         const msg = await res.text();
-        alert(msg || "Failed to cancel order.");
+        console.error("Cancel order failed:", res.status, msg);
+        alert(`Failed to cancel order (${res.status}): ${msg || "Server error"}`);
       }
     } catch (err) {
-      alert("Network error. Could not cancel order.");
+      console.error("Network error cancelling order:", err);
+      alert("Network error. Could not connect to the server to cancel order.");
     } finally {
       setActionLoading(false);
     }
