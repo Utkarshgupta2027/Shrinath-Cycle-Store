@@ -89,6 +89,33 @@ public class OrderService {
         orderRepo.delete(order);
     }
 
+    public Order updateOrderAddress(Long orderId, String newAddress) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
+
+        if (!"PLACED".equals(order.getStatus())) {
+            throw new IllegalArgumentException("Address can only be updated for orders in PLACED status.");
+        }
+
+        order.setAddress(newAddress);
+        order.setUpdatedAt(LocalDateTime.now());
+        return orderRepo.save(order);
+    }
+
+    public Order cancelOrder(Long orderId) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
+
+        String currentStatus = defaultStatus(order.getStatus());
+        if (!"PLACED".equals(currentStatus) && !"PROCESSING".equals(currentStatus)) {
+            throw new IllegalArgumentException("Orders can only be cancelled before they are shipped.");
+        }
+
+        order.setStatus("CANCELLED");
+        order.setUpdatedAt(LocalDateTime.now());
+        return orderRepo.save(order);
+    }
+
     public AdminAnalyticsResponse getAdminAnalytics() {
         List<Order> orders = orderRepo.findAll();
         long totalOrders = orders.size();

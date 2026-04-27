@@ -310,3 +310,127 @@
   font-weight: 700;
   color: #ffffff;
 }
+
+/* ============================================
+   NEW ACTION BUTTONS
+   ============================================ */
+.order-actions-section {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel-order-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.cancel-order-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+.cancel-order-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.address-display-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
+}
+
+.edit-addr-btn {
+  background: none;
+  border: none;
+  color: #c9a84c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.edit-addr-btn:hover {
+  background: rgba(201, 168, 76, 0.1);
+}
+
+.address-edit-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.address-edit-input {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.9rem;
+  width: 100%;
+  resize: vertical;
+  outline: none;
+}
+
+.address-edit-input:focus {
+  border-color: #c9a84c;
+}
+
+.address-edit-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-addr-btn {
+  background: #c9a84c;
+  color: #0a0c14;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cancel-addr-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.save-addr-btn:hover {
+  background: #e2c678;
+}
+
+.cancel-addr-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

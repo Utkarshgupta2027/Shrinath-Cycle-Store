@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -89,6 +89,25 @@ public class OrderController {
         try {
             orderService.deleteOrder(orderId);
             return ResponseEntity.ok("Order deleted successfully.");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("/{orderId}/address")
+    public ResponseEntity<?> updateOrderAddress(@PathVariable Long orderId, @RequestBody Map<String, String> request) {
+        try {
+            String newAddress = request.get("address");
+            return ResponseEntity.ok(orderService.updateOrderAddress(orderId, newAddress));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
+        try {
+            return ResponseEntity.ok(orderService.cancelOrder(orderId));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

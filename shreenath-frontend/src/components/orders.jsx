@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo } from "react-icons/fa";
 import { getStoredUser } from "../utils/auth";
 import "../styles/components/Orders.css";
 
@@ -12,24 +12,80 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [newAddress, setNewAddress] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
-
+  const fetchOrders = () => {
+    if (!userId) return;
+    setLoading(true);
     fetch(`http://localhost:8080/api/orders/user/${userId}`)
       .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch orders");
-        }
+        if (!res.ok) throw new Error("Failed to fetch orders");
         return res.json();
       })
       .then(setOrders)
       .catch(() => setError("Unable to load your orders. Please try again."))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, [userId]);
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/cancel`, {
+        method: "PUT",
+      });
+      if (res.ok) {
+        alert("Order cancelled successfully.");
+        fetchOrders();
+      } else {
+        const msg = await res.text();
+        alert(msg || "Failed to cancel order.");
+      }
+    } catch (err) {
+      alert("Network error. Could not cancel order.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const startEditingAddress = (order) => {
+    setEditingAddressId(order.id);
+    setNewAddress(order.address);
+  };
+
+  const handleUpdateAddress = async (orderId) => {
+    if (!newAddress.trim()) {
+      alert("Address cannot be empty.");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/address`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: newAddress }),
+      });
+      if (res.ok) {
+        setEditingAddressId(null);
+        fetchOrders();
+      } else {
+        const msg = await res.text();
+        alert(msg || "Failed to update address.");
+      }
+    } catch (err) {
+      alert("Network error. Could not update address.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const getStatusClass = (status) => (status || "PLACED").toLowerCase();
 
@@ -98,7 +154,33 @@ export default function Orders() {
                 {order.address && (
                   <div className="order-address">
                     <FaMapMarkerAlt className="address-icon" />
-                    <span>{order.address}</span>
+                    {editingAddressId === order.id ? (
+                      <div className="address-edit-group">
+                        <textarea
+                          value={newAddress}
+                          onChange={(e) => setNewAddress(e.target.value)}
+                          className="address-edit-input"
+                          rows={3}
+                        />
+                        <div className="address-edit-actions">
+                          <button className="save-addr-btn" onClick={() => handleUpdateAddress(order.id)} disabled={actionLoading}>
+                            <FaCheck /> Save
+                          </button>
+                          <button className="cancel-addr-btn" onClick={() => setEditingAddressId(null)}>
+                            <FaUndo /> Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="address-display-group">
+                        <span>{order.address}</span>
+                        {(order.status === "PLACED" || !order.status) && (
+                          <button className="edit-addr-btn" onClick={() => startEditingAddress(order)}>
+                            <FaEdit /> Edit
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -133,10 +215,24 @@ export default function Orders() {
               </div>
 
               <div className="order-footer">
-                <span className="order-total-label">Total Amount</span>
-                <span className="order-total-value">
-                  Rs. {Number(order.totalAmount).toLocaleString("en-IN")}
-                </span>
+                <div className="order-total-section">
+                  <span className="order-total-label">Total Amount</span>
+                  <span className="order-total-value">
+                    Rs. {Number(order.totalAmount).toLocaleString("en-IN")}
+                  </span>
+                </div>
+                
+                <div className="order-actions-section">
+                  {(order.status === "PLACED" || order.status === "PROCESSING" || !order.status) && (
+                    <button 
+                      className="cancel-order-btn" 
+                      onClick={() => handleCancelOrder(order.id)}
+                      disabled={actionLoading}
+                    >
+                      <FaTimes /> Cancel Order
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
