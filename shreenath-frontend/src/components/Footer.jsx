@@ -22,10 +22,11 @@ const Footer = () => {
         <div className="footer-section">
           <h4>Support</h4>
           <ul>
-            <li><Link to="/">Contact Us</Link></li>
+            <li><Link to="/feedback">Contact Us</Link></li>
+            <li><Link to="/feedback">Send Feedback</Link></li>
             <li><Link to="/">FAQs</Link></li>
-            <li><Link to="/">Shipping & Returns</Link></li>
-            <li><Link to="/">Track Order</Link></li>
+            <li><Link to="/">Shipping &amp; Returns</Link></li>
+            <li><Link to="/track/">Track Order</Link></li>
           </ul>
         </div>
       </div>
