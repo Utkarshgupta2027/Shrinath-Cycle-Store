@@ -385,36 +385,60 @@ function MakePayment() {
         gateway,
       };
 
-      // Place the actual order in the backend now that payment is "confirmed"
+      // Create a server-side payment order, then verify the signed gateway response.
       if (orderFromState) {
         const finalOrder = {
           ...orderFromState,
-          // Update address with payment info if not already there
+          paymentMethod: selectedMethod,
+          couponCode: appliedCoupon || orderFromState.couponCode || "",
           address: orderFromState.address.includes("Payment:") 
             ? orderFromState.address 
             : `${orderFromState.address} | Payment: ${paymentStatus.method}`
         };
 
-        fetch(`${API_BASE}/orders`, {
+        fetch(`${API_BASE}/payments/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(finalOrder),
+          body: JSON.stringify({ order: finalOrder }),
         })
-        .then(res => {
-          if (res.ok) {
-            fetch(`${API_BASE}/cart/clear?userId=${userId}`, { method: "DELETE" }).catch(() => {});
-            persistSavedMethod();
-            setResult(paymentStatus);
-            setPaymentState("success");
-            setOtpRequired(false);
-            setLoadingMessage("");
-          } else {
-            return res.text().then(text => { throw new Error(text || "Backend order failed"); });
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || "Payment creation failed");
           }
+          return res.json();
+        })
+        .then((paymentOrder) => fetch(`${API_BASE}/payments/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: paymentOrder.orderId,
+            gatewayOrderId: paymentOrder.gatewayOrderId,
+            paymentId: paymentOrder.demoPaymentId,
+            signature: paymentOrder.demoSignature,
+          }),
+        }))
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || "Payment verification failed");
+          }
+          return res.json();
+        })
+        .then((confirmedOrder) => {
+          persistSavedMethod();
+          setResult({
+            ...paymentStatus,
+            amount: confirmedOrder.totalAmount || totalPayable,
+            receiptId: `INV-${confirmedOrder.id || Date.now()}`,
+          });
+          setPaymentState("success");
+          setOtpRequired(false);
+          setLoadingMessage("");
         })
         .catch(err => {
           setPaymentState("failed");
-          setMessage(`Payment processed but order placement failed: ${err.message}`);
+          setMessage(`Payment could not be verified: ${err.message}`);
           setLoadingMessage("");
         });
       } else {

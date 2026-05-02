@@ -16,6 +16,17 @@ public class Order {
 
     private Long userId;
     private double totalAmount;
+    private double subtotal;
+    private double discountAmount;
+    private double deliveryCharges;
+    private String couponCode;
+    private String deliveryOption;
+    private String paymentMethod;
+    private String paymentStatus = "PENDING";
+    private String paymentGatewayOrderId;
+    private String paymentId;
+    private boolean signatureVerified;
+    private LocalDateTime paidAt;
 
     @Column(columnDefinition = "TEXT")
     private String address;

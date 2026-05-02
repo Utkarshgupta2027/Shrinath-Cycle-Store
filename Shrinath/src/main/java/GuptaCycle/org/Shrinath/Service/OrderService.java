@@ -4,6 +4,7 @@ import GuptaCycle.org.Shrinath.DTO.AdminAnalyticsResponse;
 import GuptaCycle.org.Shrinath.DTO.MetricPoint;
 import GuptaCycle.org.Shrinath.Model.*;
 import GuptaCycle.org.Shrinath.Repository.OrderRepository;
+import GuptaCycle.org.Shrinath.Repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,10 +24,22 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
 
+    private static final BigDecimal FREE_DELIVERY_THRESHOLD = BigDecimal.valueOf(2000);
+    private static final BigDecimal STANDARD_DELIVERY_CHARGE = BigDecimal.valueOf(99);
+    private static final BigDecimal EXPRESS_DELIVERY_CHARGE = BigDecimal.valueOf(199);
+    private static final BigDecimal RIDE10_DISCOUNT_RATE = BigDecimal.valueOf(0.10);
+
     @Autowired
     private OrderRepository orderRepo;
 
+    @Autowired
+    private ProductRepo productRepo;
+
     public Order saveOrder(OrderRequest req) {
+        return saveOrder(req, "COD".equalsIgnoreCase(defaultString(req == null ? null : req.getPaymentMethod())));
+    }
+
+    public Order saveOrder(OrderRequest req, boolean markPaid) {
         if (req == null || req.getUserId() == null) {
             throw new IllegalArgumentException("A valid user is required to place an order.");
         }
@@ -40,24 +53,48 @@ public class OrderService {
 
         List<OrderItem> items = req.getItems().stream()
                 .map(i -> {
+                    Product product = productRepo.findById(Math.toIntExact(i.getProductId()))
+                            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + i.getProductId()));
+                    int quantity = Math.max(i.getQuantity(), 1);
+                    if (!product.isAvailable() || product.getQuantity() < quantity) {
+                        throw new IllegalArgumentException("Product is out of stock or insufficient: " + product.getName());
+                    }
+
                     OrderItem item = new OrderItem();
-                    item.setProductId(i.getProductId());
-                    item.setName(i.getName());
-                    item.setPrice(i.getPrice());
-                    item.setQuantity(Math.max(i.getQuantity(), 1));
+                    item.setProductId(product.getId().longValue());
+                    item.setName(product.getName());
+                    item.setPrice(product.getPrice() == null ? 0.0 : product.getPrice().doubleValue());
+                    item.setQuantity(quantity);
                     return item;
                 })
                 .collect(Collectors.toList());
 
-        double itemSubtotal = items.stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
-        double totalAmount = req.getTotalAmount() > 0 ? req.getTotalAmount() : itemSubtotal;
+        BigDecimal subtotal = items.stream()
+                .map(item -> BigDecimal.valueOf(item.getPrice()).multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+        CouponResult coupon = calculateCouponDiscount(subtotal, req.getCouponCode());
+        BigDecimal deliveryCharges = calculateDeliveryCharges(subtotal, req.getDeliveryOption());
+        BigDecimal totalAmount = subtotal
+                .subtract(coupon.discountAmount())
+                .add(deliveryCharges)
+                .max(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
 
-        order.setTotalAmount(totalAmount);
+        order.setSubtotal(subtotal.doubleValue());
+        order.setDiscountAmount(coupon.discountAmount().doubleValue());
+        order.setDeliveryCharges(deliveryCharges.doubleValue());
+        order.setCouponCode(coupon.appliedCode());
+        order.setDeliveryOption(normalizeDeliveryOption(req.getDeliveryOption()));
+        order.setPaymentMethod(defaultString(req.getPaymentMethod()).isBlank() ? "COD" : req.getPaymentMethod().trim().toUpperCase(Locale.ROOT));
+        order.setPaymentStatus(markPaid ? "PAID" : "PENDING");
+        order.setStatus(markPaid ? "PLACED" : "PENDING_PAYMENT");
+        if (markPaid) {
+            order.setPaidAt(LocalDateTime.now());
+        }
+        order.setTotalAmount(totalAmount.doubleValue());
         order.setAddress(req.getAddress());
         order.setItems(items);
-        order.setStatus("PLACED");
         order.setUpdatedAt(LocalDateTime.now());
 
         return orderRepo.save(order);
@@ -186,7 +223,58 @@ public class OrderService {
 
     private boolean isRevenueStatus(String status) {
         String normalizedStatus = defaultStatus(status);
-        return !"CANCELLED".equals(normalizedStatus) && !"RETURNED".equals(normalizedStatus);
+        return !"CANCELLED".equals(normalizedStatus)
+                && !"RETURNED".equals(normalizedStatus)
+                && !"PENDING_PAYMENT".equals(normalizedStatus);
+    }
+
+    public Order markPaymentInitiated(Long orderId, String gatewayOrderId) {
+        Order order = getOrderById(orderId);
+        order.setPaymentGatewayOrderId(gatewayOrderId);
+        order.setPaymentStatus("PENDING");
+        order.setStatus("PENDING_PAYMENT");
+        order.setUpdatedAt(LocalDateTime.now());
+        return orderRepo.save(order);
+    }
+
+    public Order markPaymentConfirmed(Long orderId, String paymentId) {
+        Order order = getOrderById(orderId);
+        order.setPaymentId(paymentId);
+        order.setPaymentStatus("PAID");
+        order.setSignatureVerified(true);
+        order.setStatus("PLACED");
+        order.setPaidAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        return orderRepo.save(order);
+    }
+
+    private BigDecimal calculateDeliveryCharges(BigDecimal subtotal, String deliveryOption) {
+        if ("express".equalsIgnoreCase(defaultString(deliveryOption))) {
+            return EXPRESS_DELIVERY_CHARGE;
+        }
+        if (subtotal.compareTo(BigDecimal.ZERO) == 0 || subtotal.compareTo(FREE_DELIVERY_THRESHOLD) >= 0) {
+            return BigDecimal.ZERO;
+        }
+        return STANDARD_DELIVERY_CHARGE;
+    }
+
+    private String normalizeDeliveryOption(String deliveryOption) {
+        return "express".equalsIgnoreCase(defaultString(deliveryOption)) ? "express" : "standard";
+    }
+
+    private CouponResult calculateCouponDiscount(BigDecimal subtotal, String couponCode) {
+        String normalizedCode = defaultString(couponCode).toUpperCase(Locale.ROOT);
+        if (!"RIDE10".equals(normalizedCode) || subtotal.compareTo(BigDecimal.valueOf(1000)) < 0) {
+            return new CouponResult(BigDecimal.ZERO, "");
+        }
+        return new CouponResult(subtotal.multiply(RIDE10_DISCOUNT_RATE).setScale(2, RoundingMode.HALF_UP), normalizedCode);
+    }
+
+    private String defaultString(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private record CouponResult(BigDecimal discountAmount, String appliedCode) {
     }
 
     private List<MetricPoint> buildRevenueTrend(List<Order> orders) {

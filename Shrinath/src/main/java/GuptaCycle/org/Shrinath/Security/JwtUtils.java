@@ -2,19 +2,23 @@ package GuptaCycle.org.Shrinath.Security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtils {
 
-    // This key must be at least 64 characters long for HS512
-    private final String jwtSecret = "your_very_long_and_very_secure_secret_key_that_is_at_least_64_characters_long_for_hs512";
-    private final int jwtExpirationMs = 86400000; // 24 hours
+    @Value("${app.jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${app.jwt.expiration-ms}")
+    private int jwtExpirationMs;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String phoneOrUsername) {

@@ -295,13 +295,13 @@ function CheckoutPopup() {
     const finalAddress = getFullAddress();
     const order = {
       userId,
-      totalAmount: finalTotal,
       items: cartItems.map((item) => ({
         productId: item.id,
-        name: item.name,
-        price: item.price,
         quantity: item.quantity || 1,
       })),
+      couponCode: appliedCoupon,
+      deliveryOption,
+      paymentMethod,
       address: `${finalAddress} | Delivery: ${DELIVERY_OPTIONS[deliveryOption].label} | Payment: ${PAYMENT_METHODS.find((method) => method.key === paymentMethod)?.label}`,
     };
 

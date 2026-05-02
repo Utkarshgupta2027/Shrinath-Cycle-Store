@@ -1,10 +1,12 @@
 package GuptaCycle.org.Shrinath.Controller;
 
 import GuptaCycle.org.Shrinath.Model.Cart;
+import GuptaCycle.org.Shrinath.Service.AuthService;
 import GuptaCycle.org.Shrinath.Service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,8 +17,12 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private AuthService authService;
+
     @GetMapping("/users/{userId}") // Changed {id} to {userId}
     public ResponseEntity<Cart> getCart(@PathVariable Long userId) {
+        requireOwnUser(userId);
         return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
@@ -25,6 +31,7 @@ public class CartController {
             @RequestParam Long userId,
             @RequestParam(required = false) String couponCode) {
         try {
+            requireOwnUser(userId);
             return ResponseEntity.ok(cartService.getCartSummary(userId, couponCode));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -37,6 +44,7 @@ public class CartController {
             @RequestParam Long productId,
             @RequestParam int quantity) {
         try {
+            requireOwnUser(userId);
             return ResponseEntity.ok(cartService.addToCart(userId, productId, quantity));
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -49,6 +57,7 @@ public class CartController {
             @RequestParam Long productId,
             @RequestParam int quantity) {
         try {
+            requireOwnUser(userId);
             return ResponseEntity.ok(cartService.updateQuantity(userId, productId, quantity));
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -60,6 +69,7 @@ public class CartController {
             @RequestParam Long userId,
             @RequestParam Long productId) {
         try {
+            requireOwnUser(userId);
             return ResponseEntity.ok(cartService.removeItem(userId, productId));
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -71,6 +81,7 @@ public class CartController {
             @RequestParam Long userId,
             @RequestParam Long productId) {
         try {
+            requireOwnUser(userId);
             return ResponseEntity.ok(cartService.moveItemToWishlist(userId, productId));
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -82,9 +93,18 @@ public class CartController {
     @DeleteMapping("/clear")
     public ResponseEntity<?> clearCart(@RequestParam Long userId) {
         try {
+            requireOwnUser(userId);
             return ResponseEntity.ok(cartService.clearCart(userId));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    private void requireOwnUser(Long userId) {
+        String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Long currentUserId = authService.getUserIdForPhoneNumber(phoneNumber);
+        if (!currentUserId.equals(userId)) {
+            throw new IllegalArgumentException("You can only access your own cart.");
         }
     }
 }

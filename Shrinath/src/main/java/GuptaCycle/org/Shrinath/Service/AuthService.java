@@ -95,6 +95,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found."));
     }
 
+    public Long getUserIdForPhoneNumber(String phoneNumber) {
+        return findByPhoneNumber(phoneNumber).getId();
+    }
+
     public UserAccountResponse getAccountSummary(String phoneNumber) {
         return toUserAccountResponse(findByPhoneNumber(phoneNumber));
     }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.List;
@@ -31,6 +33,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<?> placeOrder(@RequestBody OrderRequest request) {
         try {
+            request.setUserId(currentUserId());
             return ResponseEntity.status(HttpStatus.CREATED).body(orderService.saveOrder(request));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -38,14 +41,21 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<Order> getOrdersByUser(@PathVariable Long userId) {
-        return orderService.getOrdersByUser(userId);
+    public ResponseEntity<?> getOrdersByUser(@PathVariable Long userId) {
+        if (!currentUserId().equals(userId) && !isCurrentUserAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own orders.");
+        }
+        return ResponseEntity.ok(orderService.getOrdersByUser(userId));
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
         try {
-            return ResponseEntity.ok(orderService.getOrderById(orderId));
+            Order order = orderService.getOrderById(orderId);
+            if (!currentUserId().equals(order.getUserId()) && !isCurrentUserAdmin()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own order.");
+            }
+            return ResponseEntity.ok(order);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
@@ -106,6 +116,10 @@ public class OrderController {
     @PutMapping("/{orderId}/address")
     public ResponseEntity<?> updateOrderAddress(@PathVariable Long orderId, @RequestBody Map<String, String> request) {
         try {
+            Order order = orderService.getOrderById(orderId);
+            if (!currentUserId().equals(order.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only update your own order.");
+            }
             String newAddress = request.get("address");
             return ResponseEntity.ok(orderService.updateOrderAddress(orderId, newAddress));
         } catch (IllegalArgumentException ex) {
@@ -116,6 +130,10 @@ public class OrderController {
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
         try {
+            Order order = orderService.getOrderById(orderId);
+            if (!currentUserId().equals(order.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only cancel your own order.");
+            }
             return ResponseEntity.ok(orderService.cancelOrder(orderId));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -146,5 +164,16 @@ public class OrderController {
         }
 
         return null;
+    }
+
+    private Long currentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authService.getUserIdForPhoneNumber(authentication.getName());
+    }
+
+    private boolean isCurrentUserAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 }

@@ -15,7 +15,7 @@ public class FeedbackService {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     @Value("${app.admin.email}")
@@ -59,6 +59,10 @@ public class FeedbackService {
     }
 
     private void sendAdminNotification(Feedback fb) {
+        if (mailSender == null || adminEmail == null || adminEmail.isBlank()) {
+            return;
+        }
+
         String ratingLine = fb.getRating() != null
                 ? "Rating    : " + "★".repeat(fb.getRating()) + " (" + fb.getRating() + "/5)\n"
                 : "";
@@ -89,6 +93,10 @@ public class FeedbackService {
     }
 
     private void sendUserConfirmation(Feedback fb) {
+        if (mailSender == null || adminEmail == null || adminEmail.isBlank()) {
+            return;
+        }
+
         String body = "Hi " + fb.getName() + ",\n\n" +
                 "Thank you for reaching out to ShreeNath Cycle Store! 🚲\n\n" +
                 "We have received your feedback and our team will review it shortly.\n\n" +
