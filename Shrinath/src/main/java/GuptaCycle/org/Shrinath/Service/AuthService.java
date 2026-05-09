@@ -32,6 +32,12 @@ public class AuthService {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private OtpService otpService;
+
     @Value("${app.admin.phone-number}")
     private String adminPhoneNumber;
 
@@ -62,7 +68,9 @@ public class AuthService {
         user.setPhoneNumber(phoneNumber);
         user.setPassword(passwordEncoder.encode(password));
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName());
+        return savedUser;
     }
 
     public User authenticate(String phoneNumber, String password) {
@@ -161,6 +169,32 @@ public class AuthService {
         wishlistRepository.deleteByUser(user);
         cartRepository.deleteByUserId(user.getId());
         userRepository.delete(user);
+    }
+
+    public void generatePasswordResetOtp(String email) {
+        String normalizedEmail = normalize(email).toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new RuntimeException("User with this email not found."));
+
+        String otp = otpService.generateOtp(normalizedEmail);
+        emailService.sendPasswordResetOtpEmail(normalizedEmail, otp);
+    }
+
+    public void resetPasswordWithOtp(String email, String otp, String newPassword) {
+        String normalizedEmail = normalize(email).toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new RuntimeException("User with this email not found."));
+
+        if (!otpService.verifyOtp(normalizedEmail, otp)) {
+            throw new RuntimeException("Invalid or expired OTP.");
+        }
+
+        if (newPassword == null || newPassword.trim().length() < 6) {
+            throw new IllegalArgumentException("New password must be at least 6 characters long.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword.trim()));
+        userRepository.save(user);
     }
 
     public List<AdminUserSummaryResponse> getRegisteredUsers() {

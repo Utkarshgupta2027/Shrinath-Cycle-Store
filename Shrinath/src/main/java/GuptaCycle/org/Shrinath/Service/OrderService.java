@@ -5,6 +5,7 @@ import GuptaCycle.org.Shrinath.DTO.MetricPoint;
 import GuptaCycle.org.Shrinath.Model.*;
 import GuptaCycle.org.Shrinath.Repository.OrderRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -34,6 +35,12 @@ public class OrderService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public Order saveOrder(OrderRequest req) {
         return saveOrder(req, "COD".equalsIgnoreCase(defaultString(req == null ? null : req.getPaymentMethod())));
@@ -97,7 +104,15 @@ public class OrderService {
         order.setItems(items);
         order.setUpdatedAt(LocalDateTime.now());
 
-        return orderRepo.save(order);
+        Order savedOrder = orderRepo.save(order);
+        
+        if (markPaid || "COD".equalsIgnoreCase(savedOrder.getPaymentMethod())) {
+            userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
+                emailService.sendOrderConfirmationEmail(user.getEmail(), savedOrder);
+            });
+        }
+        
+        return savedOrder;
     }
 
     public List<Order> getOrdersByUser(Long userId) {
@@ -121,7 +136,13 @@ public class OrderService {
         order.setStatus(normalizedStatus);
         order.setUpdatedAt(LocalDateTime.now());
 
-        return orderRepo.save(order);
+        Order savedOrder = orderRepo.save(order);
+        
+        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
+            emailService.sendShippingUpdateEmail(user.getEmail(), savedOrder, normalizedStatus);
+        });
+
+        return savedOrder;
     }
 
     public void deleteOrder(Long orderId) {
@@ -245,7 +266,14 @@ public class OrderService {
         order.setStatus("PLACED");
         order.setPaidAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
-        return orderRepo.save(order);
+        
+        Order savedOrder = orderRepo.save(order);
+        
+        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
+            emailService.sendOrderConfirmationEmail(user.getEmail(), savedOrder);
+        });
+        
+        return savedOrder;
     }
 
     private BigDecimal calculateDeliveryCharges(BigDecimal subtotal, String deliveryOption) {

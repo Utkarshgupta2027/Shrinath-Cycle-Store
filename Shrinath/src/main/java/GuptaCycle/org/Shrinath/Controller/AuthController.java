@@ -146,6 +146,37 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email is required."));
+        }
+        try {
+            authService.generatePasswordResetOtp(email);
+            return ResponseEntity.ok(Map.of("message", "OTP sent to your email."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        String newPassword = request.get("newPassword");
+
+        if (email == null || otp == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email, OTP, and new password are required."));
+        }
+        try {
+            authService.resetPasswordWithOtp(email, otp, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Password reset successful."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     private ResponseEntity<?> authorizeAdmin(String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("message", "Admin authorization is required."));
