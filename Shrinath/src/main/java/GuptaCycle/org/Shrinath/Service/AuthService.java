@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.annotation.PostConstruct;
 
 import java.util.Comparator;
 import java.util.List;
@@ -40,6 +41,36 @@ public class AuthService {
 
     @Value("${app.admin.phone-number}")
     private String adminPhoneNumber;
+
+    @Value("${app.admin.email:gutkarsh702@gmail.com}")
+    private String adminEmail;
+
+    @PostConstruct
+    public void initAdminUser() {
+        User existingAdminByEmail = userRepository.findByEmail(adminEmail).orElse(null);
+        User existingAdminByPhone = userRepository.findByPhoneNumber(adminPhoneNumber).orElse(null);
+
+        if (existingAdminByEmail == null && existingAdminByPhone == null) {
+            User admin = new User();
+            admin.setName("Utkarsh Gupta");
+            admin.setEmail(adminEmail);
+            admin.setPhoneNumber(adminPhoneNumber);
+            admin.setPassword(passwordEncoder.encode("Anshu@123"));
+            admin.setVerified(true);
+            userRepository.save(admin);
+            System.out.println("Admin user initialized successfully.");
+        } else if (existingAdminByEmail != null && existingAdminByPhone == null) {
+            existingAdminByEmail.setPhoneNumber(adminPhoneNumber);
+            userRepository.save(existingAdminByEmail);
+            System.out.println("Admin user phone number updated successfully.");
+        } else if (existingAdminByPhone != null && existingAdminByEmail == null) {
+            existingAdminByPhone.setEmail(adminEmail);
+            userRepository.save(existingAdminByPhone);
+            System.out.println("Admin user email updated successfully.");
+        } else {
+            System.out.println("Admin user already exists.");
+        }
+    }
 
     public User registerUser(User user) {
         if (user == null) {

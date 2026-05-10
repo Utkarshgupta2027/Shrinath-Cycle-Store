@@ -169,10 +169,18 @@
   text-transform: uppercase;
 }
 
-.status-badge.placed { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
-.status-badge.processing { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+.status-badge.placed,
+.status-badge.pending { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+.status-badge.processing,
+.status-badge.confirmed,
+.status-badge.packed,
+.status-badge.out-for-delivery { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
 .status-badge.shipped { background: rgba(139, 92, 246, 0.1); color: #a78bfa; }
 .status-badge.delivered { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+.status-badge.cancelled,
+.status-badge.cancellation-requested,
+.status-badge.return-requested,
+.status-badge.returned { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
 
 .track-address {
   max-width: 60%;

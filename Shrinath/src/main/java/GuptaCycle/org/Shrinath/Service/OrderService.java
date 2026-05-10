@@ -2,12 +2,17 @@ package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.DTO.AdminAnalyticsResponse;
 import GuptaCycle.org.Shrinath.DTO.MetricPoint;
+import GuptaCycle.org.Shrinath.DTO.ReturnExchangeRequestDto;
+import GuptaCycle.org.Shrinath.DTO.ReturnExchangeStatusUpdateRequest;
 import GuptaCycle.org.Shrinath.Model.*;
 import GuptaCycle.org.Shrinath.Repository.OrderRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.ReturnExchangeRequestRepository;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -19,8 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class OrderService {
@@ -40,12 +45,26 @@ public class OrderService {
     private EmailService emailService;
 
     @Autowired
+    private SmsService smsService;
+
+    @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ReturnExchangeRequestRepository returnExchangeRequestRepository;
+
+    @Autowired
+    private RazorpayRefundService razorpayRefundService;
+
+    @Value("${app.admin.email:gutkarsh702@gmail.com}")
+    private String adminEmail;
+
+    @Transactional
     public Order saveOrder(OrderRequest req) {
         return saveOrder(req, "COD".equalsIgnoreCase(defaultString(req == null ? null : req.getPaymentMethod())));
     }
 
+    @Transactional
     public Order saveOrder(OrderRequest req, boolean markPaid) {
         if (req == null || req.getUserId() == null) {
             throw new IllegalArgumentException("A valid user is required to place an order.");
@@ -66,6 +85,13 @@ public class OrderService {
                     if (!product.isAvailable() || product.getQuantity() < quantity) {
                         throw new IllegalArgumentException("Product is out of stock or insufficient: " + product.getName());
                     }
+
+                    int newQuantity = product.getQuantity() - quantity;
+                    product.setQuantity(newQuantity);
+                    if (newQuantity == 0) {
+                        product.setAvailable(false);
+                    }
+                    productRepo.save(product);
 
                     OrderItem item = new OrderItem();
                     item.setProductId(product.getId().longValue());
@@ -95,7 +121,7 @@ public class OrderService {
         order.setDeliveryOption(normalizeDeliveryOption(req.getDeliveryOption()));
         order.setPaymentMethod(defaultString(req.getPaymentMethod()).isBlank() ? "COD" : req.getPaymentMethod().trim().toUpperCase(Locale.ROOT));
         order.setPaymentStatus(markPaid ? "PAID" : "PENDING");
-        order.setStatus(markPaid ? "PLACED" : "PENDING_PAYMENT");
+        order.setStatus(markPaid ? "PENDING" : "PENDING_PAYMENT");
         if (markPaid) {
             order.setPaidAt(LocalDateTime.now());
         }
@@ -105,13 +131,10 @@ public class OrderService {
         order.setUpdatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepo.save(order);
-        
         if (markPaid || "COD".equalsIgnoreCase(savedOrder.getPaymentMethod())) {
-            userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
-                emailService.sendOrderConfirmationEmail(user.getEmail(), savedOrder);
-            });
+            userRepository.findById(savedOrder.getUserId()).ifPresent(user -> notifyOrderConfirmation(user, savedOrder));
         }
-        
+
         return savedOrder;
     }
 
@@ -129,35 +152,26 @@ public class OrderService {
     }
 
     public Order updateOrderStatus(Long orderId, String status) {
-        Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
-
+        Order order = getOrderById(orderId);
         String normalizedStatus = normalizeStatus(status);
         order.setStatus(normalizedStatus);
         order.setUpdatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepo.save(order);
-        
-        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
-            emailService.sendShippingUpdateEmail(user.getEmail(), savedOrder, normalizedStatus);
-        });
-
+        userRepository.findById(savedOrder.getUserId())
+                .ifPresent(user -> notifyStatusUpdate(user, savedOrder, normalizedStatus));
         return savedOrder;
     }
 
     public void deleteOrder(Long orderId) {
-        Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
-
-        orderRepo.delete(order);
+        orderRepo.delete(getOrderById(orderId));
     }
 
     public Order updateOrderAddress(Long orderId, String newAddress) {
-        Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
+        Order order = getOrderById(orderId);
 
-        if (!"PLACED".equals(order.getStatus())) {
-            throw new IllegalArgumentException("Address can only be updated for orders in PLACED status.");
+        if (!"PENDING".equals(defaultStatus(order.getStatus()))) {
+            throw new IllegalArgumentException("Address can only be updated for orders in PENDING status.");
         }
 
         order.setAddress(newAddress);
@@ -165,25 +179,133 @@ public class OrderService {
         return orderRepo.save(order);
     }
 
-    public Order cancelOrder(Long orderId) {
-        Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found."));
-
+    public Order cancelOrder(Long orderId, String reason) {
+        Order order = getOrderById(orderId);
         String currentStatus = defaultStatus(order.getStatus());
-        if (!"PLACED".equals(currentStatus) && !"PROCESSING".equals(currentStatus)) {
+        if (!Set.of("PENDING", "CONFIRMED", "PACKED").contains(currentStatus)) {
             throw new IllegalArgumentException("Orders can only be cancelled before they are shipped.");
         }
 
-        order.setStatus("CANCELLED");
+        boolean paidOnline = "PAID".equalsIgnoreCase(order.getPaymentStatus())
+                && !"COD".equalsIgnoreCase(defaultString(order.getPaymentMethod()));
+        order.setStatus(paidOnline ? "CANCELLATION_REQUESTED" : "CANCELLED");
+        order.setRefundStatus(paidOnline ? "REQUESTED" : "NOT_REQUIRED");
+        order.setCancellationReason(defaultString(reason).isBlank() ? "Customer requested cancellation" : reason.trim());
+        order.setCancelledAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
-        return orderRepo.save(order);
+
+        if (order.getItems() != null) {
+            for (OrderItem item : order.getItems()) {
+                productRepo.findById(Math.toIntExact(item.getProductId())).ifPresent(product -> {
+                    product.setQuantity(product.getQuantity() + item.getQuantity());
+                    if (!product.isAvailable() && product.getQuantity() > 0) {
+                        product.setAvailable(true);
+                    }
+                    productRepo.save(product);
+                });
+            }
+        }
+
+        Order savedOrder = orderRepo.save(order);
+        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
+            emailService.sendCancellationEmail(user.getEmail(), savedOrder);
+            smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: cancellation update for "
+                    + getProductNames(savedOrder) + " is " + savedOrder.getStatus() + ".");
+        });
+        return savedOrder;
+    }
+
+    public Order cancelOrder(Long orderId) {
+        return cancelOrder(orderId, null);
+    }
+
+    public Order processRefund(Long orderId, Double amount, String speed) {
+        Order order = getOrderById(orderId);
+        if (!"PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new IllegalArgumentException("Only paid orders can be refunded.");
+        }
+
+        RazorpayRefundService.RefundResult refund = razorpayRefundService.refund(order, amount, speed);
+        order.setRefundId(refund.refundId());
+        order.setRefundStatus(refund.status());
+        order.setRefundAmount(refund.amount());
+        order.setPaymentStatus("REFUNDED");
+        order.setStatus("CANCELLED");
+        order.setRefundedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+
+        Order savedOrder = orderRepo.save(order);
+        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
+            emailService.sendRefundEmail(user.getEmail(), savedOrder);
+            smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: refund processed for "
+                    + getProductNames(savedOrder) + ". Refund ID: " + savedOrder.getRefundId());
+        });
+        return savedOrder;
+    }
+
+    public ReturnExchangeRequest createReturnExchangeRequest(Long orderId, Long userId, ReturnExchangeRequestDto request) {
+        Order order = getOrderById(orderId);
+        if (!userId.equals(order.getUserId())) {
+            throw new IllegalArgumentException("You can only request return/exchange for your own order.");
+        }
+        if (!"DELIVERED".equals(defaultStatus(order.getStatus()))) {
+            throw new IllegalArgumentException("Return or exchange can only be requested after delivery.");
+        }
+        if (request == null || defaultString(request.getReason()).isBlank()) {
+            throw new IllegalArgumentException("A reason is required.");
+        }
+
+        ReturnExchangeRequest entity = new ReturnExchangeRequest();
+        entity.setOrderId(orderId);
+        entity.setUserId(userId);
+        entity.setRequestType(normalizeRequestType(request.getRequestType()));
+        entity.setReason(request.getReason().trim());
+        entity.setPreferredResolution(defaultString(request.getPreferredResolution()));
+        ReturnExchangeRequest savedRequest = returnExchangeRequestRepository.save(entity);
+
+        userRepository.findById(userId).ifPresent(user -> {
+            emailService.sendReturnExchangeEmail(user.getEmail(), order, savedRequest.getRequestType(), savedRequest.getStatus());
+            smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: " + savedRequest.getRequestType()
+                    + " request received for " + getProductNames(order) + ".");
+        });
+        return savedRequest;
+    }
+
+    public List<ReturnExchangeRequest> getAllReturnExchangeRequests() {
+        return returnExchangeRequestRepository.findAllByOrderByRequestedAtDesc();
+    }
+
+    public ReturnExchangeRequest updateReturnExchangeStatus(Long requestId, ReturnExchangeStatusUpdateRequest request) {
+        ReturnExchangeRequest entity = returnExchangeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Return/exchange request not found."));
+        String status = normalizeReturnExchangeStatus(request == null ? null : request.getStatus());
+        entity.setStatus(status);
+        entity.setAdminNote(request == null ? "" : defaultString(request.getAdminNote()));
+        entity.setUpdatedAt(LocalDateTime.now());
+        ReturnExchangeRequest savedRequest = returnExchangeRequestRepository.save(entity);
+
+        if ("APPROVED".equals(status)) {
+            Order order = getOrderById(savedRequest.getOrderId());
+            order.setStatus("RETURN_REQUESTED");
+            order.setUpdatedAt(LocalDateTime.now());
+            orderRepo.save(order);
+        }
+
+        userRepository.findById(savedRequest.getUserId()).ifPresent(user -> {
+            Order order = getOrderById(savedRequest.getOrderId());
+            emailService.sendReturnExchangeEmail(user.getEmail(), order,
+                    savedRequest.getRequestType(), savedRequest.getStatus());
+            smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: " + savedRequest.getRequestType()
+                    + " request for " + getProductNames(order) + " is " + savedRequest.getStatus() + ".");
+        });
+        return savedRequest;
     }
 
     public AdminAnalyticsResponse getAdminAnalytics() {
         List<Order> orders = orderRepo.findAll();
         long totalOrders = orders.size();
-        long cancelledOrders = countByStatus(orders, "CANCELLED");
-        long returnedOrders = countByStatus(orders, "RETURNED");
+        long cancelledOrders = countByStatus(orders, "CANCELLED") + countByStatus(orders, "CANCELLATION_REQUESTED");
+        long returnedOrders = countByStatus(orders, "RETURNED") + countByStatus(orders, "RETURN_REQUESTED");
         long fulfilledOrders = countByStatus(orders, "DELIVERED");
         long customerTraffic = orders.stream()
                 .map(Order::getUserId)
@@ -223,32 +345,6 @@ public class OrderService {
         );
     }
 
-    private long countByStatus(List<Order> orders, String status) {
-        return orders.stream()
-                .filter(order -> status.equalsIgnoreCase(defaultStatus(order.getStatus())))
-                .count();
-    }
-
-    private String normalizeStatus(String status) {
-        String normalized = status == null ? "" : status.trim().toUpperCase(Locale.ROOT);
-        Set<String> allowedStatuses = Set.of("PLACED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED");
-        if (!allowedStatuses.contains(normalized)) {
-            throw new IllegalArgumentException("Unsupported status. Use PLACED, PROCESSING, SHIPPED, DELIVERED, CANCELLED or RETURNED.");
-        }
-        return normalized;
-    }
-
-    private String defaultStatus(String status) {
-        return (status == null || status.isBlank()) ? "PLACED" : status.trim().toUpperCase(Locale.ROOT);
-    }
-
-    private boolean isRevenueStatus(String status) {
-        String normalizedStatus = defaultStatus(status);
-        return !"CANCELLED".equals(normalizedStatus)
-                && !"RETURNED".equals(normalizedStatus)
-                && !"PENDING_PAYMENT".equals(normalizedStatus);
-    }
-
     public Order markPaymentInitiated(Long orderId, String gatewayOrderId) {
         Order order = getOrderById(orderId);
         order.setPaymentGatewayOrderId(gatewayOrderId);
@@ -263,17 +359,80 @@ public class OrderService {
         order.setPaymentId(paymentId);
         order.setPaymentStatus("PAID");
         order.setSignatureVerified(true);
-        order.setStatus("PLACED");
+        order.setStatus("PENDING");
         order.setPaidAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
-        
+
         Order savedOrder = orderRepo.save(order);
-        
-        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> {
-            emailService.sendOrderConfirmationEmail(user.getEmail(), savedOrder);
-        });
-        
+        userRepository.findById(savedOrder.getUserId()).ifPresent(user -> notifyOrderConfirmation(user, savedOrder));
         return savedOrder;
+    }
+
+    private long countByStatus(List<Order> orders, String status) {
+        return orders.stream()
+                .filter(order -> status.equalsIgnoreCase(defaultStatus(order.getStatus())))
+                .count();
+    }
+
+    private String normalizeStatus(String status) {
+        String normalized = defaultStatus(status);
+        Set<String> allowedStatuses = Set.of(
+                "PENDING",
+                "CONFIRMED",
+                "PACKED",
+                "SHIPPED",
+                "OUT_FOR_DELIVERY",
+                "DELIVERED",
+                "CANCELLATION_REQUESTED",
+                "CANCELLED",
+                "RETURN_REQUESTED",
+                "RETURNED",
+                "EXCHANGED"
+        );
+        if (!allowedStatuses.contains(normalized)) {
+            throw new IllegalArgumentException("Unsupported status. Use PENDING, CONFIRMED, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED, RETURN_REQUESTED, RETURNED or EXCHANGED.");
+        }
+        return normalized;
+    }
+
+    private String defaultStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "PENDING";
+        }
+        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        if ("PLACED".equals(normalized)) {
+            return "PENDING";
+        }
+        if ("PROCESSING".equals(normalized)) {
+            return "CONFIRMED";
+        }
+        return normalized;
+    }
+
+    private boolean isRevenueStatus(String status) {
+        String normalizedStatus = defaultStatus(status);
+        return !"CANCELLED".equals(normalizedStatus)
+                && !"CANCELLATION_REQUESTED".equals(normalizedStatus)
+                && !"RETURN_REQUESTED".equals(normalizedStatus)
+                && !"RETURNED".equals(normalizedStatus)
+                && !"PENDING_PAYMENT".equals(normalizedStatus);
+    }
+
+    private String normalizeRequestType(String requestType) {
+        String normalized = defaultString(requestType).toUpperCase(Locale.ROOT);
+        if (!Set.of("RETURN", "EXCHANGE").contains(normalized)) {
+            throw new IllegalArgumentException("Request type must be RETURN or EXCHANGE.");
+        }
+        return normalized;
+    }
+
+    private String normalizeReturnExchangeStatus(String status) {
+        String normalized = defaultString(status).toUpperCase(Locale.ROOT);
+        Set<String> allowedStatuses = Set.of("REQUESTED", "APPROVED", "REJECTED", "PICKED_UP", "COMPLETED");
+        if (!allowedStatuses.contains(normalized)) {
+            throw new IllegalArgumentException("Unsupported return/exchange status.");
+        }
+        return normalized;
     }
 
     private BigDecimal calculateDeliveryCharges(BigDecimal subtotal, String deliveryOption) {
@@ -300,6 +459,28 @@ public class OrderService {
 
     private String defaultString(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private void notifyOrderConfirmation(User user, Order order) {
+        emailService.sendOrderConfirmationEmail(user.getEmail(), order);
+        smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: order for " + getProductNames(order)
+                + " placed. Current status: " + order.getStatus() + ".");
+        emailService.sendNewOrderAdminNotification(adminEmail, order);
+    }
+
+    private void notifyStatusUpdate(User user, Order order, String normalizedStatus) {
+        emailService.sendShippingUpdateEmail(user.getEmail(), order, normalizedStatus);
+        smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: order for " + getProductNames(order)
+                + " is now " + normalizedStatus + ".");
+    }
+
+    private String getProductNames(Order order) {
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            return "items";
+        }
+        return order.getItems().stream()
+                .map(OrderItem::getName)
+                .collect(Collectors.joining(", "));
     }
 
     private record CouponResult(BigDecimal discountAmount, String appliedCode) {
@@ -350,12 +531,14 @@ public class OrderService {
                 ));
 
         return List.of(
-                new MetricPoint("Placed", counts.getOrDefault("PLACED", 0L)),
-                new MetricPoint("Processing", counts.getOrDefault("PROCESSING", 0L)),
+                new MetricPoint("Pending", counts.getOrDefault("PENDING", 0L)),
+                new MetricPoint("Confirmed", counts.getOrDefault("CONFIRMED", 0L)),
+                new MetricPoint("Packed", counts.getOrDefault("PACKED", 0L)),
                 new MetricPoint("Shipped", counts.getOrDefault("SHIPPED", 0L)),
+                new MetricPoint("Out for Delivery", counts.getOrDefault("OUT_FOR_DELIVERY", 0L)),
                 new MetricPoint("Delivered", counts.getOrDefault("DELIVERED", 0L)),
-                new MetricPoint("Cancelled", counts.getOrDefault("CANCELLED", 0L)),
-                new MetricPoint("Returned", counts.getOrDefault("RETURNED", 0L))
+                new MetricPoint("Cancelled", counts.getOrDefault("CANCELLED", 0L) + counts.getOrDefault("CANCELLATION_REQUESTED", 0L)),
+                new MetricPoint("Returned", counts.getOrDefault("RETURNED", 0L) + counts.getOrDefault("RETURN_REQUESTED", 0L))
         );
     }
 }

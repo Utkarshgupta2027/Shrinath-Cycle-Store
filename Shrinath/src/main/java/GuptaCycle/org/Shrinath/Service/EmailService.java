@@ -51,11 +51,10 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("Order Confirmation - Shrinath Cycle Store (Order #" + order.getId() + ")");
+            message.setSubject("Order Confirmation - Shrinath Cycle Store");
             
             StringBuilder text = new StringBuilder();
             text.append("Hello,\n\nThank you for your order! Your order has been placed successfully.\n\n");
-            text.append("Order ID: ").append(order.getId()).append("\n");
             text.append("Total Amount: ₹").append(order.getTotalAmount()).append("\n");
             text.append("Payment Method: ").append(order.getPaymentMethod()).append("\n");
             text.append("Payment Status: ").append(order.getPaymentStatus()).append("\n\n");
@@ -84,12 +83,128 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("Order Update - Shrinath Cycle Store (Order #" + order.getId() + ")");
+            message.setSubject("Order Update - Shrinath Cycle Store");
             
-            message.setText("Hello,\n\nYour order #" + order.getId() + " status has been updated to: " + status + ".\n\nThank you for shopping with us!\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            String productNames = order.getItems() != null && !order.getItems().isEmpty() 
+                ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
+                : "items";
+            
+            StringBuilder text = new StringBuilder();
+            text.append("Hello,\n\nYour order for ").append(productNames).append(" status has been updated to: ").append(status).append(".\n\n");
+            text.append("Order Details:\n");
+            if (order.getItems() != null) {
+                order.getItems().forEach(item -> {
+                    text.append("- ").append(item.getName())
+                        .append(" (Qty: ").append(item.getQuantity())
+                        .append(") - Rs. ").append(item.getPrice()).append("\n");
+                });
+            }
+            text.append("\nTotal Amount: Rs. ").append(order.getTotalAmount()).append("\n");
+            text.append("Delivery Address: ").append(order.getAddress() != null ? order.getAddress() : "N/A").append("\n\n");
+            text.append("Thank you for shopping with us!\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            
+            message.setText(text.toString());
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println("Failed to send shipping update email to " + toEmail + ": " + e.getMessage());
         }
+    }
+
+    @Async
+    public void sendCancellationEmail(String toEmail, Order order) {
+        try {
+            String productNames = order.getItems() != null && !order.getItems().isEmpty() 
+                ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
+                : "items";
+                
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Cancellation Update - Shrinath Cycle Store");
+            message.setText("Hello,\n\nYour cancellation request for " + productNames
+                    + " has been received. Refund status: " + safe(order.getRefundStatus())
+                    + ".\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send cancellation email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendRefundEmail(String toEmail, Order order) {
+        try {
+            String productNames = order.getItems() != null && !order.getItems().isEmpty() 
+                ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
+                : "items";
+                
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Refund Processed - Shrinath Cycle Store");
+            message.setText("Hello,\n\nYour refund for " + productNames
+                    + " has been processed. Refund ID: " + safe(order.getRefundId())
+                    + "\nRefund Amount: Rs. " + order.getRefundAmount()
+                    + "\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send refund email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendReturnExchangeEmail(String toEmail, Order order, String requestType, String status) {
+        try {
+            String productNames = order.getItems() != null && !order.getItems().isEmpty() 
+                ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
+                : "items";
+                
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Return/Exchange Update - Shrinath Cycle Store");
+            message.setText("Hello,\n\nYour " + requestType + " request for " + productNames
+                    + " is now: " + status + ".\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send return/exchange email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendNewOrderAdminNotification(String adminEmail, Order order) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(adminEmail);
+            message.setSubject("New Order Received - Order #" + order.getId());
+            
+            StringBuilder text = new StringBuilder();
+            text.append("Hello Admin,\n\nA new order has been placed on the store.\n\n");
+            text.append("Order ID: ").append(order.getId()).append("\n");
+            text.append("User ID: ").append(order.getUserId()).append("\n");
+            text.append("Total Amount: ₹").append(order.getTotalAmount()).append("\n");
+            text.append("Payment Method: ").append(order.getPaymentMethod()).append("\n");
+            text.append("Payment Status: ").append(order.getPaymentStatus()).append("\n\n");
+            text.append("Order Summary:\n");
+            
+            if (order.getItems() != null) {
+                order.getItems().forEach(item -> {
+                    text.append("- ").append(item.getName())
+                        .append(" (Qty: ").append(item.getQuantity())
+                        .append(") - ₹").append(item.getPrice()).append("\n");
+                });
+            }
+            
+            text.append("\nPlease review the order in the admin panel.\n\nBest regards,\nThe System");
+            
+            message.setText(text.toString());
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send new order admin notification to " + adminEmail + ": " + e.getMessage());
+        }
+    }
+
+    private String safe(String value) {
+        return value == null || value.isBlank() ? "N/A" : value;
     }
 }

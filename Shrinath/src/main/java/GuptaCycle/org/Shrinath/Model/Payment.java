@@ -25,4 +25,8 @@ public class Payment {
     private boolean signatureVerified;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime verifiedAt;
+    private String refundId;
+    private String refundStatus;
+    private Double refundAmount;
+    private LocalDateTime refundedAt;
 }

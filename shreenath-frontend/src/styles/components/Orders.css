@@ -172,7 +172,12 @@
 }
 
 .order-status.processing,
-.order-status.shipped {
+.order-status.confirmed,
+.order-status.packed,
+.order-status.shipped,
+.order-status.out-for-delivery,
+.order-status.cancellation-requested,
+.order-status.return-requested {
   background: rgba(251, 191, 36, 0.12);
   color: #fbbf24;
   border: 1px solid rgba(251, 191, 36, 0.24);
@@ -450,4 +455,23 @@
 
 .cancel-addr-btn:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.return-exchange-form {
+  display: grid;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.return-exchange-form select,
+.return-exchange-form textarea,
+.return-exchange-form input {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.9rem;
+  width: 100%;
 }

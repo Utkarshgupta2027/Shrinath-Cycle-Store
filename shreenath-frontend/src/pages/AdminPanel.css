@@ -396,6 +396,7 @@
 
 .stock-badge.in-stock,
 .order-status-chip.delivered,
+.order-status-chip.completed,
 .snapshot-status.in-stock,
 .snapshot-status.delivered {
   color: var(--success);
@@ -403,10 +404,18 @@
 }
 
 .stock-badge.low-stock,
-.order-status-chip.processing,
+.order-status-chip.pending,
+.order-status-chip.confirmed,
+.order-status-chip.packed,
 .order-status-chip.shipped,
+.order-status-chip.out-for-delivery,
+.order-status-chip.requested,
+.order-status-chip.approved,
+.order-status-chip.picked-up,
 .snapshot-status.low-stock,
-.snapshot-status.processing,
+.snapshot-status.pending,
+.snapshot-status.confirmed,
+.snapshot-status.packed,
 .snapshot-status.shipped {
   color: var(--warning);
   background: rgba(251, 191, 36, 0.12);
@@ -414,15 +423,20 @@
 
 .stock-badge.out-of-stock,
 .order-status-chip.cancelled,
+.order-status-chip.cancellation-requested,
 .order-status-chip.returned,
+.order-status-chip.return-requested,
+.order-status-chip.rejected,
 .snapshot-status.out-of-stock,
 .snapshot-status.cancelled,
+.snapshot-status.cancellation-requested,
 .snapshot-status.returned {
   color: var(--danger);
   background: rgba(251, 113, 133, 0.12);
 }
 
 .order-status-chip.placed,
+.order-status-chip.exchanged,
 .snapshot-status.placed {
   color: var(--info);
   background: rgba(96, 165, 250, 0.12);
@@ -522,11 +536,16 @@
   flex-wrap: wrap;
 }
 
-.danger-inline-btn {
+.danger-inline-btn,
+.secondary-inline-btn {
   padding: 12px 14px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.secondary-inline-btn {
+  color: var(--gold-light);
 }
 
 .chart-bars {
@@ -880,4 +899,10 @@
   .modal-footer button {
     width: 100%;
   }
+}
+
+.table-filter-select option,
+.form-select option {
+  background-color: var(--obsidian-2);
+  color: var(--ink);
 }

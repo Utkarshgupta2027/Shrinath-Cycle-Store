@@ -27,13 +27,19 @@ public class Order {
     private String paymentId;
     private boolean signatureVerified;
     private LocalDateTime paidAt;
+    private String refundId;
+    private String refundStatus;
+    private Double refundAmount;
+    private String cancellationReason;
+    private LocalDateTime cancelledAt;
+    private LocalDateTime refundedAt;
 
     @Column(columnDefinition = "TEXT")
     private String address;
 
     private LocalDateTime orderDate = LocalDateTime.now();
 
-    private String status = "PLACED";
+    private String status = "PENDING";
 
     private LocalDateTime updatedAt = LocalDateTime.now();
 

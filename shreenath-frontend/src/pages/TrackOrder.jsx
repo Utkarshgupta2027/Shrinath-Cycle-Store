@@ -27,15 +27,19 @@ const TrackOrder = () => {
   }, [orderId]);
 
   const steps = [
-    { label: "Ordered", status: "PLACED", icon: <FaBox /> },
-    { label: "Processing", status: "PROCESSING", icon: <FaClock /> },
+    { label: "Pending", status: "PENDING", icon: <FaBox /> },
+    { label: "Confirmed", status: "CONFIRMED", icon: <FaClock /> },
+    { label: "Packed", status: "PACKED", icon: <FaBox /> },
     { label: "Shipped", status: "SHIPPED", icon: <FaTruck /> },
+    { label: "Out for Delivery", status: "OUT_FOR_DELIVERY", icon: <FaTruck /> },
     { label: "Delivered", status: "DELIVERED", icon: <FaHome /> },
   ];
 
   const getStatusIndex = (status) => {
-    const statuses = ["PLACED", "PROCESSING", "SHIPPED", "DELIVERED"];
-    return statuses.indexOf(status?.toUpperCase());
+    const legacyMap = { PLACED: "PENDING", PROCESSING: "CONFIRMED" };
+    const normalizedStatus = legacyMap[status?.toUpperCase()] || status?.toUpperCase();
+    const statuses = ["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"];
+    return statuses.indexOf(normalizedStatus);
   };
 
   const currentStatusIndex = getStatusIndex(order?.status);
@@ -48,7 +52,7 @@ const TrackOrder = () => {
   </div>;
 
   const isCancelled = order?.status === "CANCELLED";
-  const isReturned = order?.status === "RETURNED";
+  const isReturned = order?.status === "RETURNED" || order?.status === "RETURN_REQUESTED";
 
   return (
     <div className="track-page">
@@ -101,7 +105,7 @@ const TrackOrder = () => {
             <h3>Order Details</h3>
             <div className="summary-row">
               <span>Status:</span>
-              <span className={`status-badge ${order.status.toLowerCase()}`}>{order.status}</span>
+              <span className={`status-badge ${order.status.toLowerCase().replaceAll("_", "-")}`}>{order.status}</span>
             </div>
             <div className="summary-row">
               <span>Delivery Address:</span>

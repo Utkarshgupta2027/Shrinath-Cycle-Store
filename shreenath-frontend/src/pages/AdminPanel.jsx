@@ -26,7 +26,20 @@ const CATEGORY_OPTIONS = {
   "New Arrivals": ["New Arrivals"],
 };
 const CATEGORY_CHOICES = Object.values(CATEGORY_OPTIONS).flat();
-const ORDER_STATUSES = ["PLACED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+const ORDER_STATUSES = [
+  "PENDING",
+  "CONFIRMED",
+  "PACKED",
+  "SHIPPED",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLATION_REQUESTED",
+  "CANCELLED",
+  "RETURN_REQUESTED",
+  "RETURNED",
+  "EXCHANGED",
+];
+const RETURN_EXCHANGE_STATUSES = ["REQUESTED", "APPROVED", "REJECTED", "PICKED_UP", "COMPLETED"];
 const INITIAL_PRODUCT_FORM = {
   id: null,
   name: "",
@@ -102,12 +115,18 @@ const getStockState = (quantity) => {
   return { label: "In stock", className: "in-stock" };
 };
 
-const getStatusClass = (status) => (status || "PLACED").toLowerCase();
+const getStatusClass = (status) => (status || "PENDING").toLowerCase().replaceAll("_", "-");
+const normalizeOrderStatus = (status) => {
+  if (status === "PLACED") return "PENDING";
+  if (status === "PROCESSING") return "CONFIRMED";
+  return status || "PENDING";
+};
 
 function AdminPanel() {
   const user = getStoredUser();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [returnRequests, setReturnRequests] = useState([]);
   const [users, setUsers] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -138,6 +157,13 @@ function AdminPanel() {
     setOrders(ordersResponse.data || []);
   }, []);
 
+  const loadReturnRequests = useCallback(async () => {
+    const requestsResponse = await axios.get(`${API_BASE}/api/orders/admin/return-exchange`, {
+      headers: getAuthHeaders(),
+    });
+    setReturnRequests(requestsResponse.data || []);
+  }, []);
+
   const loadAnalytics = useCallback(async () => {
     const analyticsResponse = await axios.get(`${API_BASE}/api/orders/admin/analytics`, {
       headers: getAuthHeaders(),
@@ -157,11 +183,12 @@ function AdminPanel() {
       setLoading(true);
       setError("");
 
-      const [productsResponse, ordersResponse, analyticsResponse, usersResponse] = await Promise.allSettled([
+      const [productsResponse, ordersResponse, analyticsResponse, usersResponse, requestsResponse] = await Promise.allSettled([
         loadProducts(),
         loadOrders(),
         loadAnalytics(),
         loadUsers(),
+        loadReturnRequests(),
       ]);
 
       if (productsResponse.status === "rejected") {
@@ -184,6 +211,11 @@ function AdminPanel() {
         setUsers([]);
       }
 
+      if (requestsResponse.status === "rejected") {
+        console.error(requestsResponse.reason);
+        setReturnRequests([]);
+      }
+
       if (
         productsResponse.status === "rejected" &&
         ordersResponse.status === "rejected" &&
@@ -204,7 +236,7 @@ function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  }, [loadAnalytics, loadOrders, loadProducts, loadUsers]);
+  }, [loadAnalytics, loadOrders, loadProducts, loadReturnRequests, loadUsers]);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -223,6 +255,9 @@ function AdminPanel() {
       loadOrders().catch((error) => {
         console.error(error);
       });
+      loadReturnRequests().catch((error) => {
+        console.error(error);
+      });
     }
 
     if (activeSection === "analytics" || activeSection === "overview") {
@@ -236,7 +271,7 @@ function AdminPanel() {
         console.error(error);
       });
     }
-  }, [activeSection, isAdmin, loadAnalytics, loadOrders, loadUsers]);
+  }, [activeSection, isAdmin, loadAnalytics, loadOrders, loadReturnRequests, loadUsers]);
 
   useEffect(() => {
     return () => {
@@ -289,7 +324,7 @@ function AdminPanel() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      const status = (order.status || "PLACED").toUpperCase();
+      const status = normalizeOrderStatus(order.status).toUpperCase();
       const query = orderSearch.trim().toLowerCase();
       const matchesSearch =
         query === "" ||
@@ -481,6 +516,41 @@ function AdminPanel() {
     }
   };
 
+  const handleProcessRefund = async (order) => {
+    if (!confirmAction(`Process refund for order #${order.id}?`)) {
+      return;
+    }
+
+    try {
+      setUpdatingOrderId(order.id);
+      await axios.put(
+        `${API_BASE}/api/orders/${order.id}/refund`,
+        { amount: order.totalAmount, speed: "normal" },
+        { headers: getAuthHeaders() }
+      );
+      await loadDashboard();
+    } catch (refundError) {
+      console.error(refundError);
+      setError(getErrorMessage(refundError, "Unable to process refund."));
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
+  const handleReturnRequestStatusChange = async (requestId, status) => {
+    try {
+      await axios.put(
+        `${API_BASE}/api/orders/admin/return-exchange/${requestId}`,
+        { status },
+        { headers: getAuthHeaders() }
+      );
+      await loadDashboard();
+    } catch (requestError) {
+      console.error(requestError);
+      setError(getErrorMessage(requestError, "Unable to update return/exchange request."));
+    }
+  };
+
   if (!isAdmin) {
     return (
       <div className="admin-page">
@@ -520,6 +590,7 @@ function AdminPanel() {
             { key: "overview", label: "Overview" },
             { key: "inventory", label: "Inventory" },
             { key: "orders", label: "Orders" },
+            { key: "returns", label: "Returns" },
             { key: "users", label: "Users" },
             { key: "analytics", label: "Analytics" },
           ].map((section) => (
@@ -761,7 +832,7 @@ function AdminPanel() {
                 <div className="card-heading">
                   <div>
                     <h2>Order Management Dashboard</h2>
-                    <p>Accept, update, cancel, return, or delete orders from one queue.</p>
+                    <p>Move orders through Pending, Confirmed, Packed, Shipped, Out for Delivery, and Delivered.</p>
                   </div>
                   <div className="orders-highlight">
                     <FaTruck />
@@ -803,13 +874,14 @@ function AdminPanel() {
                           <p>User #{order.userId}</p>
                         </div>
                         <span className={`order-status-chip ${getStatusClass(order.status)}`}>
-                          {order.status || "PLACED"}
+                          {normalizeOrderStatus(order.status)}
                         </span>
                       </div>
 
                       <div className="order-admin-meta">
                         <span>{formatCurrency(order.totalAmount)}</span>
                         <span>{order.items?.length || 0} items</span>
+                        <span>{order.paymentStatus || "PENDING"}</span>
                         <span>
                           {order.orderDate
                             ? new Date(order.orderDate).toLocaleString("en-IN", {
@@ -822,31 +894,52 @@ function AdminPanel() {
                       </div>
 
                       <div className="order-admin-address">{order.address || "No address provided."}</div>
+                      {order.cancellationReason ? (
+                        <div className="order-admin-address">Cancel reason: {order.cancellationReason}</div>
+                      ) : null}
+                      {order.refundStatus ? (
+                        <div className="order-admin-address">
+                          Refund: {order.refundStatus}
+                          {order.refundId ? ` (${order.refundId})` : ""}
+                        </div>
+                      ) : null}
 
                       <div className="order-admin-items">
                         {(order.items || []).slice(0, 3).map((item) => (
                           <div key={item.id} className="order-admin-item">
                             <span>{item.name}</span>
                             <strong>
-                              Qty {item.quantity} · {formatCurrency(item.price)}
+                              Qty {item.quantity} - {formatCurrency(item.price)}
                             </strong>
                           </div>
                         ))}
                       </div>
 
                       <div className="order-admin-actions">
-                        <select
-                          className="table-filter-select"
-                          value={order.status || "PLACED"}
-                          disabled={updatingOrderId === order.id}
-                          onChange={(event) => handleOrderStatusChange(order.id, event.target.value)}
-                        >
-                          {ORDER_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="update-status-wrap" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#4a5568' }}>Update Status:</span>
+                          <select
+                            className="table-filter-select"
+                            value={normalizeOrderStatus(order.status)}
+                            disabled={updatingOrderId === order.id}
+                            onChange={(event) => handleOrderStatusChange(order.id, event.target.value)}
+                          >
+                            {ORDER_STATUSES.map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {(order.status === "CANCELLATION_REQUESTED" || order.refundStatus === "REQUESTED") && (
+                          <button
+                            className="secondary-inline-btn"
+                            disabled={updatingOrderId === order.id}
+                            onClick={() => handleProcessRefund(order)}
+                          >
+                            <FaMoneyBillWave /> Refund
+                          </button>
+                        )}
                         <button
                           className="danger-inline-btn"
                           disabled={updatingOrderId === order.id}
@@ -859,6 +952,57 @@ function AdminPanel() {
                   ))}
                   {filteredOrders.length === 0 ? (
                     <div className="empty-inline-state">No orders match your current order filters.</div>
+                  ) : null}
+                </div>
+              </section>
+            )}
+
+            {(activeSection === "overview" || activeSection === "returns") && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>Return & Exchange Requests</h2>
+                    <p>Review customer forms and update request status.</p>
+                  </div>
+                  <div className="orders-highlight">
+                    <FaUndoAlt />
+                    <span>{returnRequests.length} requests</span>
+                  </div>
+                </div>
+
+                <div className="orders-admin-list">
+                  {returnRequests.map((request) => (
+                    <article key={request.id} className="order-admin-card">
+                      <div className="order-admin-header">
+                        <div>
+                          <h3>{request.requestType} request #{request.id}</h3>
+                          <p>Order #{request.orderId} - User #{request.userId}</p>
+                        </div>
+                        <span className={`order-status-chip ${getStatusClass(request.status)}`}>
+                          {request.status}
+                        </span>
+                      </div>
+                      <div className="order-admin-address">{request.reason}</div>
+                      {request.preferredResolution ? (
+                        <div className="order-admin-address">Preferred: {request.preferredResolution}</div>
+                      ) : null}
+                      <div className="order-admin-actions">
+                        <select
+                          className="table-filter-select"
+                          value={request.status}
+                          onChange={(event) => handleReturnRequestStatusChange(request.id, event.target.value)}
+                        >
+                          {RETURN_EXCHANGE_STATUSES.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </article>
+                  ))}
+                  {returnRequests.length === 0 ? (
+                    <div className="empty-inline-state">No return or exchange requests yet.</div>
                   ) : null}
                 </div>
               </section>

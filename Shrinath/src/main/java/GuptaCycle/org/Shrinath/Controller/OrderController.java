@@ -1,11 +1,16 @@
 package GuptaCycle.org.Shrinath.Controller;
 
+import GuptaCycle.org.Shrinath.DTO.CancelOrderRequest;
 import GuptaCycle.org.Shrinath.DTO.OrderStatusUpdateRequest;
+import GuptaCycle.org.Shrinath.DTO.RefundRequest;
+import GuptaCycle.org.Shrinath.DTO.ReturnExchangeRequestDto;
+import GuptaCycle.org.Shrinath.DTO.ReturnExchangeStatusUpdateRequest;
 import GuptaCycle.org.Shrinath.Model.Order;
 import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
 import GuptaCycle.org.Shrinath.Model.OrderRequest;
 import GuptaCycle.org.Shrinath.Service.OrderService;
+import GuptaCycle.org.Shrinath.Service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,11 +35,18 @@ public class OrderController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private CartService cartService;
+
     @PostMapping
     public ResponseEntity<?> placeOrder(@RequestBody OrderRequest request) {
         try {
             request.setUserId(currentUserId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(orderService.saveOrder(request));
+            Order order = orderService.saveOrder(request);
+            if ("COD".equalsIgnoreCase(order.getPaymentMethod())) {
+                cartService.clearCart(order.getUserId());
+            }
+            return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
@@ -97,6 +109,24 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{orderId}/refund")
+    public ResponseEntity<?> processRefund(@PathVariable Long orderId,
+                                           @RequestBody(required = false) RefundRequest request,
+                                           @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
+        try {
+            Double amount = request == null ? null : request.getAmount();
+            String speed = request == null ? "normal" : request.getSpeed();
+            return ResponseEntity.ok(orderService.processRefund(orderId, amount, speed));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
     @DeleteMapping("/{orderId}")
     public ResponseEntity<?> deleteOrder(@PathVariable Long orderId,
                                          @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
@@ -128,21 +158,58 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/cancel")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
+    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, @RequestBody(required = false) CancelOrderRequest request) {
         try {
             Order order = orderService.getOrderById(orderId);
             if (!currentUserId().equals(order.getUserId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only cancel your own order.");
             }
-            return ResponseEntity.ok(orderService.cancelOrder(orderId));
+            return ResponseEntity.ok(orderService.cancelOrder(orderId, request == null ? null : request.getReason()));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
     @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<?> cancelOrderPost(@PathVariable Long orderId) {
-        return cancelOrder(orderId);
+    public ResponseEntity<?> cancelOrderPost(@PathVariable Long orderId, @RequestBody(required = false) CancelOrderRequest request) {
+        return cancelOrder(orderId, request);
+    }
+
+    @PostMapping("/{orderId}/return-exchange")
+    public ResponseEntity<?> createReturnExchangeRequest(@PathVariable Long orderId,
+                                                         @RequestBody ReturnExchangeRequestDto request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(orderService.createReturnExchangeRequest(orderId, currentUserId(), request));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @GetMapping("/admin/return-exchange")
+    public ResponseEntity<?> getReturnExchangeRequests(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
+        return ResponseEntity.ok(orderService.getAllReturnExchangeRequests());
+    }
+
+    @PutMapping("/admin/return-exchange/{requestId}")
+    public ResponseEntity<?> updateReturnExchangeRequest(@PathVariable Long requestId,
+                                                         @RequestBody ReturnExchangeStatusUpdateRequest request,
+                                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
+        try {
+            return ResponseEntity.ok(orderService.updateReturnExchangeStatus(requestId, request));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     private ResponseEntity<?> authorizeAdmin(String authorizationHeader) {

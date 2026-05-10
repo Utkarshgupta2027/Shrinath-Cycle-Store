@@ -15,6 +15,7 @@ export default function Orders() {
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [newAddress, setNewAddress] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [returnForms, setReturnForms] = useState({});
 
   const fetchOrders = useCallback(() => {
     if (!userId) return;
@@ -35,14 +36,14 @@ export default function Orders() {
 
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    const reason = window.prompt("Reason for cancellation", "Changed my mind") || "";
 
     setActionLoading(true);
     try {
-      console.log(`Attempting to cancel order ${orderId}...`);
       const res = await fetch(`http://localhost:8080/api/orders/${orderId}/cancel`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}), // Some servers require a body for PUT
+        body: JSON.stringify({ reason }),
       });
       
       if (res.ok) {
@@ -93,7 +94,53 @@ export default function Orders() {
     }
   };
 
-  const getStatusClass = (status) => (status || "PLACED").toLowerCase();
+  const handleReturnFormChange = (orderId, field, value) => {
+    setReturnForms((current) => ({
+      ...current,
+      [orderId]: {
+        requestType: "RETURN",
+        reason: "",
+        preferredResolution: "",
+        ...(current[orderId] || {}),
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleReturnExchangeRequest = async (orderId) => {
+    const form = returnForms[orderId] || {};
+    if (!form.reason?.trim()) {
+      alert("Please enter a reason for your return/exchange request.");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/return-exchange`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestType: form.requestType || "RETURN",
+          reason: form.reason,
+          preferredResolution: form.preferredResolution || "",
+        }),
+      });
+      if (res.ok) {
+        alert("Request submitted successfully.");
+        setReturnForms((current) => ({ ...current, [orderId]: {} }));
+      } else {
+        const msg = await res.text();
+        alert(msg || "Failed to submit request.");
+      }
+    } catch (err) {
+      alert("Network error. Could not submit request.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const getStatusClass = (status) => (status || "PENDING").toLowerCase().replaceAll("_", "-");
+  const canCancel = (status) => ["PENDING", "CONFIRMED", "PACKED", "PLACED", "PROCESSING", undefined, null, ""].includes(status);
 
   if (!user) {
     return (
@@ -180,7 +227,7 @@ export default function Orders() {
                     ) : (
                       <div className="address-display-group">
                         <span>{order.address}</span>
-                        {(order.status === "PLACED" || !order.status) && (
+                        {(order.status === "PENDING" || order.status === "PLACED" || !order.status) && (
                           <button className="edit-addr-btn" onClick={() => startEditingAddress(order)}>
                             <FaEdit /> Edit
                           </button>
@@ -235,7 +282,7 @@ export default function Orders() {
                   >
                     Track Order
                   </button>
-                  {(order.status === "PLACED" || order.status === "PROCESSING" || !order.status) && (
+                  {canCancel(order.status) && (
                     <button 
                       className="cancel-order-btn" 
                       onClick={() => handleCancelOrder(order.id)}
@@ -246,6 +293,35 @@ export default function Orders() {
                   )}
                 </div>
               </div>
+              {order.status === "DELIVERED" && (
+                <div className="return-exchange-form">
+                  <select
+                    value={returnForms[order.id]?.requestType || "RETURN"}
+                    onChange={(event) => handleReturnFormChange(order.id, "requestType", event.target.value)}
+                  >
+                    <option value="RETURN">Return</option>
+                    <option value="EXCHANGE">Exchange</option>
+                  </select>
+                  <textarea
+                    placeholder="Reason"
+                    value={returnForms[order.id]?.reason || ""}
+                    onChange={(event) => handleReturnFormChange(order.id, "reason", event.target.value)}
+                    rows={2}
+                  />
+                  <input
+                    placeholder="Preferred resolution"
+                    value={returnForms[order.id]?.preferredResolution || ""}
+                    onChange={(event) => handleReturnFormChange(order.id, "preferredResolution", event.target.value)}
+                  />
+                  <button
+                    className="track-order-btn"
+                    disabled={actionLoading}
+                    onClick={() => handleReturnExchangeRequest(order.id)}
+                  >
+                    Submit Request
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
