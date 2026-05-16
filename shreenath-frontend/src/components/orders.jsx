@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo } from "react-icons/fa";
 import { getStoredUser } from "../utils/auth";
@@ -199,6 +199,14 @@ export default function Orders() {
                           day: "numeric",
                         })
                       : "N/A"}
+                  {order.awbNumber && (
+                    <span className="order-awb-badge">
+                      {"📦 AWB: "}{order.awbNumber}{order.courierName ? " - " + order.courierName : ""}
+                      {order.trackingUrl && (
+                        <a href={order.trackingUrl} target="_blank" rel="noreferrer" className="awb-track-link"> Track Shipment</a>
+                      )}
+                    </span>
+                  )}
                   </span>
                 </div>
               </div>
@@ -329,3 +337,5 @@ export default function Orders() {
     </div>
   );
 }
+
+

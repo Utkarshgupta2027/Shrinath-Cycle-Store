@@ -111,7 +111,20 @@ const TrackOrder = () => {
               <span>Delivery Address:</span>
               <p className="track-address">{order.address}</p>
             </div>
-            <div className="summary-items">
+                        {order.awbNumber && (
+              <div className="awb-section">
+                <div className="summary-row">
+                  <span>AWB Number:</span>
+                  <span className="awb-number-val">{order.awbNumber}</span>
+                </div>
+                {order.courierName && (<div className="summary-row"><span>Courier:</span><span>{order.courierName}</span></div>)}
+                {order.trackingUrl && (
+                  <a href={order.trackingUrl} target="_blank" rel="noreferrer" className="courier-track-btn">
+                    Track on {order.courierName || "Courier"} Website
+                  </a>
+                )}
+              </div>
+            )}<div className="summary-items">
               <h4>Items:</h4>
               {order.items.map((item) => (
                 <div key={item.id} className="track-item">
@@ -132,3 +145,4 @@ const TrackOrder = () => {
 };
 
 export default TrackOrder;
+

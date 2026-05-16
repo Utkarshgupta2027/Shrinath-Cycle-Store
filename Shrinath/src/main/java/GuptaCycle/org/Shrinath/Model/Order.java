@@ -34,6 +34,11 @@ public class Order {
     private LocalDateTime cancelledAt;
     private LocalDateTime refundedAt;
 
+    // Shipping / AWB tracking
+    private String awbNumber;
+    private String courierName;
+    private String trackingUrl;
+
     @Column(columnDefinition = "TEXT")
     private String address;
 

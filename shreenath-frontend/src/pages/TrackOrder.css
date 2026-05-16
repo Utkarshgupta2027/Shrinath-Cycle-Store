@@ -257,3 +257,8 @@
     text-align: left;
   }
 }
+
+.awb-section { background:rgba(52,211,153,.07); border:1px solid rgba(52,211,153,.2); border-radius:14px; padding:14px; margin:12px 0; }
+.awb-number-val { font-weight:800; color:#34d399; font-size:.95rem; }
+.courier-track-btn { display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:9px 18px; background:linear-gradient(135deg,#34d399,#059669); color:#fff; border-radius:12px; font-weight:700; font-size:.88rem; text-decoration:none; transition:transform .15s; }
+.courier-track-btn:hover { transform:translateY(-2px); }

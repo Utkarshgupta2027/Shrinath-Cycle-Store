@@ -906,3 +906,12 @@
   background-color: var(--obsidian-2);
   color: var(--ink);
 }
+
+/* Shipping PIN Management */
+.shipping-pin-form { background:var(--surface2,rgba(255,255,255,.04)); border:1px solid var(--border,rgba(255,255,255,.08)); border-radius:16px; padding:20px; margin-bottom:24px; }
+.shipping-pin-form h3 { margin:0 0 14px; font-size:1rem; color:var(--text-primary,#f1f5f9); }
+.shipping-pin-form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:12px; }
+.shipping-pin-form-grid input { padding:10px 12px; border:1px solid var(--border,rgba(255,255,255,.1)); border-radius:10px; background:rgba(0,0,0,.2); color:var(--text-primary,#f1f5f9); font:inherit; width:100%; }
+.shipping-pin-form-grid input:focus { outline:none; border-color:#3b82f6; }
+.shipping-pin-form-grid input:disabled { opacity:.5; cursor:not-allowed; }
+.shipping-pin-form-actions { display:flex; gap:10px; }

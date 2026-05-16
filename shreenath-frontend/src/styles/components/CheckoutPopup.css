@@ -539,3 +539,13 @@
     text-align: left;
   }
 }
+
+/* PIN Serviceability */
+.pin-status-badge { display:inline-flex; align-items:center; gap:6px; margin:8px 0 12px; padding:7px 14px; border-radius:999px; font-size:.82rem; font-weight:700; }
+.pin-ok  { background:rgba(52,211,153,.12); color:#34d399; border:1px solid rgba(52,211,153,.3); }
+.pin-bad { background:rgba(239,68,68,.1);   color:#fca5a5; border:1px solid rgba(239,68,68,.25); }
+.pin-checking-msg { font-size:.82rem; color:#94a3b8; margin:6px 0 10px; }
+.manage-addr-link { margin-left:auto; background:none; border:none; color:#e2c678; font-size:.82rem; font-weight:700; cursor:pointer; text-decoration:underline; padding:0; }
+.saved-addr-label-row { display:flex; align-items:center; gap:6px; width:100%; }
+.saved-addr-default { display:inline-flex; align-items:center; gap:3px; font-size:.7rem; color:#f59e0b; background:rgba(245,158,11,.12); border-radius:999px; padding:2px 8px; margin-left:auto; }
+.shipping-charge-note { margin:8px 0 0; font-size:.83rem; color:#34d399; font-weight:600; }

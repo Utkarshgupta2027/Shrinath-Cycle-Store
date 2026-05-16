@@ -56,6 +56,9 @@ public class OrderService {
     @Autowired
     private RazorpayRefundService razorpayRefundService;
 
+    @Autowired
+    private ShippingService shippingService;
+
     @Value("${app.admin.email:gutkarsh702@gmail.com}")
     private String adminEmail;
 
@@ -156,6 +159,14 @@ public class OrderService {
         String normalizedStatus = normalizeStatus(status);
         order.setStatus(normalizedStatus);
         order.setUpdatedAt(LocalDateTime.now());
+
+        // Auto-generate AWB when order is shipped
+        if ("SHIPPED".equals(normalizedStatus) && (order.getAwbNumber() == null || order.getAwbNumber().isBlank())) {
+            java.util.Map<String, String> awbData = shippingService.generateAWB(orderId);
+            order.setAwbNumber(awbData.get("awbNumber"));
+            order.setCourierName(awbData.get("courierName"));
+            order.setTrackingUrl(awbData.get("trackingUrl"));
+        }
 
         Order savedOrder = orderRepo.save(order);
         userRepository.findById(savedOrder.getUserId())
@@ -470,8 +481,10 @@ public class OrderService {
 
     private void notifyStatusUpdate(User user, Order order, String normalizedStatus) {
         emailService.sendShippingUpdateEmail(user.getEmail(), order, normalizedStatus);
+        String awbInfo = (order.getAwbNumber() != null && !order.getAwbNumber().isBlank())
+                ? " AWB: " + order.getAwbNumber() + "." : ".";
         smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: order for " + getProductNames(order)
-                + " is now " + normalizedStatus + ".");
+                + " is now " + normalizedStatus + awbInfo);
     }
 
     private String getProductNames(Order order) {

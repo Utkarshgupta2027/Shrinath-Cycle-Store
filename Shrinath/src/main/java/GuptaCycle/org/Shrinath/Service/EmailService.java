@@ -100,8 +100,19 @@ public class EmailService {
                 });
             }
             text.append("\nTotal Amount: Rs. ").append(order.getTotalAmount()).append("\n");
-            text.append("Delivery Address: ").append(order.getAddress() != null ? order.getAddress() : "N/A").append("\n\n");
-            text.append("Thank you for shopping with us!\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            text.append("Delivery Address: ").append(order.getAddress() != null ? order.getAddress() : "N/A").append("\n");
+
+            // Include AWB tracking info if available
+            if (order.getAwbNumber() != null && !order.getAwbNumber().isBlank()) {
+                text.append("\n--- Shipment Tracking ---\n");
+                text.append("AWB Number: ").append(order.getAwbNumber()).append("\n");
+                text.append("Courier: ").append(order.getCourierName() != null ? order.getCourierName() : "N/A").append("\n");
+                if (order.getTrackingUrl() != null && !order.getTrackingUrl().isBlank()) {
+                    text.append("Track your shipment: ").append(order.getTrackingUrl()).append("\n");
+                }
+            }
+
+            text.append("\nThank you for shopping with us!\n\nBest regards,\nThe Shrinath Cycle Store Team");
             
             message.setText(text.toString());
             mailSender.send(message);
