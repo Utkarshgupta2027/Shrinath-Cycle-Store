@@ -63,7 +63,26 @@ const PAYMENT_METHODS = [
   },
 ];
 
-const BANK_OPTIONS = ["SBI", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Bank"];
+const BANK_OPTIONS = [
+  { id: "sbi",    label: "State Bank of India", short: "SBI",    emoji: "ðŸ¦" },
+  { id: "hdfc",   label: "HDFC Bank",            short: "HDFC",   emoji: "ðŸ”µ" },
+  { id: "icici",  label: "ICICI Bank",           short: "ICICI",  emoji: "ðŸŸ " },
+  { id: "axis",   label: "Axis Bank",            short: "Axis",   emoji: "ðŸ”´" },
+  { id: "kotak",  label: "Kotak Bank",           short: "Kotak",  emoji: "ðŸŸ¡" },
+  { id: "pnb",    label: "Punjab National Bank", short: "PNB",    emoji: "ðŸ›ï¸" },
+  { id: "bob",    label: "Bank of Baroda",       short: "BoB",    emoji: "ðŸŒ" },
+  { id: "canara", label: "Canara Bank",          short: "Canara", emoji: "ðŸŸ¢" },
+];
+
+const UPI_APPS = [
+  { id: "gpay",    label: "Google Pay", color: "#4285F4", emoji: "G",  placeholder: "mobile@okaxis" },
+  { id: "phonepe", label: "PhonePe",    color: "#5f259f", emoji: "Pe", placeholder: "mobile@ybl" },
+  { id: "paytm",   label: "Paytm",      color: "#00BAF2", emoji: "P",  placeholder: "mobile@paytm" },
+  { id: "bhim",    label: "BHIM",       color: "#004C8F", emoji: "B",  placeholder: "name@upi" },
+  { id: "amazon",  label: "Amazon Pay", color: "#FF9900", emoji: "A",  placeholder: "mobile@apl" },
+  { id: "other",   label: "Other UPI",  color: "#64748b", emoji: "#",  placeholder: "yourname@bank" },
+];
+
 const GATEWAYS = ["Razorpay", "Stripe", "PayPal"];
 const EMI_OPTIONS = ["3 months", "6 months", "9 months", "12 months"];
 const BILLING_DEFAULT = {
@@ -87,7 +106,7 @@ const normalizeCartItems = (cart) => {
 const maskCardNumber = (value) => {
   const digits = value.replace(/\D/g, "");
   if (digits.length < 4) return "Saved card";
-  return `•••• •••• •••• ${digits.slice(-4)}`;
+  return `â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ ${digits.slice(-4)}`;
 };
 
 function MakePayment() {
@@ -133,10 +152,11 @@ function MakePayment() {
     expiry: "",
     cvv: "",
     upiId: "",
-    bank: BANK_OPTIONS[0],
+    bank: "sbi",
     useQr: true,
     emiPlan: EMI_OPTIONS[1],
   });
+  const [selectedUpiApp, setSelectedUpiApp] = useState("gpay");
 
   useEffect(() => {
     if (!userId) {
@@ -534,7 +554,7 @@ function MakePayment() {
                         />
                         <div>
                           <h3>{item.name}</h3>
-                          <p>Qty {item.quantity} • {formatMoney(item.price)}</p>
+                          <p>Qty {item.quantity} {'\u00B7'} {formatMoney(item.price)}</p>
                         </div>
                         <strong>{formatMoney((Number(item.price) || 0) * (Number(item.quantity) || 0))}</strong>
                       </article>
@@ -620,34 +640,48 @@ function MakePayment() {
 
               {selectedMethod === "upi" && (
                 <div className="upi-panel">
+                  <div className="upi-apps-label">Choose UPI App</div>
+                  <div className="upi-apps-grid">
+                    {UPI_APPS.map((app) => (
+                      <button
+                        key={app.id}
+                        className={`upi-app-btn${selectedUpiApp === app.id ? " active" : ""}`}
+                        onClick={() => setSelectedUpiApp(app.id)}
+                        style={{ "--upi-clr": app.color }}
+                      >
+                        <span className="upi-app-icon" style={{ background: app.color }}>{app.emoji}</span>
+                        <span className="upi-app-name">{app.label}</span>
+                        {selectedUpiApp === app.id && <span className="upi-app-check">&#10003;</span>}
+                      </button>
+                    ))}
+                  </div>
                   <div className="upi-mode-toggle">
                     <button className={details.useQr ? "active" : ""} onClick={() => setFormField("useQr", true)}>
-                      <FaQrcode /> QR Code
+                      <FaQrcode /> Scan QR
                     </button>
                     <button className={!details.useQr ? "active" : ""} onClick={() => setFormField("useQr", false)}>
-                      <FaMobileAlt /> UPI ID
+                      <FaMobileAlt /> Enter UPI ID
                     </button>
                   </div>
                   {details.useQr ? (
                     <div className="qr-card">
-                      <div className="demo-qr">
-                        <FaQrcode />
-                      </div>
+                      <div className="demo-qr"><FaQrcode /></div>
                       <div>
-                        <strong>Scan with any UPI app</strong>
-                        <p>Google Pay, PhonePe, Paytm, or BHIM can be used here.</p>
+                        <strong>Scan with {UPI_APPS.find((a) => a.id === selectedUpiApp)?.label || "any UPI app"}</strong>
+                        <p>Open app &rarr; Scan QR &rarr; Confirm &#8377;{totalPayable.toLocaleString("en-IN")}</p>
+                        <small style={{ color: "#7dd3fc" }}>UPI ID: shrinathcycles@upi</small>
                       </div>
                       <button className="secondary-btn" onClick={copyDemoQr}>
-                        <FaCopy /> Copy QR Link
+                        <FaCopy /> Copy
                       </button>
                     </div>
                   ) : (
                     <label>
-                      UPI ID
+                      {UPI_APPS.find((a) => a.id === selectedUpiApp)?.label} UPI ID
                       <input
                         value={details.upiId}
                         onChange={(e) => setFormField("upiId", e.target.value)}
-                        placeholder="name@bank"
+                        placeholder={UPI_APPS.find((a) => a.id === selectedUpiApp)?.placeholder || "yourname@bank"}
                       />
                     </label>
                   )}
@@ -655,15 +689,31 @@ function MakePayment() {
               )}
 
               {selectedMethod === "netbanking" && (
-                <div className="details-grid">
-                  <label>
-                    Select Bank
-                    <select value={details.bank} onChange={(e) => setFormField("bank", e.target.value)}>
-                      {BANK_OPTIONS.map((bank) => (
-                        <option key={bank} value={bank}>{bank}</option>
-                      ))}
-                    </select>
-                  </label>
+                <div className="netbanking-panel">
+                  <div className="netbanking-label">Select Your Bank</div>
+                  <div className="netbanking-grid">
+                    {BANK_OPTIONS.map((bank) => (
+                      <button
+                        key={bank.id}
+                        className={`bank-tile${details.bank === bank.id ? " active" : ""}`}
+                        onClick={() => setFormField("bank", bank.id)}
+                      >
+                        <span className="bank-emoji">{bank.emoji}</span>
+                        <span className="bank-short">{bank.short}</span>
+                        <span className="bank-full">{bank.label}</span>
+                        {details.bank === bank.id && <span className="bank-check">&#10003;</span>}
+                      </button>
+                    ))}
+                  </div>
+                  {details.bank && (
+                    <div className="netbanking-redirect-note">
+                      <FaUniversity />
+                      <div>
+                        <strong>You will be redirected to {BANK_OPTIONS.find((b) => b.id === details.bank)?.label}</strong>
+                        <p>Complete your bank login and authorise payment securely.</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

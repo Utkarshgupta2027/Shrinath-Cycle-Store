@@ -17,11 +17,14 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Value("${app.mail.from-name:Shrinath Cycle Store}")
+    private String fromName;
+
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Welcome to Shrinath Cycle Store!");
             message.setText("Hi " + name + ",\n\nWelcome to Shrinath Cycle Store! We're excited to have you on board.\n\nBest regards,\nThe Shrinath Cycle Store Team");
@@ -35,7 +38,7 @@ public class EmailService {
     public void sendPasswordResetOtpEmail(String toEmail, String otp) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Password Reset OTP - Shrinath Cycle Store");
             message.setText("Hello,\n\nYou have requested to reset your password. Please use the following OTP to reset it:\n\n" + otp + "\n\nThis OTP is valid for 5 minutes.\n\nIf you did not request a password reset, please ignore this email.");
@@ -49,7 +52,7 @@ public class EmailService {
     public void sendOrderConfirmationEmail(String toEmail, Order order) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Order Confirmation - Shrinath Cycle Store");
             
@@ -81,7 +84,7 @@ public class EmailService {
     public void sendShippingUpdateEmail(String toEmail, Order order, String status) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Order Update - Shrinath Cycle Store");
             
@@ -129,7 +132,7 @@ public class EmailService {
                 : "items";
                 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Cancellation Update - Shrinath Cycle Store");
             message.setText("Hello,\n\nYour cancellation request for " + productNames
@@ -149,7 +152,7 @@ public class EmailService {
                 : "items";
                 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Refund Processed - Shrinath Cycle Store");
             message.setText("Hello,\n\nYour refund for " + productNames
@@ -170,7 +173,7 @@ public class EmailService {
                 : "items";
                 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(toEmail);
             message.setSubject("Return/Exchange Update - Shrinath Cycle Store");
             message.setText("Hello,\n\nYour " + requestType + " request for " + productNames
@@ -185,7 +188,7 @@ public class EmailService {
     public void sendNewOrderAdminNotification(String adminEmail, Order order) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress());
             message.setTo(adminEmail);
             message.setSubject("New Order Received - Order #" + order.getId());
             
@@ -213,6 +216,14 @@ public class EmailService {
         } catch (Exception e) {
             System.err.println("Failed to send new order admin notification to " + adminEmail + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Returns "Shrinath Cycle Store <gutkarsh702@gmail.com>" format.
+     * Gmail will display the name instead of the raw email address.
+     */
+    private String fromAddress() {
+        return fromName + " <" + fromEmail + ">";
     }
 
     private String safe(String value) {

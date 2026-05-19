@@ -48,6 +48,9 @@ public class OrderService {
     private SmsService smsService;
 
     @Autowired
+    private WhatsAppService whatsAppService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -473,18 +476,44 @@ public class OrderService {
     }
 
     private void notifyOrderConfirmation(User user, Order order) {
+        String productNames = getProductNames(order);
+        String orderIdStr   = String.valueOf(order.getId());
+
+        // Email
         emailService.sendOrderConfirmationEmail(user.getEmail(), order);
-        smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: order for " + getProductNames(order)
-                + " placed. Current status: " + order.getStatus() + ".");
         emailService.sendNewOrderAdminNotification(adminEmail, order);
+
+        // SMS to customer (Fast2SMS primary → Twilio fallback)
+        smsService.sendOrderConfirmationSms(user.getPhoneNumber(), productNames, orderIdStr);
+
+        // WhatsApp to admin (CallMeBot free → Twilio sandbox fallback)
+        String waMsg = "🛒 *New Order #" + orderIdStr + "*\n"
+                + "Customer: " + user.getName() + "\n"
+                + "Items: " + productNames + "\n"
+                + "Amount: \u20B9" + order.getTotalAmount() + "\n"
+                + "Payment: " + order.getPaymentMethod() + " (" + order.getPaymentStatus() + ")";
+        whatsAppService.sendAdminWhatsApp(waMsg);
     }
 
     private void notifyStatusUpdate(User user, Order order, String normalizedStatus) {
         emailService.sendShippingUpdateEmail(user.getEmail(), order, normalizedStatus);
-        String awbInfo = (order.getAwbNumber() != null && !order.getAwbNumber().isBlank())
-                ? " AWB: " + order.getAwbNumber() + "." : ".";
-        smsService.sendSms(user.getPhoneNumber(), "Shrinath Cycle Store: order for " + getProductNames(order)
-                + " is now " + normalizedStatus + awbInfo);
+
+        // Use dedicated dispatch SMS for SHIPPED with AWB details
+        if ("SHIPPED".equals(normalizedStatus)) {
+            smsService.sendDispatchSms(
+                    user.getPhoneNumber(),
+                    getProductNames(order),
+                    order.getAwbNumber(),
+                    order.getCourierName(),
+                    order.getTrackingUrl()
+            );
+        } else {
+            String awbInfo = (order.getAwbNumber() != null && !order.getAwbNumber().isBlank())
+                    ? " AWB: " + order.getAwbNumber() + "." : ".";
+            smsService.sendSms(user.getPhoneNumber(),
+                    "Shrinath Cycle Store: order for " + getProductNames(order)
+                    + " is now " + normalizedStatus + awbInfo);
+        }
     }
 
     private String getProductNames(Order order) {

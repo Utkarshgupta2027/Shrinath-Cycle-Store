@@ -6,11 +6,13 @@ export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setMsg("Logging in...");
+    setIsLoading(true);
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
@@ -23,6 +25,11 @@ export default function Login() {
       });
 
       const data = await res.json();
+
+      if (res.status === 429) {
+        setMsg("Too many login attempts. Please wait a moment and try again.");
+        return;
+      }
 
       if (!res.ok) {
         setMsg(data.message || "Invalid credentials");
@@ -40,12 +47,18 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("userId", String(data.userId));
       localStorage.setItem("token", data.token);
+      // Store refresh token for silent token renewal
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
 
       setMsg("Login successful");
       setTimeout(() => navigate("/"), 500);
     } catch (err) {
       console.error(err);
-      setMsg("Network error");
+      setMsg("Network error. Please check your connection.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,7 +90,9 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="auth-submit-btn">Login</button>
+          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
         {msg && <p className="auth-message">{msg}</p>}

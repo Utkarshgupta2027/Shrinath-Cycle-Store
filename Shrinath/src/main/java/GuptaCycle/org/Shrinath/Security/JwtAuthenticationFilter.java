@@ -15,6 +15,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * JWT Authentication Filter.
+ *
+ * Validates the Bearer token on every request.
+ * Security hardening:
+ *   - Only ACCESS tokens are accepted for API calls.
+ *   - Refresh tokens are explicitly rejected here; they may only be used
+ *     on the /api/auth/refresh endpoint (handled without this filter).
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -32,7 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
-            if (jwtUtils.validateJwtToken(token)) {
+
+            if (jwtUtils.validateJwtToken(token) && jwtUtils.isAccessToken(token)) {
+                // Only ACCESS tokens authenticate API requests
                 String phoneNumber = jwtUtils.getUserNameFromJwtToken(token);
                 String role = authService.getRoleForPhoneNumber(phoneNumber);
                 UsernamePasswordAuthenticationToken authentication =
@@ -43,6 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+            // If it's a refresh token used on a normal endpoint → authentication is NOT set
+            // → Spring Security will return 401 / 403 as appropriate
         }
 
         filterChain.doFilter(request, response);
