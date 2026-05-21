@@ -65,17 +65,14 @@ const Cart = () => {
 
   const calculateLocalSummary = useCallback((items, code = "") => {
     const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
-    const normalizedCode = code.trim().toUpperCase();
-    const discountAmount = normalizedCode === "RIDE10" && subtotal >= 1000 ? Math.round(subtotal * 0.1) : 0;
     const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
-
     return {
       subtotal,
-      discountAmount,
+      discountAmount: 0,
       deliveryCharges,
-      finalTotal: Math.max(subtotal - discountAmount + deliveryCharges, 0),
-      couponCode: discountAmount > 0 ? normalizedCode : "",
-      couponMessage: discountAmount > 0 ? "RIDE10 applied successfully." : normalizedCode ? "Coupon not applied." : "No coupon applied.",
+      finalTotal: Math.max(subtotal + deliveryCharges, 0),
+      couponCode: "",
+      couponMessage: code ? "Unable to validate coupon. Check connection." : "No coupon applied.",
     };
   }, []);
 
@@ -94,11 +91,35 @@ const Cart = () => {
       if (code) {
         setMessage(res.data.couponMessage || "");
       }
-    } catch (error) {
-      const fallback = calculateLocalSummary(items, code);
-      setSummary(fallback);
-      setAppliedCoupon(fallback.couponCode);
-      setMessage(error.response?.data || fallback.couponMessage);
+    } catch {
+      // Fallback: validate via coupon API
+      try {
+        if (code) {
+          const subtotal = items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 0), 0);
+          const valRes = await axios.post(`${API_BASE}/coupon/validate`, { code, userId, subtotal });
+          const v = valRes.data;
+          const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
+          setSummary({
+            subtotal,
+            discountAmount: v.discountAmount || 0,
+            deliveryCharges,
+            finalTotal: Math.max(subtotal - (v.discountAmount || 0) + deliveryCharges, 0),
+            couponCode: v.appliedCode || "",
+            couponMessage: v.message || "",
+          });
+          setAppliedCoupon(v.appliedCode || "");
+          setMessage(v.message || "");
+        } else {
+          const fallback = calculateLocalSummary(items, code);
+          setSummary(fallback);
+          setAppliedCoupon("");
+        }
+      } catch {
+        const fallback = calculateLocalSummary(items, code);
+        setSummary(fallback);
+        setAppliedCoupon(fallback.couponCode);
+        setMessage(fallback.couponMessage);
+      }
     }
   }, [appliedCoupon, calculateLocalSummary, userId]);
 

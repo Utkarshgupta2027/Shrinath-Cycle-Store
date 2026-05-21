@@ -1795,3 +1795,26 @@ body.app-theme-light .product-card {
     white-space: nowrap;
   }
 }
+
+/* Feature 11 - Notify Me button */
+.notify-me-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid rgba(99,102,241,0.5);
+  background: rgba(99,102,241,0.1);
+  color: #a5b4fc;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.notify-me-btn:hover {
+  background: rgba(99,102,241,0.22);
+  border-color: #6366f1;
+  color: #c7d2fe;
+  transform: translateY(-1px);
+}

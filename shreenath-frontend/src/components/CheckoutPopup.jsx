@@ -140,12 +140,31 @@ function CheckoutPopup() {
       setAppliedCoupon(data.couponCode || "");
       if (code) setCouponMessage(data.couponMessage || "");
     } catch {
+      // Fallback: call coupon validate API directly
       const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
-      const normalizedCode = code.trim().toUpperCase();
-      const discountAmount = normalizedCode === "RIDE10" && subtotal >= 1000 ? Math.round(subtotal * 0.1) : 0;
-      setSummary({ subtotal, discountAmount, deliveryCharges: subtotal >= 2000 ? 0 : 99, finalTotal: subtotal - discountAmount + (subtotal >= 2000 ? 0 : 99) });
-      setAppliedCoupon(discountAmount ? normalizedCode : "");
-      setCouponMessage(discountAmount ? "RIDE10 applied successfully." : "Coupon not applied.");
+      try {
+        if (code) {
+          const valRes = await fetch(`${API_BASE}/coupon/validate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, userId, subtotal }),
+          });
+          const v = valRes.ok ? await valRes.json() : { valid: false, discountAmount: 0, appliedCode: "", message: "Coupon validation failed." };
+          const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
+          setSummary({ subtotal, discountAmount: v.discountAmount || 0, deliveryCharges, finalTotal: Math.max(subtotal - (v.discountAmount || 0) + deliveryCharges, 0) });
+          setAppliedCoupon(v.appliedCode || "");
+          setCouponMessage(v.message || "");
+        } else {
+          const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
+          setSummary({ subtotal, discountAmount: 0, deliveryCharges, finalTotal: subtotal + deliveryCharges });
+          setAppliedCoupon("");
+        }
+      } catch {
+        const deliveryCharges = subtotal >= 2000 ? 0 : 99;
+        setSummary({ subtotal, discountAmount: 0, deliveryCharges, finalTotal: subtotal + deliveryCharges });
+        setAppliedCoupon("");
+        setCouponMessage(code ? "Coupon validation failed." : "");
+      }
     }
   }, [userId]);
 

@@ -2,8 +2,10 @@ package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.DTO.ProductResponse;
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Model.RestockSubscription;
 import GuptaCycle.org.Shrinath.Repository.CartItemRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.RestockSubscriptionRepository;
 import GuptaCycle.org.Shrinath.Repository.ReviewRepository;
 import GuptaCycle.org.Shrinath.Repository.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductService {
+
+    private static final int LOW_STOCK_THRESHOLD = 5;
 
     @Autowired
     private ProductRepo repo;
@@ -30,8 +36,54 @@ public class ProductService {
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private RestockSubscriptionRepository restockSubscriptionRepository;
+
+    @Autowired
+    private EmailService emailService;
+
     public List<ProductResponse> getAllProducts() {
         return repo.findAll()
+                .stream()
+                .map(this::toProductResponse)
+                .toList();
+    }
+
+    /**
+     * Feature 9 — backend-filtered product search with sort.
+     *
+     * @param keyword     search across name, brand, category, description
+     * @param category    exact category filter (case-insensitive)
+     * @param minPrice    minimum price (inclusive), null = no lower bound
+     * @param maxPrice    maximum price (inclusive), null = no upper bound
+     * @param inStockOnly only return available products with quantity > 0
+     * @param sortBy      PRICE_ASC | PRICE_DESC | NEWEST | RATING | POPULARITY
+     */
+    public List<ProductResponse> getFilteredProducts(
+            String keyword,
+            String category,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            boolean inStockOnly,
+            String sortBy) {
+
+        List<Product> products = repo.findFiltered(
+                blankToNull(keyword),
+                blankToNull(category),
+                minPrice,
+                maxPrice,
+                inStockOnly
+        );
+
+        List<ProductResponse> responses = products.stream()
+                .map(this::toProductResponse)
+                .toList();
+
+        return sort(responses, sortBy);
+    }
+
+    public List<ProductResponse> getLowStockProducts() {
+        return repo.findLowStockProducts(LOW_STOCK_THRESHOLD)
                 .stream()
                 .map(this::toProductResponse)
                 .toList();
@@ -68,6 +120,9 @@ public class ProductService {
             throw new IllegalArgumentException("Quantity cannot be negative.");
         }
 
+        boolean wasOutOfStock = !existing.isAvailable() || existing.getQuantity() <= 0;
+        boolean willBeInStock = newProduct.isAvailable() && newProduct.getQuantity() > 0;
+
         // Update all fields
         existing.setName(newProduct.getName());
         existing.setDesc(newProduct.getDesc());
@@ -85,7 +140,14 @@ public class ProductService {
             existing.setImgData(imgFile.getBytes());
         }
 
-        return repo.save(existing);
+        Product saved = repo.save(existing);
+
+        // Feature 11 — notify subscribers when product comes back in stock
+        if (wasOutOfStock && willBeInStock) {
+            notifyRestockSubscribers(saved);
+        }
+
+        return saved;
     }
 
     @Transactional
@@ -93,13 +155,52 @@ public class ProductService {
         if (!repo.existsById(id)) {
             throw new RuntimeException("Product not found with ID " + id);
         }
-        
+
         // Remove foreign key dependencies first
         cartItemRepo.deleteByProductId(id);
         wishlistRepo.deleteByProductId(id);
         reviewRepository.deleteByProductId(id);
-        
+
         repo.deleteById(id);
+    }
+
+    // ─── Feature 11 helpers ───────────────────────────────────────────────────
+
+    /**
+     * Send restock notifications to all subscribed emails and mark them notified.
+     */
+    @Transactional
+    public void notifyRestockSubscribers(Product product) {
+        List<RestockSubscription> subs = restockSubscriptionRepository
+                .findByProductIdAndNotifiedFalse(product.getId());
+
+        for (RestockSubscription sub : subs) {
+            try {
+                emailService.sendRestockNotification(sub.getUserEmail(), product);
+                sub.setNotified(true);
+                restockSubscriptionRepository.save(sub);
+            } catch (Exception e) {
+                System.err.println("Failed to send restock notification to " + sub.getUserEmail() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    // ─── Private helpers ──────────────────────────────────────────────────────
+
+    private List<ProductResponse> sort(List<ProductResponse> list, String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) return list;
+        return switch (sortBy.toUpperCase()) {
+            case "PRICE_ASC"    -> list.stream().sorted(Comparator.comparing(p -> p.getPrice() == null ? BigDecimal.ZERO : p.getPrice())).toList();
+            case "PRICE_DESC"   -> list.stream().sorted(Comparator.comparing((ProductResponse p) -> p.getPrice() == null ? BigDecimal.ZERO : p.getPrice()).reversed()).toList();
+            case "NEWEST"       -> list.stream().sorted(Comparator.comparing((ProductResponse p) -> p.getReleaseDate() == null ? new java.util.Date(0) : p.getReleaseDate()).reversed()).toList();
+            case "RATING"       -> list.stream().sorted(Comparator.comparingDouble(ProductResponse::getAverageRating).reversed()).toList();
+            case "POPULARITY"   -> list.stream().sorted(Comparator.comparingLong(ProductResponse::getReviewCount).reversed()).toList();
+            default             -> list;
+        };
+    }
+
+    private String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s.trim();
     }
 
     private ProductResponse toProductResponse(Product product) {

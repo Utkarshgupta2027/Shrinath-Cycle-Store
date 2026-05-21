@@ -9,6 +9,7 @@ import GuptaCycle.org.Shrinath.Repository.OrderRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
 import GuptaCycle.org.Shrinath.Repository.ReturnExchangeRequestRepository;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
+import GuptaCycle.org.Shrinath.Service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,14 @@ import java.util.stream.IntStream;
 @Service
 public class OrderService {
 
+    private static final int LOW_STOCK_THRESHOLD = 5;
+
     private static final BigDecimal FREE_DELIVERY_THRESHOLD = BigDecimal.valueOf(2000);
     private static final BigDecimal STANDARD_DELIVERY_CHARGE = BigDecimal.valueOf(99);
     private static final BigDecimal EXPRESS_DELIVERY_CHARGE = BigDecimal.valueOf(199);
-    private static final BigDecimal RIDE10_DISCOUNT_RATE = BigDecimal.valueOf(0.10);
+
+    @Autowired
+    private CouponService couponService;
 
     @Autowired
     private OrderRepository orderRepo;
@@ -108,11 +113,20 @@ public class OrderService {
                 })
                 .collect(Collectors.toList());
 
+        // Trigger low-stock alerts for products that just went below threshold
+        for (OrderItem item : items) {
+            productRepo.findById(Math.toIntExact(item.getProductId())).ifPresent(p -> {
+                if (p.getQuantity() < LOW_STOCK_THRESHOLD && p.getQuantity() >= 0) {
+                    emailService.sendLowStockAdminAlert(adminEmail, p);
+                }
+            });
+        }
+
         BigDecimal subtotal = items.stream()
                 .map(item -> BigDecimal.valueOf(item.getPrice()).multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
-        CouponResult coupon = calculateCouponDiscount(subtotal, req.getCouponCode());
+        CouponService.CouponValidationResult coupon = couponService.validateCoupon(req.getCouponCode(), req.getUserId(), subtotal);
         BigDecimal deliveryCharges = calculateDeliveryCharges(subtotal, req.getDeliveryOption());
         BigDecimal totalAmount = subtotal
                 .subtract(coupon.discountAmount())
@@ -137,6 +151,10 @@ public class OrderService {
         order.setUpdatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepo.save(order);
+        // Increment coupon usage count now that order is confirmed
+        if (savedOrder.getCouponCode() != null && !savedOrder.getCouponCode().isBlank()) {
+            couponService.incrementUsage(savedOrder.getCouponCode());
+        }
         if (markPaid || "COD".equalsIgnoreCase(savedOrder.getPaymentMethod())) {
             userRepository.findById(savedOrder.getUserId()).ifPresent(user -> notifyOrderConfirmation(user, savedOrder));
         }
@@ -463,12 +481,8 @@ public class OrderService {
         return "express".equalsIgnoreCase(defaultString(deliveryOption)) ? "express" : "standard";
     }
 
-    private CouponResult calculateCouponDiscount(BigDecimal subtotal, String couponCode) {
-        String normalizedCode = defaultString(couponCode).toUpperCase(Locale.ROOT);
-        if (!"RIDE10".equals(normalizedCode) || subtotal.compareTo(BigDecimal.valueOf(1000)) < 0) {
-            return new CouponResult(BigDecimal.ZERO, "");
-        }
-        return new CouponResult(subtotal.multiply(RIDE10_DISCOUNT_RATE).setScale(2, RoundingMode.HALF_UP), normalizedCode);
+    private CouponService.CouponValidationResult calculateCouponDiscount(BigDecimal subtotal, String couponCode) {
+        return couponService.validateCoupon(couponCode, null, subtotal);
     }
 
     private String defaultString(String value) {
@@ -525,8 +539,7 @@ public class OrderService {
                 .collect(Collectors.joining(", "));
     }
 
-    private record CouponResult(BigDecimal discountAmount, String appliedCode) {
-    }
+
 
     private List<MetricPoint> buildRevenueTrend(List<Order> orders) {
         LocalDate today = LocalDate.now();

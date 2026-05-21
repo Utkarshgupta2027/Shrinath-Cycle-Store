@@ -7,6 +7,7 @@ import GuptaCycle.org.Shrinath.Model.Product;
 import GuptaCycle.org.Shrinath.Repository.CartItemRepository;
 import GuptaCycle.org.Shrinath.Repository.CartRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Service.CouponService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,6 @@ public class CartService {
 
     private static final BigDecimal FREE_DELIVERY_THRESHOLD = BigDecimal.valueOf(2000);
     private static final BigDecimal DELIVERY_CHARGE = BigDecimal.valueOf(99);
-    private static final BigDecimal RIDE10_DISCOUNT_RATE = BigDecimal.valueOf(0.10);
 
     @Autowired
     private CartRepository cartRepository;
@@ -33,6 +33,9 @@ public class CartService {
 
     @Autowired
     private WishlistService wishlistService;
+
+    @Autowired
+    private CouponService couponService;
 
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
@@ -157,7 +160,7 @@ public class CartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        CouponResult coupon = calculateCouponDiscount(subtotal, couponCode);
+        CouponService.CouponValidationResult coupon = couponService.validateCoupon(couponCode, userId, subtotal);
         BigDecimal deliveryCharges = subtotal.compareTo(BigDecimal.ZERO) == 0 ||
                 subtotal.compareTo(FREE_DELIVERY_THRESHOLD) >= 0
                 ? BigDecimal.ZERO
@@ -182,27 +185,6 @@ public class CartService {
     private BigDecimal getLineTotal(CartItem item) {
         BigDecimal price = item.getProduct().getPrice() == null ? BigDecimal.ZERO : item.getProduct().getPrice();
         return price.multiply(BigDecimal.valueOf(item.getQuantity()));
-    }
-
-    private CouponResult calculateCouponDiscount(BigDecimal subtotal, String couponCode) {
-        String normalizedCode = couponCode == null ? "" : couponCode.trim().toUpperCase();
-        if (normalizedCode.isEmpty()) {
-            return new CouponResult(BigDecimal.ZERO, "", "No coupon applied.");
-        }
-
-        if (!"RIDE10".equals(normalizedCode)) {
-            return new CouponResult(BigDecimal.ZERO, "", "Invalid coupon code.");
-        }
-
-        if (subtotal.compareTo(BigDecimal.valueOf(1000)) < 0) {
-            return new CouponResult(BigDecimal.ZERO, "", "RIDE10 applies on cart value above Rs. 1,000.");
-        }
-
-        BigDecimal discount = subtotal.multiply(RIDE10_DISCOUNT_RATE).setScale(2, RoundingMode.HALF_UP);
-        return new CouponResult(discount, normalizedCode, "RIDE10 applied successfully.");
-    }
-
-    private record CouponResult(BigDecimal discountAmount, String appliedCode, String message) {
     }
 
     private void validateIdentifiers(Long userId, Long productId) {

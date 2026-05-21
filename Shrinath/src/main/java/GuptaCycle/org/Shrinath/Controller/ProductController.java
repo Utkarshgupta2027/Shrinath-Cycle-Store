@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 @RestController
 @RequestMapping("/api")
@@ -27,6 +28,21 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
         return new ResponseEntity<>(service.getAllProducts(), HttpStatus.OK);
+    }
+
+    /**
+     * Feature 9 — Filtered / sorted product search.
+     * GET /api/products/search?q=ranger&category=Mountain&minPrice=500&maxPrice=15000&inStockOnly=true&sortBy=PRICE_ASC
+     */
+    @GetMapping("/products/search")
+    public ResponseEntity<List<ProductResponse>> searchProducts(
+            @RequestParam(value = "q", required = false) String keyword,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+            @RequestParam(value = "inStockOnly", defaultValue = "false") boolean inStockOnly,
+            @RequestParam(value = "sortBy", required = false) String sortBy) {
+        return ResponseEntity.ok(service.getFilteredProducts(keyword, category, minPrice, maxPrice, inStockOnly, sortBy));
     }
     @PutMapping("/product/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable int id,

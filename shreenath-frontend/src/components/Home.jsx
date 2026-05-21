@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/components/home.css";
+import SearchFilterBar from "./SearchFilterBar";
+import NotifyMeModal from "./NotifyMeModal";
 
 import {
   FaShoppingCart,
@@ -138,8 +140,12 @@ function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [loadingCart, setLoadingCart] = useState(null);
   const [toastMsg, setToastMsg] = useState("");
+  const [notifyProduct, setNotifyProduct] = useState(null); // NotifyMeModal target
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
   const sliderRef = useRef(null);
   const autoSlideRef = useRef(null);
+  const searchDebounceRef = useRef(null);
   const user = getStoredUser();
   const location = useLocation();
   const navigate = useNavigate();
@@ -156,13 +162,36 @@ function Home() {
   const searchQuery = new URLSearchParams(location.search).get("search") || "";
   const categoryQuery = new URLSearchParams(location.search).get("category") || "";
 
-  // Fetch products
-  useEffect(() => {
-    fetch("http://localhost:8080/api/products")
+  // Feature 9 — fetch products from backend search API
+  const fetchProducts = useCallback((filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.keyword) params.set("q", filters.keyword);
+    if (filters.category) params.set("category", filters.category);
+    if (filters.minPrice) params.set("minPrice", filters.minPrice);
+    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
+    if (filters.inStockOnly) params.set("inStockOnly", "true");
+    if (filters.sortBy) params.set("sortBy", filters.sortBy);
+    const hasFilters = [...params.keys()].length > 0;
+    const url = hasFilters
+      ? `http://localhost:8080/api/products/search?${params.toString()}`
+      : "http://localhost:8080/api/products";
+    setSearchLoading(true);
+    fetch(url)
       .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Product fetch error:", err));
+      .then((data) => setProducts(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Product fetch error:", err))
+      .finally(() => setSearchLoading(false));
   }, []);
+
+  // Handle filter bar changes (debounced 350ms)
+  const handleFilterChange = useCallback((filters) => {
+    setActiveFilters(filters);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => fetchProducts(filters), 350);
+  }, [fetchProducts]);
+
+  // Initial product load
+  useEffect(() => { fetchProducts({}); }, [fetchProducts]);
 
   // Fetch wishlist
   useEffect(() => {
@@ -387,6 +416,14 @@ function Home() {
       {/* Toast notification */}
       {toastMsg && <div className="toast-notification">{toastMsg}</div>}
 
+      {/* NotifyMe Modal (Feature 11) */}
+      {notifyProduct && (
+        <NotifyMeModal
+          product={notifyProduct}
+          onClose={() => setNotifyProduct(null)}
+        />
+      )}
+
       {/* ============ HERO SECTION ============ */}
       <section className="hero-section" ref={sliderRef}>
         {/* Background images */}
@@ -556,6 +593,12 @@ function Home() {
             )}
           </div>
 
+          {/* Feature 9 — SearchFilterBar */}
+          <SearchFilterBar
+            onFilterChange={handleFilterChange}
+            totalResults={searchLoading ? undefined : productsToRender.length}
+          />
+
           {/* Category filter pills */}
           <div className="filter-toolbar">
             <div className="filter-toolbar-copy">
@@ -676,6 +719,15 @@ function Home() {
                           <><FaShoppingCart /> {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}</>
                         )}
                       </button>
+                      {product.quantity === 0 && (
+                        <button
+                          className="notify-me-btn"
+                          onClick={(e) => { e.preventDefault(); setNotifyProduct(product); }}
+                          title="Get notified when back in stock"
+                        >
+                          🔔 Notify Me
+                        </button>
+                      )}
                       <Link to={`/product/${product.id}`} className="view-details-btn">
                         View
                       </Link>

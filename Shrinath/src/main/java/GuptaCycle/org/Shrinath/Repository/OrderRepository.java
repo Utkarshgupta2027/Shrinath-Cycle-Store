@@ -19,5 +19,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByStatusIgnoreCase(String status);
 
+    long countByUserId(Long userId);
+
     List<Order> findByOrderDateAfterOrderByOrderDateAsc(LocalDateTime dateTime);
 }

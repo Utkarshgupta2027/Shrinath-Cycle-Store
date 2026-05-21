@@ -1,6 +1,7 @@
 package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.Model.Order;
+import GuptaCycle.org.Shrinath.Model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -218,8 +219,53 @@ public class EmailService {
         }
     }
 
+    @Async
+    public void sendLowStockAdminAlert(String adminEmail, Product product) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromAddress());
+            message.setTo(adminEmail);
+            message.setSubject("⚠️ Low Stock Alert — " + product.getName());
+            message.setText(
+                    "Hello Admin,\n\n" +
+                    "Stock is running low for the following product:\n\n" +
+                    "Product: " + product.getName() + "\n" +
+                    "Brand: " + (product.getBrand() != null ? product.getBrand() : "N/A") + "\n" +
+                    "Category: " + (product.getCategory() != null ? product.getCategory() : "N/A") + "\n" +
+                    "Remaining stock: " + product.getQuantity() + " units\n\n" +
+                    "Please restock soon to avoid disruption.\n\n" +
+                    "Best regards,\nShrinath Cycle Store System"
+            );
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send low-stock alert for product " + product.getId() + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendRestockNotification(String toEmail, Product product) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromAddress());
+            message.setTo(toEmail);
+            message.setSubject("✅ Back in Stock — " + product.getName());
+            message.setText(
+                    "Good news! The product you wanted is back in stock.\n\n" +
+                    "Product: " + product.getName() + "\n" +
+                    (product.getBrand() != null ? "Brand: " + product.getBrand() + "\n" : "") +
+                    "Price: ₹" + (product.getPrice() != null ? product.getPrice().toPlainString() : "N/A") + "\n" +
+                    "Available units: " + product.getQuantity() + "\n\n" +
+                    "Hurry — limited stock! Visit us at shrinathcyclestore.com\n\n" +
+                    "Best regards,\nThe Shrinath Cycle Store Team"
+            );
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send restock notification to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
     /**
-     * Returns "Shrinath Cycle Store <gutkarsh702@gmail.com>" format.
+     * Returns \"Shrinath Cycle Store <gutkarsh702@gmail.com>\" format.
      * Gmail will display the name instead of the raw email address.
      */
     private String fromAddress() {

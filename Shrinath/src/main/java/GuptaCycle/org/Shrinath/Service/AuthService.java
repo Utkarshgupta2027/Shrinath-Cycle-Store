@@ -8,6 +8,7 @@ import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Repository.CartRepository;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
 import GuptaCycle.org.Shrinath.Repository.WishlistRepository;
+import GuptaCycle.org.Shrinath.Service.CouponService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,6 +39,9 @@ public class AuthService {
 
     @Autowired
     private OtpService otpService;
+
+    @Autowired
+    private CouponService couponService;
 
     @Value("${app.admin.phone-number}")
     private String adminPhoneNumber;
@@ -101,6 +105,12 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
         emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName());
+        // Auto-generate personal referral coupon for the new user
+        try {
+            couponService.generateReferralCoupon(savedUser.getId());
+        } catch (Exception e) {
+            System.err.println("Failed to generate referral coupon for user " + savedUser.getId() + ": " + e.getMessage());
+        }
         return savedUser;
     }
 

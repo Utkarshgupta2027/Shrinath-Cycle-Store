@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+ï»¿import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   FaChartLine,
@@ -7,11 +7,14 @@ import {
   FaPlus,
   FaSearch,
   FaShoppingBag,
+  FaTag,
   FaTrash,
   FaTruck,
   FaUndoAlt,
   FaUsers,
   FaWarehouse,
+  FaBell,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 import { confirmAction } from "../utils/browser";
@@ -148,6 +151,19 @@ function AdminPanel() {
   const [editingPinId, setEditingPinId] = useState(null);
   const [savingPin, setSavingPin] = useState(false);
 
+  // Feature 10 -- Coupons
+  const [coupons, setCoupons] = useState([]);
+  const [couponForm, setCouponForm] = useState({ code: "", discountType: "PERCENTAGE", discountValue: "", minOrderValue: "", maxUsageLimit: "", expiryDate: "", couponType: "GENERAL", description: "", active: true });
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [editingCouponId, setEditingCouponId] = useState(null);
+  const [savingCoupon, setSavingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
+
+  // Feature 11 -- Low-stock
+  const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [restockValues, setRestockValues] = useState({});
+  const [restockLoading, setRestockLoading] = useState({});
+
   const isAdmin = isAdminUser(user);
 
   const loadProducts = useCallback(async () => {
@@ -276,6 +292,12 @@ function AdminPanel() {
       });
     }
 
+    if (activeSection === "coupons") {
+      axios.get(`${API_BASE}/api/admin/coupons`, { headers: getAuthHeaders() }).then(r => setCoupons(r.data || [])).catch(() => {});
+    }
+    if (activeSection === "low-stock") {
+      axios.get(`${API_BASE}/api/admin/low-stock`, { headers: getAuthHeaders() }).then(r => setLowStockProducts(r.data || [])).catch(() => {});
+    }
     if (activeSection === "shipping") {
       loadServiceablePins().catch(console.error);
     }
@@ -607,6 +629,8 @@ function AdminPanel() {
             { key: "users", label: "Users" },
             { key: "analytics", label: "Analytics" },
             { key: "shipping", label: "Shipping" },
+            { key: "coupons", label: "Coupons" },
+            { key: "low-stock", label: "Low Stock" },
           ].map((section) => (
             <button
               key={section.key}
@@ -1216,8 +1240,8 @@ function AdminPanel() {
                       ) : serviceablePins.map((pin) => (
                         <tr key={pin.id}>
                           <td><strong>{pin.pincode}</strong></td>
-                          <td>{pin.city || "—"}</td>
-                          <td>{pin.state || "—"}</td>
+                          <td>{pin.city || "ï¿½"}</td>
+                          <td>{pin.state || "ï¿½"}</td>
                           <td>Rs. {pin.baseCharge}</td>
                           <td>Rs. {pin.perKgCharge}</td>
                           <td>
@@ -1263,6 +1287,157 @@ function AdminPanel() {
                 </div>
               </section>
             )}
+
+            {/* Feature 10: Coupons */}
+            {activeSection === "coupons" && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>Coupon Management</h2>
+                    <p>Create and manage discount codes.</p>
+                  </div>
+                  <FaTag />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <button className="add-product-btn" id="admin-create-coupon-btn" onClick={() => { setEditingCouponId(null); setCouponForm({ code: "", discountType: "PERCENTAGE", discountValue: "", minOrderValue: "", maxUsageLimit: "", expiryDate: "", couponType: "GENERAL", description: "", active: true }); setCouponError(""); setShowCouponModal(true); }}>
+                    <FaPlus /> Create Coupon
+                  </button>
+                </div>
+                {couponError && <div className="admin-error">{couponError}</div>}
+                <div className="admin-table-wrap">
+                  <table className="admin-table">
+                    <thead>
+                      <tr><th>Code</th><th>Discount</th><th>Min Order</th><th>Usage</th><th>Expiry</th><th>Type</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      {coupons.length === 0 ? (
+                        <tr><td colSpan={8} style={{ textAlign: "center", color: "#8898aa" }}>No coupons yet.</td></tr>
+                      ) : coupons.map((c) => (
+                        <tr key={c.id}>
+                          <td><strong>{c.code}</strong></td>
+                          <td>{c.discountType === "PERCENTAGE" ? `${c.discountValue}%` : `Rs.${c.discountValue}`}</td>
+                          <td>Rs.{c.minOrderValue || 0}</td>
+                          <td>{c.currentUsageCount}{c.maxUsageLimit ? ` / ${c.maxUsageLimit}` : " / inf"}</td>
+                          <td>{c.expiryDate || "Never"}</td>
+                          <td>{c.couponType}</td>
+                          <td>{c.active ? "Active" : "Inactive"}</td>
+                          <td>
+                            <div className="action-buttons">
+                              <button className="action-btn edit-btn" id={`edit-coupon-${c.id}`} onClick={() => { setEditingCouponId(c.id); setCouponForm({ code: c.code, discountType: c.discountType, discountValue: String(c.discountValue), minOrderValue: String(c.minOrderValue || ""), maxUsageLimit: c.maxUsageLimit != null ? String(c.maxUsageLimit) : "", expiryDate: c.expiryDate || "", couponType: c.couponType || "GENERAL", description: c.description || "", active: c.active }); setCouponError(""); setShowCouponModal(true); }}><FaEdit /></button>
+                              <button className="action-btn delete-btn" id={`delete-coupon-${c.id}`} onClick={async () => { if (!window.confirm(`Delete ${c.code}?`)) return; try { await axios.delete(`${API_BASE}/api/admin/coupons/${c.id}`, { headers: getAuthHeaders() }); const r = await axios.get(`${API_BASE}/api/admin/coupons`, { headers: getAuthHeaders() }); setCoupons(r.data || []); } catch (err) { setCouponError(getErrorMessage(err, "Delete failed.")); } }}><FaTrash /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {showCouponModal && (
+                  <div className="admin-modal-overlay" onClick={() => setShowCouponModal(false)}>
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                      <div className="modal-header">
+                        <h3 className="modal-title">{editingCouponId ? "Edit Coupon" : "Create Coupon"}</h3>
+                        <button className="modal-close" onClick={() => setShowCouponModal(false)}>X</button>
+                      </div>
+                      <form onSubmit={async (e) => {
+                        e.preventDefault(); setSavingCoupon(true); setCouponError("");
+                        const payload = { ...couponForm, discountValue: parseFloat(couponForm.discountValue), minOrderValue: couponForm.minOrderValue ? parseFloat(couponForm.minOrderValue) : 0, maxUsageLimit: couponForm.maxUsageLimit ? parseInt(couponForm.maxUsageLimit) : null, expiryDate: couponForm.expiryDate || null };
+                        try {
+                          if (editingCouponId) { await axios.put(`${API_BASE}/api/admin/coupons/${editingCouponId}`, payload, { headers: getAuthHeaders() }); }
+                          else { await axios.post(`${API_BASE}/api/admin/coupons`, payload, { headers: getAuthHeaders() }); }
+                          const r = await axios.get(`${API_BASE}/api/admin/coupons`, { headers: getAuthHeaders() }); setCoupons(r.data || []);
+                          setShowCouponModal(false);
+                        } catch (err) { setCouponError(getErrorMessage(err, "Save failed.")); } finally { setSavingCoupon(false); }
+                      }}>
+                        <div className="modal-body">
+                          {couponError && <div className="admin-error">{couponError}</div>}
+                          <div className="form-row">
+                            <div className="form-group"><label className="form-label">Code *</label><input id="coupon-code" className="form-input" value={couponForm.code} onChange={(e) => setCouponForm(p => ({ ...p, code: e.target.value.toUpperCase() }))} required /></div>
+                            <div className="form-group"><label className="form-label">Category</label>
+                              <select id="coupon-type-select" className="form-input" value={couponForm.couponType} onChange={(e) => setCouponForm(p => ({ ...p, couponType: e.target.value }))}>
+                                {["GENERAL","FIRST_ORDER","REFERRAL","FESTIVAL"].map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                          <div className="form-row">
+                            <div className="form-group"><label className="form-label">Discount Type *</label>
+                              <select id="coupon-discount-type" className="form-input" value={couponForm.discountType} onChange={(e) => setCouponForm(p => ({ ...p, discountType: e.target.value }))}>
+                                <option value="PERCENTAGE">Percentage (%)</option><option value="FLAT">Flat (Rs.)</option>
+                              </select>
+                            </div>
+                            <div className="form-group"><label className="form-label">Discount Value *</label><input id="coupon-value" className="form-input" type="number" min={0} value={couponForm.discountValue} onChange={(e) => setCouponForm(p => ({ ...p, discountValue: e.target.value }))} required /></div>
+                          </div>
+                          <div className="form-row">
+                            <div className="form-group"><label className="form-label">Min Order (Rs.)</label><input id="coupon-min-order" className="form-input" type="number" min={0} value={couponForm.minOrderValue} onChange={(e) => setCouponForm(p => ({ ...p, minOrderValue: e.target.value }))} /></div>
+                            <div className="form-group"><label className="form-label">Max Uses (blank=unlimited)</label><input id="coupon-max-uses" className="form-input" type="number" min={1} value={couponForm.maxUsageLimit} onChange={(e) => setCouponForm(p => ({ ...p, maxUsageLimit: e.target.value }))} /></div>
+                          </div>
+                          <div className="form-row">
+                            <div className="form-group"><label className="form-label">Expiry Date</label><input id="coupon-expiry" className="form-input" type="date" value={couponForm.expiryDate} onChange={(e) => setCouponForm(p => ({ ...p, expiryDate: e.target.value }))} /></div>
+                            <div className="form-group" style={{ paddingTop: "1.8rem" }}><label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}><input id="coupon-active" type="checkbox" checked={couponForm.active} onChange={(e) => setCouponForm(p => ({ ...p, active: e.target.checked }))} /> Active</label></div>
+                          </div>
+                          <div className="form-group"><label className="form-label">Description</label><textarea id="coupon-description" className="form-input" rows={2} value={couponForm.description} onChange={(e) => setCouponForm(p => ({ ...p, description: e.target.value }))} /></div>
+                        </div>
+                        <div className="modal-footer">
+                          <button type="button" className="btn-cancel" onClick={() => setShowCouponModal(false)}>Cancel</button>
+                          <button id="coupon-save-btn" type="submit" className="btn-save" disabled={savingCoupon}>{savingCoupon ? "Saving..." : editingCouponId ? "Update" : "Create"}</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Feature 11: Low Stock */}
+            {activeSection === "low-stock" && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div><h2>Low Stock Alert</h2><p>Products with fewer than 5 units. Restock inline.</p></div>
+                  <FaExclamationTriangle style={{ color: "#f59e0b" }} />
+                </div>
+                <div className="admin-table-wrap">
+                  <table className="admin-table">
+                    <thead><tr><th>Product</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Restock</th></tr></thead>
+                    <tbody>
+                      {lowStockProducts.length === 0 ? (
+                        <tr><td colSpan={6} style={{ textAlign: "center", color: "#34d399" }}>All products are well-stocked!</td></tr>
+                      ) : lowStockProducts.map((p) => (
+                        <tr key={p.id}>
+                          <td><strong>{p.name}</strong></td>
+                          <td>{p.brand || "-"}</td>
+                          <td>{p.category || "-"}</td>
+                          <td>Rs.{p.price?.toLocaleString("en-IN")}</td>
+                          <td><span className={p.quantity === 0 ? "status-badge status-cancelled" : "status-badge status-processing"}>{p.quantity === 0 ? "Out of Stock" : `${p.quantity} left`}</span></td>
+                          <td>
+                            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                              <input id={`restock-qty-${p.id}`} type="number" min={1} placeholder="Qty" value={restockValues[p.id] || ""} onChange={(e) => setRestockValues(v => ({ ...v, [p.id]: e.target.value }))} style={{ width: "70px", padding: "0.35rem 0.5rem", borderRadius: "7px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "#e0e6f0" }} />
+                              <button id={`restock-btn-${p.id}`} className="add-product-btn" style={{ padding: "0.35rem 0.8rem", fontSize: "0.8rem" }} disabled={restockLoading[p.id]}
+                                onClick={async () => {
+                                  const qty = parseInt(restockValues[p.id]);
+                                  if (!qty || qty < 1) return;
+                                  setRestockLoading(v => ({ ...v, [p.id]: true }));
+                                  try {
+                                    const form = new FormData();
+                                    form.append("product", JSON.stringify({ name: p.name, brand: p.brand, desc: p.desc, price: p.price, category: p.category, quantity: (p.quantity || 0) + qty, available: true }));
+                                    await axios.put(`${API_BASE}/api/product/${p.id}`, form, { headers: { ...getAuthHeaders() } });
+                                    const r = await axios.get(`${API_BASE}/api/admin/low-stock`, { headers: getAuthHeaders() });
+                                    setLowStockProducts(r.data || []);
+                                    setRestockValues(v => ({ ...v, [p.id]: "" }));
+                                  } catch (err) { alert(getErrorMessage(err, "Restock failed.")); }
+                                  finally { setRestockLoading(v => ({ ...v, [p.id]: false })); }
+                                }}
+                              >{restockLoading[p.id] ? "..." : "Restock"}</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
+      
 
 
       {showProductModal ? (
@@ -1386,6 +1561,9 @@ function AdminPanel() {
 }
 
 export default AdminPanel;
+
+
+
 
 
 
