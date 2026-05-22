@@ -84,6 +84,9 @@ const Product = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const [reviewPhoto, setReviewPhoto] = useState(null);
+  const [reviewPhotoPreview, setReviewPhotoPreview] = useState("");
+  const [reviewSortBy, setReviewSortBy] = useState("NEWEST");
   const [reviewStatus, setReviewStatus] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
   const [activeImage, setActiveImage] = useState("");
@@ -106,7 +109,9 @@ const Product = () => {
         setProduct(data);
         setActiveImage(getImageUrl(data.id));
 
-        const reviewResponse = await fetch(`http://localhost:8080/api/product/${productId}/reviews`);
+        const reviewResponse = await fetch(
+          `http://localhost:8080/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
+        );
         const reviewData = reviewResponse.ok ? await reviewResponse.json() : [];
         setReviews(Array.isArray(reviewData) ? reviewData : []);
 
@@ -130,7 +135,7 @@ const Product = () => {
     };
 
     getProduct();
-  }, [productId]);
+  }, [productId, reviewSortBy]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -141,11 +146,10 @@ const Product = () => {
   }, [user?.id]);
 
   const loadReviews = async () => {
-    const response = await fetch(`http://localhost:8080/api/product/${productId}/reviews`);
-    if (!response.ok) {
-      throw new Error("Failed to load reviews");
-    }
-
+    const response = await fetch(
+      `http://localhost:8080/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
+    );
+    if (!response.ok) throw new Error("Failed to load reviews");
     const data = await response.json();
     setReviews(Array.isArray(data) ? data : []);
   };
@@ -248,16 +252,19 @@ const Product = () => {
       setSubmittingReview(true);
       setReviewStatus("");
 
+      const formData = new FormData();
+      formData.append("review", JSON.stringify({
+        userId: user.id,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment.trim(),
+      }));
+      if (reviewPhoto) {
+        formData.append("photo", reviewPhoto);
+      }
+
       const response = await fetch(`http://localhost:8080/api/product/${product.id}/reviews`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          rating: reviewForm.rating,
-          comment: reviewForm.comment.trim(),
-        }),
+        body: formData,
       });
 
       const data = await response.json().catch(() => null);
@@ -266,7 +273,9 @@ const Product = () => {
       }
 
       await Promise.all([loadReviews(), fetchProductById(productId).then(setProduct)]);
-      setReviewStatus("Your review has been saved.");
+      setReviewStatus("Your review has been submitted and is awaiting moderation.");
+      setReviewPhoto(null);
+      setReviewPhotoPreview("");
     } catch (err) {
       setReviewStatus(err.message || "Failed to submit review.");
     } finally {
@@ -355,11 +364,13 @@ const Product = () => {
     : product.quantity <= 5
       ? { label: "Low stock", tone: "low", detail: `Only ${product.quantity} left in stock` }
       : { label: "In stock", tone: "in", detail: `${product.quantity} units ready to order` };
+  // Build gallery: primary image first, then any extra gallery images from the DB
   const galleryImages = [
-    { src: getImageUrl(product.id), label: "Main product" },
-    { src: rangerCycle, label: "Side profile" },
-    { src: normalCycle, label: "Lifestyle view" },
-    { src: ladiesCycle, label: "Frame detail" },
+    { src: getImageUrl(product.id), label: "Main" },
+    ...((product.extraImageIds || []).map((imgId, i) => ({
+      src: `http://localhost:8080/api/product/${product.id}/gallery/${imgId}`,
+      label: `Photo ${i + 2}`,
+    }))),
   ];
   const isWishlisted = wishlistIds.includes(product.id);
   const specs = fallbackSpecs(product);
@@ -667,6 +678,17 @@ const Product = () => {
                 onChange={(e) => setReviewForm((prev) => ({ ...prev, comment: e.target.value }))}
               />
 
+              {/* Photo upload */}
+              <div style={{marginBottom:"0.75rem"}}>
+                <label style={{fontSize:"0.85rem",color:"var(--text-muted)",display:"block",marginBottom:"0.4rem"}}>📷 Add a photo (optional)</label>
+                <input type="file" accept="image/*" onChange={e => {
+                  const file = e.target.files?.[0];
+                  setReviewPhoto(file || null);
+                  setReviewPhotoPreview(file ? URL.createObjectURL(file) : "");
+                }} />
+                {reviewPhotoPreview && <img src={reviewPhotoPreview} alt="preview" style={{marginTop:"0.5rem",maxHeight:"100px",borderRadius:"8px",objectFit:"cover"}} />}
+              </div>
+
               <div className="review-form-actions">
                 <button type="submit" className="review-submit-btn" disabled={submittingReview}>
                   {submittingReview ? "Saving..." : existingUserReview ? "Update Review" : "Submit Review"}
@@ -675,18 +697,45 @@ const Product = () => {
               </div>
             </form>
 
+            {/* Sort controls */}
+            <div style={{display:"flex",gap:"0.5rem",marginBottom:"1rem",alignItems:"center"}}>
+              <span style={{fontSize:"0.85rem",color:"var(--text-muted)"}}>Sort by:</span>
+              {["NEWEST", "MOST_HELPFUL"].map(sort => (
+                <button key={sort}
+                  type="button"
+                  style={{padding:"0.3rem 0.8rem",borderRadius:"999px",border:"1px solid var(--border)",background:reviewSortBy===sort?"var(--primary)":"transparent",color:reviewSortBy===sort?"#fff":"var(--text)",fontSize:"0.8rem",cursor:"pointer"}}
+                  onClick={() => setReviewSortBy(sort)}
+                >{sort === "NEWEST" ? "🕒 Newest" : "👍 Most Helpful"}</button>
+              ))}
+            </div>
+
             <div className="review-list">
               {reviews.length > 0 ? (
                 reviews.map((review) => (
                   <article className="review-card" key={review.id}>
                     <div className="review-card-top">
                       <div>
-                        <h4>{review.userName || "Customer"}</h4>
+                        <h4>
+                          {review.userName || "Customer"}
+                          {review.verifiedPurchase && (
+                            <span style={{marginLeft:"0.5rem",background:"#065f46",color:"#d1fae5",fontSize:"0.65rem",padding:"2px 7px",borderRadius:"999px",fontWeight:600}}>✅ Verified Purchase</span>
+                          )}
+                        </h4>
                         <span className="review-date">{formatReviewDate(review.updatedAt || review.createdAt)}</span>
                       </div>
                       <div className="review-card-rating">{renderStars(review.rating)}</div>
                     </div>
                     <p>{review.comment}</p>
+                    {review.hasPhoto && (
+                      <img src={`http://localhost:8080/api/review/${review.id}/photo`} alt="Customer photo" style={{marginTop:"0.5rem",maxHeight:"160px",borderRadius:"10px",objectFit:"cover"}} />
+                    )}
+                    <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginTop:"0.5rem"}}>
+                      <button
+                        type="button"
+                        style={{fontSize:"0.8rem",background:"transparent",border:"1px solid var(--border)",borderRadius:"999px",padding:"3px 10px",cursor:"pointer",color:"var(--text-muted)"}}
+                        onClick={() => fetch(`http://localhost:8080/api/review/${review.id}/helpful`,{method:"POST"}).then(()=>loadReviews()).catch(()=>{})}
+                      >👍 Helpful ({review.helpfulVotes})</button>
+                    </div>
                   </article>
                 ))
               ) : (

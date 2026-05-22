@@ -16,4 +16,7 @@ public class OrderItem {
     private String name;
     private double price;
     private int quantity;
+
+    /** Category stored so GST rate can be looked up per-item on invoice */
+    private String category;
 }

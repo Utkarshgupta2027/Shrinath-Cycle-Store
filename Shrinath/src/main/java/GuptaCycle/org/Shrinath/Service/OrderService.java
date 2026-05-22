@@ -109,6 +109,7 @@ public class OrderService {
                     item.setName(product.getName());
                     item.setPrice(product.getPrice() == null ? 0.0 : product.getPrice().doubleValue());
                     item.setQuantity(quantity);
+                    item.setCategory(product.getCategory()); // stored for GST invoice
                     return item;
                 })
                 .collect(Collectors.toList());

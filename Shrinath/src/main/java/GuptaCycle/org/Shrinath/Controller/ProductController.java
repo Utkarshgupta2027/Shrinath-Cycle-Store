@@ -2,6 +2,8 @@ package GuptaCycle.org.Shrinath.Controller;
 
 import GuptaCycle.org.Shrinath.DTO.ProductResponse;
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Model.ProductImage;
+import GuptaCycle.org.Shrinath.Repository.ProductImageRepository;
 import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
 import GuptaCycle.org.Shrinath.Service.ProductService;
@@ -12,9 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
+                   RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class ProductController {
+
+    @Autowired
+    private ProductImageRepository productImageRepository;
 
     @Autowired
     private ProductService service;
@@ -38,24 +47,27 @@ public class ProductController {
     public ResponseEntity<List<ProductResponse>> searchProducts(
             @RequestParam(value = "q", required = false) String keyword,
             @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "brand", required = false) String brand,
             @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
             @RequestParam(value = "inStockOnly", defaultValue = "false") boolean inStockOnly,
             @RequestParam(value = "sortBy", required = false) String sortBy) {
-        return ResponseEntity.ok(service.getFilteredProducts(keyword, category, minPrice, maxPrice, inStockOnly, sortBy));
+        return ResponseEntity.ok(service.getFilteredProducts(keyword, category, brand, minPrice, maxPrice, inStockOnly, sortBy));
     }
     @PutMapping("/product/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable int id,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
                                            @RequestPart("product") Product product,
-                                           @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) {
+                                           @RequestPart(value = "imgFile", required = false) MultipartFile imgFile,
+                                           @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages,
+                                           @RequestParam(value = "replaceExtra", defaultValue = "false") boolean replaceExtra) {
         ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
         if (authFailure != null) {
             return authFailure;
         }
 
         try {
-            Product updatedProduct = service.updateProduct(id, product, imgFile);
+            Product updatedProduct = service.updateProduct(id, product, imgFile, extraImages, replaceExtra);
             if (updatedProduct != null) {
                 return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
             } else {
@@ -70,14 +82,15 @@ public class ProductController {
     public ResponseEntity<?> addProduct(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
             @RequestPart("product") Product product,
-            @RequestPart("imgFile") MultipartFile imgFile) {
+            @RequestPart("imgFile") MultipartFile imgFile,
+            @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages) {
         ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
         if (authFailure != null) {
             return authFailure;
         }
 
         try {
-            Product savedProduct = service.addProduct(product, imgFile);
+            Product savedProduct = service.addProduct(product, imgFile, extraImages);
             return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>("Error: " + e.getMessage(),
@@ -109,6 +122,31 @@ public class ProductController {
         return ResponseEntity.ok()
                 .header("Content-Type", product.getImgType())
                 .body(product.getImgData());
+    }
+
+    /** Serve an extra gallery image by its own ID */
+    @GetMapping("/product/{productId}/gallery/{imageId}")
+    public ResponseEntity<byte[]> getGalleryImage(@PathVariable int productId,
+                                                   @PathVariable Long imageId) {
+        return productImageRepository.findById(imageId)
+                .filter(pi -> pi.getProductId().equals(productId))
+                .map(pi -> ResponseEntity.ok()
+                        .header("Content-Type", pi.getImgType())
+                        .body(pi.getImgData()))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /** Delete a single extra gallery image (admin only) */
+    @DeleteMapping("/product/{productId}/gallery/{imageId}")
+    public ResponseEntity<?> deleteGalleryImage(@PathVariable int productId,
+                                                 @PathVariable Long imageId,
+                                                 @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) return authFailure;
+        return productImageRepository.findById(imageId)
+                .filter(pi -> pi.getProductId().equals(productId))
+                .map(pi -> { productImageRepository.delete(pi); return ResponseEntity.ok().body("Deleted"); })
+                .orElse(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/product/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id,

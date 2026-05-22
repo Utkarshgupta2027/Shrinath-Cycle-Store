@@ -55,18 +55,27 @@ public class SecurityConfig {
                         "/api/products",
                         "/api/product/*",
                         "/api/product/*/image",
+                        "/api/product/*/gallery/*",  // extra gallery images
                         "/api/product/*/reviews",
+                        "/api/review/*/photo",       // Feature 12: review photos are public
+                        "/api/categories",           // Feature 14: public category list
+                        "/api/categories/featured",  // Feature 14: featured categories
+                        "/api/brands",               // Feature 14: public brand list
+                        "/api/brands/featured",      // Feature 14: featured brands (homepage)
+                        "/api/settings",             // Feature 13: public store info
                         "/api/Home",
                         "/api/about"
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/feedback").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/review/*/helpful").authenticated()
 
-                // ─── Admin-only endpoints (Spring Security enforces ROLE_ADMIN) ──
+                // ─── Admin-only endpoints ─────────────────────────────────────────
                 .requestMatchers(
                         "/api/auth/admin/**",
                         "/api/orders/admin/**",
-                        "/api/shipping/admin/**"
+                        "/api/shipping/admin/**",
+                        "/api/admin/**"              // Feature 12/13/14: all /admin/** routes
                 ).hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,   "/api/product").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,    "/api/product/**").hasRole("ADMIN")

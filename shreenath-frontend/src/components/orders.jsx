@@ -1,7 +1,7 @@
-﻿import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo } from "react-icons/fa";
-import { getStoredUser } from "../utils/auth";
+import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo, FaFileInvoice } from "react-icons/fa";
+import { getStoredUser, getAuthHeaders } from "../utils/auth";
 import "../styles/components/Orders.css";
 
 export default function Orders() {
@@ -105,6 +105,22 @@ export default function Orders() {
         [field]: value,
       },
     }));
+  };
+
+  const downloadInvoice = async (orderId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/invoice`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) { alert("Failed to generate invoice."); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `invoice-${orderId}.pdf`; a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Could not download invoice.");
+    }
   };
 
   const handleReturnExchangeRequest = async (orderId) => {
@@ -290,6 +306,15 @@ export default function Orders() {
                   >
                     Track Order
                   </button>
+                  {(order.paymentStatus === "PAID" || order.status === "DELIVERED") && (
+                    <button
+                      className="invoice-btn"
+                      onClick={() => downloadInvoice(order.id)}
+                      title="Download GST Invoice"
+                    >
+                      <FaFileInvoice /> Invoice
+                    </button>
+                  )}
                   {canCancel(order.status) && (
                     <button 
                       className="cancel-order-btn" 

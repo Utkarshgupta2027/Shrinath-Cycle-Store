@@ -15,6 +15,12 @@ public class ReviewResponse {
     private String userName;
     private Integer rating;
     private String comment;
+    /** PENDING | APPROVED | REJECTED */
+    private String status;
+    private boolean verifiedPurchase;
+    private int helpfulVotes;
+    /** True if the review has a photo attached */
+    private boolean hasPhoto;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

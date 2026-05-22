@@ -2,8 +2,10 @@ package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.DTO.ProductResponse;
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Model.ProductImage;
 import GuptaCycle.org.Shrinath.Model.RestockSubscription;
 import GuptaCycle.org.Shrinath.Repository.CartItemRepository;
+import GuptaCycle.org.Shrinath.Repository.ProductImageRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
 import GuptaCycle.org.Shrinath.Repository.RestockSubscriptionRepository;
 import GuptaCycle.org.Shrinath.Repository.ReviewRepository;
@@ -18,6 +20,8 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class ProductService {
@@ -38,6 +42,9 @@ public class ProductService {
 
     @Autowired
     private RestockSubscriptionRepository restockSubscriptionRepository;
+
+    @Autowired
+    private ProductImageRepository productImageRepository;
 
     @Autowired
     private EmailService emailService;
@@ -62,6 +69,7 @@ public class ProductService {
     public List<ProductResponse> getFilteredProducts(
             String keyword,
             String category,
+            String brand,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             boolean inStockOnly,
@@ -70,6 +78,7 @@ public class ProductService {
         List<Product> products = repo.findFiltered(
                 blankToNull(keyword),
                 blankToNull(category),
+                blankToNull(brand),
                 minPrice,
                 maxPrice,
                 inStockOnly
@@ -98,7 +107,7 @@ public class ProductService {
         return product == null ? null : toProductResponse(product);
     }
 
-    public Product addProduct(Product product, MultipartFile imgFile) throws IOException {
+    public Product addProduct(Product product, MultipartFile imgFile, List<MultipartFile> extraImages) throws IOException {
         if (product.getQuantity() < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative.");
         }
@@ -106,10 +115,18 @@ public class ProductService {
         product.setImgName(imgFile.getOriginalFilename());
         product.setImgType(imgFile.getContentType());
         product.setImgData(imgFile.getBytes());
-        return repo.save(product);
+        Product saved = repo.save(product);
+
+        // Save any additional gallery images
+        if (extraImages != null) {
+            saveExtraImages(saved.getId(), extraImages);
+        }
+
+        return saved;
     }
 
-    public Product updateProduct(int id, Product newProduct, MultipartFile imgFile) throws IOException {
+    public Product updateProduct(int id, Product newProduct, MultipartFile imgFile,
+                                 List<MultipartFile> extraImages, boolean replaceExtra) throws IOException {
         Optional<Product> optional = repo.findById(id);
 
         if (optional.isEmpty()) return null;
@@ -133,7 +150,7 @@ public class ProductService {
         existing.setAvailable(newProduct.isAvailable());
         existing.setQuantity(newProduct.getQuantity());
 
-        // Update image if provided
+        // Update primary image if provided
         if (imgFile != null && !imgFile.isEmpty()) {
             existing.setImgName(imgFile.getOriginalFilename());
             existing.setImgType(imgFile.getContentType());
@@ -141,6 +158,16 @@ public class ProductService {
         }
 
         Product saved = repo.save(existing);
+
+        // Replace or append extra gallery images
+        if (replaceExtra) {
+            productImageRepository.deleteByProductId(id);
+        }
+        if (extraImages != null && !extraImages.isEmpty()) {
+            int startOrder = replaceExtra ? 0
+                    : productImageRepository.findByProductIdOrderByDisplayOrderAsc(id).size();
+            saveExtraImages(saved.getId(), extraImages, startOrder);
+        }
 
         // Feature 11 — notify subscribers when product comes back in stock
         if (wasOutOfStock && willBeInStock) {
@@ -160,6 +187,7 @@ public class ProductService {
         cartItemRepo.deleteByProductId(id);
         wishlistRepo.deleteByProductId(id);
         reviewRepository.deleteByProductId(id);
+        productImageRepository.deleteByProductId(id);  // extra gallery images
 
         repo.deleteById(id);
     }
@@ -206,6 +234,9 @@ public class ProductService {
     private ProductResponse toProductResponse(Product product) {
         Double averageRating = reviewRepository.findAverageRatingByProductId(product.getId());
         long reviewCount = reviewRepository.countByProductId(product.getId());
+        List<Long> extraIds = productImageRepository
+                .findByProductIdOrderByDisplayOrderAsc(product.getId())
+                .stream().map(pi -> pi.getId()).collect(Collectors.toList());
 
         return new ProductResponse(
                 product.getId(),
@@ -220,7 +251,28 @@ public class ProductService {
                 product.getImgName(),
                 product.getImgType(),
                 averageRating == null ? 0 : Math.round(averageRating * 10.0) / 10.0,
-                reviewCount
+                reviewCount,
+                extraIds
         );
+    }
+
+    // ─── Helper: persist extra gallery images ─────────────────────────────────
+
+    private void saveExtraImages(Integer productId, List<MultipartFile> files) throws IOException {
+        saveExtraImages(productId, files, 0);
+    }
+
+    private void saveExtraImages(Integer productId, List<MultipartFile> files, int startOrder) throws IOException {
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile f = files.get(i);
+            if (f == null || f.isEmpty()) continue;
+            ProductImage pi = new ProductImage();
+            pi.setProductId(productId);
+            pi.setImgName(f.getOriginalFilename());
+            pi.setImgType(f.getContentType());
+            pi.setDisplayOrder(startOrder + i);
+            pi.setImgData(f.getBytes());
+            productImageRepository.save(pi);
+        }
     }
 }

@@ -480,3 +480,26 @@
 .order-awb-badge { display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; color:#34d399; background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.25); border-radius:999px; padding:4px 12px; margin-top:6px; }
 .awb-track-link { color:#e2c678; font-weight:800; text-decoration:none; border-left:1px solid rgba(52,211,153,.3); padding-left:8px; margin-left:4px; }
 .awb-track-link:hover { text-decoration:underline; }
+
+/* ── Feature 13: Invoice download button ── */
+.invoice-btn {
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.invoice-btn:hover {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: #818cf8;
+  transform: translateY(-1px);
+}
+

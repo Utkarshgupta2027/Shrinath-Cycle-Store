@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,4 +29,7 @@ public class ProductResponse {
     private String imgType;
     private double averageRating;
     private long reviewCount;
+
+    /** IDs of additional gallery images stored in product_images table */
+    private List<Long> extraImageIds;
 }

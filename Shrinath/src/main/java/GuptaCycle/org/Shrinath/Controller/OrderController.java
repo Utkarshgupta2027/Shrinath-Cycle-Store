@@ -9,11 +9,14 @@ import GuptaCycle.org.Shrinath.Model.Order;
 import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
 import GuptaCycle.org.Shrinath.Model.OrderRequest;
+import GuptaCycle.org.Shrinath.Service.InvoiceService;
 import GuptaCycle.org.Shrinath.Service.OrderService;
 import GuptaCycle.org.Shrinath.Service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +37,9 @@ public class OrderController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private InvoiceService invoiceService;
 
     @Autowired
     private CartService cartService;
@@ -209,6 +215,31 @@ public class OrderController {
             return ResponseEntity.ok(orderService.updateReturnExchangeStatus(requestId, request));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    /**
+     * Feature 13 — Download GST invoice as PDF.
+     * GET /api/orders/{orderId}/invoice
+     */
+    @GetMapping("/{orderId}/invoice")
+    public ResponseEntity<?> downloadInvoice(@PathVariable Long orderId) {
+        try {
+            Order order = orderService.getOrderById(orderId);
+            if (!currentUserId().equals(order.getUserId()) && !isCurrentUserAdmin()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only download your own invoice.");
+            }
+            byte[] pdf = invoiceService.generateInvoice(order);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            ContentDisposition.attachment().filename("invoice-" + orderId + ".pdf").build().toString())
+                    .body(pdf);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to generate invoice: " + ex.getMessage());
         }
     }
 

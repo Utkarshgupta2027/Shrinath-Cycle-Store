@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   FaSearch,
   FaFilter,
@@ -26,8 +26,6 @@ const CATEGORY_OPTIONS = [
   "Parts", "Accessories", "Tools",
 ];
 
-const BRAND_OPTIONS = ["Hero", "Atlas", "Hercules", "Firefox", "Montra", "Avon"];
-
 export default function SearchFilterBar({ onFilterChange, totalResults }) {
   const [keyword, setKeyword] = useState("");
   const [expanded, setExpanded] = useState(false);
@@ -37,6 +35,15 @@ export default function SearchFilterBar({ onFilterChange, totalResults }) {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState("");
+  // Dynamic brand list from API (Feature 14)
+  const [brandOptions, setBrandOptions] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/brands")
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setBrandOptions(Array.isArray(data) ? data.map(b => b.name) : []))
+      .catch(() => setBrandOptions(["Hero", "Atlas", "Hercules", "Firefox", "Montra", "Avon"]));
+  }, []);
 
   const buildFilters = useCallback(
     (overrides = {}) => ({
@@ -243,7 +250,7 @@ export default function SearchFilterBar({ onFilterChange, totalResults }) {
             <div className="sfb-panel-section">
               <h4 className="sfb-section-title">Brand</h4>
               <div className="sfb-chip-grid">
-                {BRAND_OPTIONS.map((brand) => (
+                {brandOptions.map((brand) => (
                   <button
                     key={brand}
                     id={`sfb-brand-${brand.toLowerCase()}`}

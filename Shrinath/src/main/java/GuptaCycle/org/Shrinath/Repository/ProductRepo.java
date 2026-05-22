@@ -29,17 +29,19 @@ public interface ProductRepo extends JpaRepository<Product, Integer>, JpaSpecifi
             "  LOWER(p.category) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "  LOWER(p.desc) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
             "(:category IS NULL OR :category = '' OR LOWER(p.category) = LOWER(:category)) AND " +
+            "(:brand IS NULL OR :brand = '' OR LOWER(p.brand) = LOWER(:brand)) AND " +
             "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
             "(:maxPrice IS NULL OR p.price <= :maxPrice) AND " +
             "(:inStockOnly = false OR (p.available = true AND p.quantity > 0))")
     List<Product> findFiltered(
             @Param("keyword") String keyword,
             @Param("category") String category,
+            @Param("brand") String brand,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
             @Param("inStockOnly") boolean inStockOnly
     );
 
-    @Query("SELECT p FROM Product p WHERE p.available = true AND p.quantity > 0 AND p.quantity < :threshold")
+    @Query("SELECT p FROM Product p WHERE p.quantity <= :threshold ORDER BY p.quantity ASC")
     List<Product> findLowStockProducts(@Param("threshold") int threshold);
 }

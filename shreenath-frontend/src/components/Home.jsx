@@ -135,6 +135,7 @@ const STORE_FEATURES = [
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [wishlistIds, setWishlistIds] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -192,6 +193,14 @@ function Home() {
 
   // Initial product load
   useEffect(() => { fetchProducts({}); }, [fetchProducts]);
+
+  // Fetch featured brands for homepage (Feature 14)
+  useEffect(() => {
+    fetch("http://localhost:8080/api/brands/featured")
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setBrands(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
   // Fetch wishlist
   useEffect(() => {
@@ -565,6 +574,34 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* ============ FEATURED BRANDS (Feature 14) ============ */}
+      {brands.length > 0 && (
+        <section style={{background:"var(--bg-secondary)",padding:"3rem 1rem"}}>
+          <div className="section-container">
+            <div className="section-heading" style={{textAlign:"center",marginBottom:"2rem"}}>
+              <h2>🏷️ Featured Brands</h2>
+              <p>Premium brands trusted by thousands of cyclists</p>
+            </div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"1rem",justifyContent:"center"}}>
+              {brands.map(brand => (
+                <button
+                  key={brand.id}
+                  className="filter-pill"
+                  onClick={() => {
+                    fetchProducts({ keyword: brand.name });
+                    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.6rem 1.25rem",fontSize:"0.9rem"}}
+                >
+                  {brand.logoUrl && <img src={brand.logoUrl} alt={brand.name} style={{height:"20px",objectFit:"contain"}} />}
+                  {brand.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ============ FEATURED PRODUCTS ============ */}
       <section className="product-section" id="products">

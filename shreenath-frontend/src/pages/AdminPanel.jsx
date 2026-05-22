@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   FaChartLine,
@@ -143,6 +143,9 @@ function AdminPanel() {
   const [productForm, setProductForm] = useState(INITIAL_PRODUCT_FORM);
   const [productImage, setProductImage] = useState(null);
   const [productPreview, setProductPreview] = useState("");
+  const [extraImages, setExtraImages] = useState([]);       // additional gallery files
+  const [extraPreviews, setExtraPreviews] = useState([]);   // blob URLs for gallery preview
+  const [existingGallery, setExistingGallery] = useState([]); // {id,url} already saved
   const [savingProduct, setSavingProduct] = useState(false);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [serviceablePins, setServiceablePins] = useState([]);
@@ -163,6 +166,25 @@ function AdminPanel() {
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [restockValues, setRestockValues] = useState({});
   const [restockLoading, setRestockLoading] = useState({});
+
+  // Feature 12 -- Reviews moderation
+  const [pendingReviews, setPendingReviews] = useState([]);
+
+  // Feature 13 -- Store settings / GST
+  const [settingsForm, setSettingsForm] = useState({});
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  // Feature 14 -- Categories
+  const [categories, setCategories] = useState([]);
+  const [catForm, setCatForm] = useState({ name: "", description: "", featured: false, displayOrder: 0, active: true });
+  const [editingCatId, setEditingCatId] = useState(null);
+  const [savingCat, setSavingCat] = useState(false);
+
+  // Feature 14 -- Brands
+  const [brands, setBrands] = useState([]);
+  const [brandForm, setBrandForm] = useState({ name: "", description: "", logoUrl: "", featured: false, displayOrder: 0, active: true });
+  const [editingBrandId, setEditingBrandId] = useState(null);
+  const [savingBrand, setSavingBrand] = useState(false);
 
   const isAdmin = isAdminUser(user);
 
@@ -218,44 +240,39 @@ function AdminPanel() {
       ]);
 
       if (productsResponse.status === "rejected") {
-        console.error(productsResponse.reason);
+        console.error("Products load failed:", productsResponse.reason);
         setProducts([]);
       }
 
       if (ordersResponse.status === "rejected") {
-        console.error(ordersResponse.reason);
+        console.error("Orders load failed:", ordersResponse.reason);
         setOrders([]);
       }
 
       if (analyticsResponse.status === "rejected") {
-        console.error(analyticsResponse.reason);
+        console.error("Analytics load failed:", analyticsResponse.reason);
         setAnalytics(null);
       }
 
       if (usersResponse.status === "rejected") {
-        console.error(usersResponse.reason);
+        console.error("Users load failed:", usersResponse.reason);
         setUsers([]);
       }
 
       if (requestsResponse.status === "rejected") {
-        console.error(requestsResponse.reason);
+        console.error("Return requests load failed:", requestsResponse.reason);
         setReturnRequests([]);
       }
 
+      // Only show a blocking error if BOTH products and orders failed (total failure)
+      // Otherwise each section handles its own empty state gracefully
       if (
         productsResponse.status === "rejected" &&
-        ordersResponse.status === "rejected" &&
-        analyticsResponse.status === "rejected" &&
-        usersResponse.status === "rejected"
+        ordersResponse.status === "rejected"
       ) {
-        setError("Failed to load admin dashboard data.");
-      } else if (
-        ordersResponse.status === "rejected" ||
-        analyticsResponse.status === "rejected" ||
-        usersResponse.status === "rejected"
-      ) {
-        setError("Products loaded, but some admin dashboard sections could not be loaded.");
+        setError("Could not connect to the server. Please restart the backend and refresh the page.");
       }
+      // Non-critical failures (analytics / users) — just log, don't block the UI
     } catch (loadError) {
       console.error(loadError);
       setError(getErrorMessage(loadError, "Failed to load admin dashboard data."));
@@ -305,6 +322,18 @@ function AdminPanel() {
       loadUsers().catch((error) => {
         console.error(error);
       });
+    }
+    if (activeSection === "reviews") {
+      axios.get(`${API_BASE}/api/admin/reviews/pending`, { headers: getAuthHeaders() }).then(r => setPendingReviews(r.data || [])).catch(() => {});
+    }
+    if (activeSection === "settings") {
+      axios.get(`${API_BASE}/api/admin/settings`, { headers: getAuthHeaders() }).then(r => setSettingsForm(r.data || {})).catch(() => {});
+    }
+    if (activeSection === "categories") {
+      axios.get(`${API_BASE}/api/categories/all`).then(r => setCategories(r.data || [])).catch(() => {});
+    }
+    if (activeSection === "brands") {
+      axios.get(`${API_BASE}/api/brands/all`).then(r => setBrands(r.data || [])).catch(() => {});
     }
   }, [activeSection, isAdmin, loadAnalytics, loadOrders, loadReturnRequests, loadUsers]);
 
@@ -381,6 +410,10 @@ function AdminPanel() {
     setProductForm(INITIAL_PRODUCT_FORM);
     setProductImage(null);
     setProductPreview("");
+    setExtraImages([]);
+    extraPreviews.forEach(u => URL.revokeObjectURL(u));
+    setExtraPreviews([]);
+    setExistingGallery([]);
     setShowProductModal(true);
   };
 
@@ -401,6 +434,12 @@ function AdminPanel() {
     }
     setProductImage(null);
     setProductPreview(`${API_BASE}/api/product/${product.id}/image`);
+    // Load existing gallery images
+    const ids = product.extraImageIds || [];
+    setExistingGallery(ids.map(imgId => ({ id: imgId, url: `${API_BASE}/api/product/${product.id}/gallery/${imgId}` })));
+    setExtraImages([]);
+    extraPreviews.forEach(u => URL.revokeObjectURL(u));
+    setExtraPreviews([]);
     setShowProductModal(true);
   };
 
@@ -416,6 +455,10 @@ function AdminPanel() {
     setProductForm(INITIAL_PRODUCT_FORM);
     setProductImage(null);
     setProductPreview("");
+    setExtraImages([]);
+    extraPreviews.forEach(u => URL.revokeObjectURL(u));
+    setExtraPreviews([]);
+    setExistingGallery([]);
   };
 
   const handleProductChange = (event) => {
@@ -461,6 +504,8 @@ function AdminPanel() {
       if (productImage) {
         formData.append("imgFile", productImage);
       }
+      // Append every extra image under the same part name
+      extraImages.forEach(f => formData.append("extraImages", f));
 
       const payload = {
         name: productForm.name,
@@ -479,9 +524,11 @@ function AdminPanel() {
       );
 
       if (productForm.id) {
-        await axios.put(`${API_BASE}/api/product/${productForm.id}`, formData, {
-          headers: getAuthHeaders(),
-        });
+        await axios.put(
+          `${API_BASE}/api/product/${productForm.id}?replaceExtra=false`,
+          formData,
+          { headers: getAuthHeaders() }
+        );
       } else {
         await axios.post(`${API_BASE}/api/product`, formData, {
           headers: getAuthHeaders(),
@@ -631,6 +678,10 @@ function AdminPanel() {
             { key: "shipping", label: "Shipping" },
             { key: "coupons", label: "Coupons" },
             { key: "low-stock", label: "Low Stock" },
+            { key: "reviews", label: "⭐ Reviews" },
+            { key: "settings", label: "⚙️ GST/Settings" },
+            { key: "categories", label: "🗂️ Categories" },
+            { key: "brands", label: "🏷️ Brands" },
           ].map((section) => (
             <button
               key={section.key}
@@ -643,7 +694,12 @@ function AdminPanel() {
         </div>
 
         {loading ? <div className="admin-loading">Loading dashboard...</div> : null}
-        {error ? <div className="admin-error">{error}</div> : null}
+        {error ? (
+          <div className="admin-error" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span>⚠️ {error}</span>
+            <button onClick={() => setError("")} style={{background:"transparent",border:"none",color:"inherit",fontSize:"1.1rem",cursor:"pointer",marginLeft:"1rem",lineHeight:1}}>✕</button>
+          </div>
+        ) : null}
 
         {!loading && (
           <>
@@ -1437,7 +1493,200 @@ function AdminPanel() {
               </section>
             )}
 
-      
+            {/* ===== Feature 12: Reviews Moderation ===== */}
+            {activeSection === "reviews" && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div><h2>⭐ Review Moderation</h2><p>Approve or reject pending customer reviews before they go public.</p></div>
+                </div>
+                {pendingReviews.length === 0 ? (
+                  <p style={{padding:"1rem",color:"var(--text-muted)"}}>No pending reviews — you're all caught up! ✅</p>
+                ) : (
+                  <div style={{display:"flex",flexDirection:"column",gap:"1rem"}}>
+                    {pendingReviews.map(review => (
+                      <div key={review.id} style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:"12px",padding:"1rem 1.25rem"}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"1rem"}}>
+                          <div>
+                            <strong>{review.userName}</strong>
+                            {review.verifiedPurchase && <span style={{marginLeft:"0.5rem",background:"#065f46",color:"#d1fae5",fontSize:"0.7rem",padding:"2px 8px",borderRadius:"999px"}}>✅ Verified Purchase</span>}
+                            <div style={{color:"#f59e0b",fontSize:"1rem"}}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</div>
+                            <p style={{marginTop:"0.4rem",fontSize:"0.9rem"}}>{review.comment}</p>
+                            {review.hasPhoto && (
+                              <img src={`http://localhost:8080/api/review/${review.id}/photo`} alt="Review" style={{marginTop:"0.5rem",maxHeight:"120px",borderRadius:"8px",objectFit:"cover"}} />
+                            )}
+                          </div>
+                          <div style={{display:"flex",gap:"0.5rem",flexShrink:0}}>
+                            <button
+                              className="add-product-btn"
+                              style={{background:"#065f46",fontSize:"0.8rem",padding:"0.4rem 1rem"}}
+                              onClick={() => axios.put(`http://localhost:8080/api/admin/reviews/${review.id}/moderate`, {action:"APPROVE"},{headers:getAuthHeaders()}).then(()=>setPendingReviews(prev=>prev.filter(r=>r.id!==review.id))).catch(()=>{})}
+                            >✅ Approve</button>
+                            <button
+                              className="delete-btn"
+                              style={{fontSize:"0.8rem",padding:"0.4rem 1rem"}}
+                              onClick={() => axios.put(`http://localhost:8080/api/admin/reviews/${review.id}/moderate`, {action:"REJECT"},{headers:getAuthHeaders()}).then(()=>setPendingReviews(prev=>prev.filter(r=>r.id!==review.id))).catch(()=>{})}
+                            >❌ Reject</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* ===== Feature 13: GST & Store Settings ===== */}
+            {activeSection === "settings" && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div><h2>⚙️ Store Settings & GST</h2><p>Update GSTIN, store details, and GST rates used on invoices.</p></div>
+                </div>
+                <form onSubmit={async (e) => {
+                  e.preventDefault(); setSavingSettings(true);
+                  try {
+                    await axios.put("http://localhost:8080/api/admin/settings", settingsForm, {headers:getAuthHeaders()});
+                    alert("Settings saved successfully!");
+                  } catch { alert("Failed to save settings."); } finally { setSavingSettings(false); }
+                }}>
+                  <div className="form-row" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
+                    <div className="form-group">
+                      <label className="form-label">GSTIN</label>
+                      <input className="form-input" placeholder="e.g. 07AABCS1429B1Z6" value={settingsForm.gstin||""} onChange={e=>setSettingsForm(p=>({...p,gstin:e.target.value}))} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Store Name</label>
+                      <input className="form-input" value={settingsForm.storeName||""} onChange={e=>setSettingsForm(p=>({...p,storeName:e.target.value}))} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Phone</label>
+                      <input className="form-input" value={settingsForm.storePhone||""} onChange={e=>setSettingsForm(p=>({...p,storePhone:e.target.value}))} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Email</label>
+                      <input className="form-input" value={settingsForm.storeEmail||""} onChange={e=>setSettingsForm(p=>({...p,storeEmail:e.target.value}))} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">GST Rate — Complete Cycles (e.g. 0.12 for 12%)</label>
+                      <input className="form-input" type="number" step="0.01" min="0" max="1" value={settingsForm.gstRateCycles||0.12} onChange={e=>setSettingsForm(p=>({...p,gstRateCycles:parseFloat(e.target.value)}))} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">GST Rate — Parts/Accessories (e.g. 0.18 for 18%)</label>
+                      <input className="form-input" type="number" step="0.01" min="0" max="1" value={settingsForm.gstRateParts||0.18} onChange={e=>setSettingsForm(p=>({...p,gstRateParts:parseFloat(e.target.value)}))} />
+                    </div>
+                  </div>
+                  <div className="form-group" style={{marginBottom:"1.5rem"}}>
+                    <label className="form-label">Store Address</label>
+                    <textarea className="form-textarea" rows={2} value={settingsForm.storeAddress||""} onChange={e=>setSettingsForm(p=>({...p,storeAddress:e.target.value}))} />
+                  </div>
+                  <button type="submit" className="add-product-btn" disabled={savingSettings}>{savingSettings ? "Saving..." : "💾 Save Settings"}</button>
+                </form>
+              </section>
+            )}
+
+            {/* ===== Feature 14: Category Management ===== */}
+            {activeSection === "categories" && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div><h2>🗂️ Category Management</h2><p>Add, edit, or delete product categories and hierarchies.</p></div>
+                </div>
+                <form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.5rem"}}
+                  onSubmit={async(e)=>{
+                    e.preventDefault(); setSavingCat(true);
+                    try {
+                      if(editingCatId) {
+                        const r = await axios.put(`http://localhost:8080/api/admin/categories/${editingCatId}`,catForm,{headers:getAuthHeaders()});
+                        setCategories(p=>p.map(c=>c.id===editingCatId?r.data:c));
+                      } else {
+                        const r = await axios.post("http://localhost:8080/api/admin/categories",catForm,{headers:getAuthHeaders()});
+                        setCategories(p=>[...p,r.data]);
+                      }
+                      setCatForm({name:"",description:"",featured:false,displayOrder:0,active:true}); setEditingCatId(null);
+                    } catch(err){ alert(err.response?.data||"Error saving category."); } finally { setSavingCat(false); }
+                  }}>
+                  <input className="form-input" placeholder="Category name *" required value={catForm.name} onChange={e=>setCatForm(p=>({...p,name:e.target.value}))} />
+                  <input className="form-input" placeholder="Description" value={catForm.description} onChange={e=>setCatForm(p=>({...p,description:e.target.value}))} />
+                  <input className="form-input" type="number" placeholder="Display order" value={catForm.displayOrder} onChange={e=>setCatForm(p=>({...p,displayOrder:parseInt(e.target.value)||0}))} />
+                  <div style={{display:"flex",gap:"1rem",alignItems:"center"}}>
+                    <label><input type="checkbox" checked={catForm.featured} onChange={e=>setCatForm(p=>({...p,featured:e.target.checked}))} /> Featured</label>
+                    <label><input type="checkbox" checked={catForm.active} onChange={e=>setCatForm(p=>({...p,active:e.target.checked}))} /> Active</label>
+                  </div>
+                  <button type="submit" className="add-product-btn" disabled={savingCat} style={{gridColumn:"span 2"}}>{savingCat?"Saving...":editingCatId?"Update Category":"Add Category"}</button>
+                </form>
+                <div className="inventory-table-wrap">
+                  <table className="inventory-table">
+                    <thead><tr><th>Name</th><th>Description</th><th>Featured</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {categories.map(cat=>(
+                        <tr key={cat.id}>
+                          <td><strong>{cat.name}</strong></td>
+                          <td>{cat.description||"—"}</td>
+                          <td>{cat.featured?"✅":"—"}</td>
+                          <td>{cat.displayOrder}</td>
+                          <td>{cat.active?"✅":"❌"}</td>
+                          <td>
+                            <button className="edit-btn" onClick={()=>{setCatForm({name:cat.name,description:cat.description||"",featured:cat.featured,displayOrder:cat.displayOrder,active:cat.active});setEditingCatId(cat.id);}}>Edit</button>
+                            <button className="delete-btn" style={{marginLeft:"0.5rem"}} onClick={()=>{if(window.confirm(`Delete category "${cat.name}"?`))axios.delete(`http://localhost:8080/api/admin/categories/${cat.id}`,{headers:getAuthHeaders()}).then(()=>setCategories(p=>p.filter(c=>c.id!==cat.id))).catch(()=>alert("Could not delete."));}}>Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
+            {/* ===== Feature 14: Brand Management ===== */}
+            {activeSection === "brands" && (
+              <section className="admin-panel-card">
+                <div className="card-heading">
+                  <div><h2>🏷️ Brand Management</h2><p>Add, edit, or delete brands and mark them as featured on the homepage.</p></div>
+                </div>
+                <form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.5rem"}}
+                  onSubmit={async(e)=>{
+                    e.preventDefault(); setSavingBrand(true);
+                    try {
+                      if(editingBrandId) {
+                        const r = await axios.put(`http://localhost:8080/api/admin/brands/${editingBrandId}`,brandForm,{headers:getAuthHeaders()});
+                        setBrands(p=>p.map(b=>b.id===editingBrandId?r.data:b));
+                      } else {
+                        const r = await axios.post("http://localhost:8080/api/admin/brands",brandForm,{headers:getAuthHeaders()});
+                        setBrands(p=>[...p,r.data]);
+                      }
+                      setBrandForm({name:"",description:"",logoUrl:"",featured:false,displayOrder:0,active:true}); setEditingBrandId(null);
+                    } catch(err){ alert(err.response?.data||"Error saving brand."); } finally { setSavingBrand(false); }
+                  }}>
+                  <input className="form-input" placeholder="Brand name *" required value={brandForm.name} onChange={e=>setBrandForm(p=>({...p,name:e.target.value}))} />
+                  <input className="form-input" placeholder="Description" value={brandForm.description} onChange={e=>setBrandForm(p=>({...p,description:e.target.value}))} />
+                  <input className="form-input" placeholder="Logo URL (optional)" value={brandForm.logoUrl} onChange={e=>setBrandForm(p=>({...p,logoUrl:e.target.value}))} />
+                  <input className="form-input" type="number" placeholder="Display order" value={brandForm.displayOrder} onChange={e=>setBrandForm(p=>({...p,displayOrder:parseInt(e.target.value)||0}))} />
+                  <div style={{display:"flex",gap:"1rem",alignItems:"center"}}>
+                    <label><input type="checkbox" checked={brandForm.featured} onChange={e=>setBrandForm(p=>({...p,featured:e.target.checked}))} /> Featured</label>
+                    <label><input type="checkbox" checked={brandForm.active} onChange={e=>setBrandForm(p=>({...p,active:e.target.checked}))} /> Active</label>
+                  </div>
+                  <button type="submit" className="add-product-btn" disabled={savingBrand} style={{gridColumn:"span 2"}}>{savingBrand?"Saving...":editingBrandId?"Update Brand":"Add Brand"}</button>
+                </form>
+                <div className="inventory-table-wrap">
+                  <table className="inventory-table">
+                    <thead><tr><th>Name</th><th>Description</th><th>Logo</th><th>Featured</th><th>Active</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {brands.map(brand=>(
+                        <tr key={brand.id}>
+                          <td><strong>{brand.name}</strong></td>
+                          <td>{brand.description||"—"}</td>
+                          <td>{brand.logoUrl?<img src={brand.logoUrl} alt={brand.name} style={{height:"32px",objectFit:"contain"}} />:"—"}</td>
+                          <td>{brand.featured?"✅":"—"}</td>
+                          <td>{brand.active?"✅":"❌"}</td>
+                          <td>
+                            <button className="edit-btn" onClick={()=>{setBrandForm({name:brand.name,description:brand.description||"",logoUrl:brand.logoUrl||"",featured:brand.featured,displayOrder:brand.displayOrder,active:brand.active});setEditingBrandId(brand.id);}}>Edit</button>
+                            <button className="delete-btn" style={{marginLeft:"0.5rem"}} onClick={()=>{if(window.confirm(`Delete brand "${brand.name}"?`))axios.delete(`http://localhost:8080/api/admin/brands/${brand.id}`,{headers:getAuthHeaders()}).then(()=>setBrands(p=>p.filter(b=>b.id!==brand.id))).catch(()=>alert("Could not delete."));}}>Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
 
 
       {showProductModal ? (
@@ -1525,13 +1774,66 @@ function AdminPanel() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Product Image</label>
+                  <label className="form-label">Primary Image{productForm.id ? " (leave blank to keep current)" : ""}</label>
                   <input className="form-input" type="file" accept="image/*" onChange={handleProductImageChange} />
                   {productPreview ? (
                     <div className="modal-image-preview">
                       <img src={productPreview} alt="Preview" />
                     </div>
                   ) : null}
+                </div>
+
+                {/* ─── Extra gallery images ─── */}
+                <div className="form-group">
+                  <label className="form-label">Additional Gallery Images <span style={{fontSize:"0.8rem",color:"#94a3b8"}}>(you can select multiple)</span></label>
+                  <input
+                    className="form-input"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={e => {
+                      const files = Array.from(e.target.files);
+                      setExtraImages(files);
+                      extraPreviews.forEach(u => URL.revokeObjectURL(u));
+                      setExtraPreviews(files.map(f => URL.createObjectURL(f)));
+                    }}
+                  />
+                  {/* Previews of newly selected extra images */}
+                  {extraPreviews.length > 0 && (
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"8px",marginTop:"10px"}}>
+                      {extraPreviews.map((url, i) => (
+                        <div key={i} style={{position:"relative"}}>
+                          <img src={url} alt={`extra-${i}`} style={{width:"80px",height:"80px",objectFit:"cover",borderRadius:"8px",border:"1px solid rgba(255,255,255,0.15)"}} />
+                          <button type="button" onClick={() => {
+                            const newFiles = extraImages.filter((_,j) => j !== i);
+                            const newPreviews = extraPreviews.filter((_,j) => j !== i);
+                            URL.revokeObjectURL(url);
+                            setExtraImages(newFiles);
+                            setExtraPreviews(newPreviews);
+                          }} style={{position:"absolute",top:"-6px",right:"-6px",background:"#ef4444",border:"none",borderRadius:"50%",width:"18px",height:"18px",color:"#fff",fontSize:"11px",cursor:"pointer",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Already-saved gallery images (edit mode) */}
+                  {existingGallery.length > 0 && (
+                    <div style={{marginTop:"10px"}}>
+                      <p style={{fontSize:"0.8rem",color:"#94a3b8",marginBottom:"6px"}}>Saved gallery ({existingGallery.length} images) — click ✕ to remove</p>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
+                        {existingGallery.map(img => (
+                          <div key={img.id} style={{position:"relative"}}>
+                            <img src={img.url} alt="gallery" style={{width:"80px",height:"80px",objectFit:"cover",borderRadius:"8px",border:"1px solid rgba(255,255,255,0.15)"}} />
+                            <button type="button" onClick={async () => {
+                              try {
+                                await axios.delete(`${API_BASE}/api/product/${productForm.id}/gallery/${img.id}`, { headers: getAuthHeaders() });
+                                setExistingGallery(g => g.filter(x => x.id !== img.id));
+                              } catch(err) { alert("Failed to delete image"); }
+                            }} style={{position:"absolute",top:"-6px",right:"-6px",background:"#ef4444",border:"none",borderRadius:"50%",width:"18px",height:"18px",color:"#fff",fontSize:"11px",cursor:"pointer",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <label className="availability-toggle">

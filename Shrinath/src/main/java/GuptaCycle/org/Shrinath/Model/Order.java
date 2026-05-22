@@ -34,6 +34,9 @@ public class Order {
     private LocalDateTime cancelledAt;
     private LocalDateTime refundedAt;
 
+    /** Total GST collected on this order (computed at invoice generation) */
+    private Double gstAmount;
+
     // Shipping / AWB tracking
     private String awbNumber;
     private String courierName;
