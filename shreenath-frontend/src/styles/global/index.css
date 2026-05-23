@@ -30,6 +30,59 @@ a {
   color: inherit;
 }
 
+/* ── Mobile Touch Improvements ── */
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling for in-page anchors */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling on orientation change */
+}
+
+/* Improve touch scrolling on iOS */
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Minimum touch target size (44×44px WCAG standard) for all interactive elements */
+button,
+a,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+select {
+  touch-action: manipulation;
+}
+
+/* Prevent text selection on interactive elements */
+button,
+[role="button"] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Horizontal scroll containers should be touch-scrollable */
+.overflow-x-auto,
+.category-quick-nav,
+.product-thumbnails,
+.filter-pill-row {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none; /* Firefox */
+}
+
+.overflow-x-auto::-webkit-scrollbar,
+.category-quick-nav::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+
 body.app-theme-dark {
   color-scheme: dark;
   --app-bg: #080b12;

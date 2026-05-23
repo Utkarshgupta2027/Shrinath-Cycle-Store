@@ -1039,3 +1039,112 @@
     max-width: calc(100vw - 32px);
   }
 }
+
+/* Small Mobile (480px and down) */
+@media (max-width: 480px) {
+  .admin-page {
+    padding: 20px 12px;
+  }
+
+  .admin-title {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 12px 12px;
+  }
+
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .table-search {
+    max-width: 100%;
+  }
+
+  .table-count {
+    margin-left: 0;
+  }
+
+  .admin-pagination {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  /* Touch-friendly action buttons */
+  .action-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .page-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .add-product-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 20px;
+  }
+
+  .modal-header {
+    padding: 16px 18px 14px;
+  }
+
+  .modal-body {
+    padding: 16px 18px;
+  }
+
+  .modal-footer {
+    padding: 14px 18px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .btn-cancel,
+  .btn-save,
+  .btn-danger {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+}
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .admin-page {
+    padding: 16px 10px;
+  }
+
+  .admin-stats .stat-card {
+    padding: 16px 14px;
+  }
+
+  .admin-table th:nth-child(5),
+  .admin-table td:nth-child(5) {
+    display: none; /* Hide category column on very small screens */
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 10px 10px;
+    font-size: 0.8rem;
+  }
+
+  .product-cell-name {
+    font-size: 0.82rem;
+  }
+
+  .product-thumb-wrap {
+    width: 40px;
+    height: 40px;
+  }
+}

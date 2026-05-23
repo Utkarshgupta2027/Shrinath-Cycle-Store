@@ -549,3 +549,57 @@
 .saved-addr-label-row { display:flex; align-items:center; gap:6px; width:100%; }
 .saved-addr-default { display:inline-flex; align-items:center; gap:3px; font-size:.7rem; color:#f59e0b; background:rgba(245,158,11,.12); border-radius:999px; padding:2px 8px; margin-left:auto; }
 .shipping-charge-note { margin:8px 0 0; font-size:.83rem; color:#34d399; font-weight:600; }
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .checkout-page {
+    padding: 16px 10px 36px;
+  }
+
+  .checkout-header,
+  .checkout-section-card,
+  .order-summary-card,
+  .order-confirmation {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .checkout-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .address-form-grid input,
+  .coupon-form input {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .confirm-order-btn {
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .checkout-item {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .checkout-item-img-wrap {
+    width: 68px;
+    height: 68px;
+  }
+
+  .detect-location-btn,
+  .one-click-btn {
+    min-height: 48px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .payment-method-grid button,
+  .delivery-option-grid button,
+  .checkout-mode-row button {
+    min-height: 72px;
+  }
+}
+

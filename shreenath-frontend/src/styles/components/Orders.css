@@ -503,3 +503,160 @@
   transform: translateY(-1px);
 }
 
+
+/* ═══════════════════════════════════════════════
+   📱 RESPONSIVE — Orders Page
+═══════════════════════════════════════════════ */
+
+/* Tablet (768px and down) */
+@media (max-width: 768px) {
+  .orders-page {
+    padding: 28px 16px;
+  }
+
+  .orders-title {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .order-header-left {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .order-meta {
+    font-size: 0.82rem;
+  }
+
+  .order-body {
+    padding: 16px;
+  }
+
+  .order-footer {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .order-actions-section {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .track-order-btn,
+  .cancel-order-btn,
+  .invoice-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+}
+
+/* Mobile (640px and down) */
+@media (max-width: 640px) {
+  .orders-page {
+    padding: 20px 12px;
+  }
+
+  .orders-empty {
+    padding: 48px 16px;
+  }
+
+  .order-item-row {
+    gap: 10px;
+  }
+
+  .order-item-img-wrap {
+    width: 52px;
+    height: 52px;
+  }
+
+  .order-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-actions-section {
+    width: 100%;
+  }
+
+  .track-order-btn,
+  .cancel-order-btn,
+  .invoice-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .address-display-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .order-awb-badge {
+    font-size: 0.72rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Small Mobile (480px and down) */
+@media (max-width: 480px) {
+  .orders-title {
+    font-size: 1.4rem;
+  }
+
+  .order-number {
+    font-size: 0.9rem;
+  }
+
+  .order-status {
+    font-size: 0.72rem;
+    padding: 4px 9px;
+  }
+
+  .order-item-name {
+    font-size: 0.88rem;
+  }
+
+  .order-total-value {
+    font-size: 1rem;
+  }
+}
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .orders-page {
+    padding: 16px 10px;
+  }
+
+  .orders-action-btn {
+    width: 100%;
+    padding: 13px 16px;
+    font-size: 0.92rem;
+  }
+
+  .order-header {
+    padding: 14px;
+  }
+
+  .order-body {
+    padding: 14px;
+  }
+
+  .return-exchange-form {
+    padding: 12px 14px 16px;
+  }
+
+  .track-order-btn,
+  .cancel-order-btn,
+  .invoice-btn {
+    font-size: 0.8rem;
+    padding: 10px 12px;
+  }
+}
+

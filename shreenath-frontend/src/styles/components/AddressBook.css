@@ -443,6 +443,49 @@
   .ab-modal { padding: 20px; }
 }
 
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .ab-container {
+    padding: 16px 12px;
+  }
+
+  .ab-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .ab-primary-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 50px;
+  }
+
+  .ab-card {
+    padding: 14px;
+  }
+
+  .ab-action-btn {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  .ab-modal {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .ab-form-row input {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .ab-cancel-form-btn,
+  .ab-primary-btn {
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+}
+
+
 /* ── Dark Mode ───────────────────────────────────────────── */
 [data-theme="dark"] .ab-page { background: #0f172a; }
 [data-theme="dark"] .ab-card { background: #1e293b; border-color: #334155; }

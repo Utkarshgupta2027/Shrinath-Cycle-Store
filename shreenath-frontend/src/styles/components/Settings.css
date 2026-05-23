@@ -685,3 +685,44 @@ body.settings-light-mode {
     font-size: 2rem;
   }
 }
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .settings-page {
+    padding: 16px 10px 36px;
+  }
+
+  .settings-header,
+  .settings-section,
+  .settings-login-prompt,
+  .modal-box {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .settings-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .settings-primary-btn,
+  .settings-secondary-btn,
+  .modal-delete,
+  .modal-cancel,
+  .settings-login-btn {
+    min-height: 48px;
+  }
+
+  .settings-field input,
+  .settings-address-form input,
+  .settings-select-row select {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .settings-avatar {
+    width: 46px;
+    height: 46px;
+    font-size: 1.1rem;
+  }
+}
+

@@ -998,12 +998,13 @@ body.app-theme-light .nav-badge {
     padding: 0 16px;
   }
 
-  .nav-links li:not(.user-menu-wrapper) {
-    display: none; /* Hide icons to give space to logo and user menu on very small screens */
+  /* Hide wishlist on very small screens to make room, keep cart */
+  .nav-links li.wishlist-link-item {
+    display: none;
   }
 
   .nav-links {
-    gap: 8px;
+    gap: 6px;
   }
 
   .user-menu-trigger {
@@ -1018,5 +1019,42 @@ body.app-theme-light .nav-badge {
 
   .chevron {
     display: none;
+  }
+}
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .nav-container {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .logo {
+    height: 34px;
+  }
+
+  .nav-icon-link {
+    padding: 5px;
+    font-size: 1.1rem;
+  }
+
+  .mobile-menu-btn {
+    padding: 6px;
+    font-size: 1.15rem;
+  }
+
+  /* Touch-friendly mobile drawer items */
+  .mobile-nav-link {
+    min-height: 48px;
+    padding: 13px 14px;
+    font-size: 0.95rem;
+  }
+
+  .mobile-search-form {
+    padding: 12px 14px;
+  }
+
+  .mobile-search-input {
+    font-size: 1rem;
   }
 }

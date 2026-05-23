@@ -1138,3 +1138,72 @@
     min-height: 44px;
   }
 }
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .product-page {
+    padding: 16px 10px 36px;
+  }
+
+  .product-layout,
+  .review-panel,
+  .info-panel,
+  .faq-panel,
+  .support-card,
+  .related-section {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .product-headline {
+    font-size: 1.6rem;
+  }
+
+  .main-image-wrap {
+    height: 320px;
+    border-radius: 16px;
+  }
+
+  .add-btn,
+  .buy-btn {
+    min-height: 52px;
+    font-size: 0.95rem;
+  }
+
+  .wishlist-detail-btn {
+    min-height: 48px;
+  }
+
+  .variant-chip {
+    padding: 10px 14px;
+    min-height: 44px;
+  }
+
+  .rating-star-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .review-submit-btn {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .spec-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trust-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .delivery-check input {
+    min-height: 48px;
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+

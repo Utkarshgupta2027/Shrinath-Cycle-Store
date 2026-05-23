@@ -785,3 +785,68 @@
   .qr-card { grid-template-columns: 1fr; justify-items: start; }
   .grand-total-row strong { font-size: 1.6rem; }
 }
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .payment-page {
+    padding: 80px 10px 36px;
+  }
+
+  .payment-header {
+    padding: 16px;
+  }
+
+  .payment-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .payment-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .method-card {
+    min-height: 100px;
+    padding: 12px;
+  }
+
+  .pay-now-btn {
+    min-height: 54px;
+    font-size: 1.05rem;
+  }
+
+  .grand-total-row strong {
+    font-size: 1.4rem;
+  }
+
+  .upi-apps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .upi-app-btn {
+    min-height: 64px;
+  }
+
+  .bank-tile {
+    min-height: 64px;
+  }
+
+  .details-grid input,
+  .details-grid select,
+  .upi-panel input {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .summary-item img {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+  }
+
+  .payment-back-link {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+}
+

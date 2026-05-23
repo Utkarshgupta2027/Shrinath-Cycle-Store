@@ -1779,20 +1779,86 @@ body.app-theme-light .product-card {
   .feature-item:last-child {
     border-bottom: none;
   }
+}
 
-  .product-grid {
-    grid-template-columns: 1fr;
+
+/* Tight Mobile — 390px / 375px (iPhone 14/15 / SE) */
+@media (max-width: 390px) {
+  .hero-section {
+    height: 72vh;
+    min-height: 460px;
   }
 
-  .category-quick-nav {
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
+  .hero-content {
+    padding: 0 4% 50px;
+  }
+
+  .hero-headline {
+    font-size: 1.85rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .hero-cta-primary,
+  .hero-cta-secondary {
+    padding: 13px 18px;
+    font-size: 0.86rem;
+    min-height: 48px;
+  }
+
+  .hero-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 0.8rem;
+  }
+
+  .hero-arrow.prev { left: 12px; }
+  .hero-arrow.next { right: 12px; }
+
+  .store-label {
+    font-size: 0.68rem;
+    padding: 5px 12px;
+  }
+
+  .section-container {
+    padding: 0 14px;
+  }
+
+  .category-group-card,
+  .category-group-card.bicycle {
+    min-height: 200px;
+  }
+
+  .category-group-content {
+    min-height: 200px;
+    padding: 16px;
   }
 
   .category-quick-link {
-    white-space: nowrap;
+    font-size: 0.78rem;
+    padding: 10px 12px;
+  }
+
+  .section-heading h2 {
+    font-size: 1.4rem;
+  }
+
+  .feature-item {
+    padding: 16px 18px;
+  }
+
+  .hero-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .hero-dot.active {
+    width: 24px;
   }
 }
 

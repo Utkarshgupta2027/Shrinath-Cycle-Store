@@ -108,3 +108,30 @@
     font-size: 1.6rem;
   }
 }
+
+/* Tight Mobile — 390px / 375px */
+@media (max-width: 390px) {
+  .auth-container {
+    width: 96%;
+    margin-top: 40px;
+    padding: 24px 16px;
+    border-radius: 20px;
+  }
+
+  .auth-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .auth-container input {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 12px 14px;
+  }
+
+  .auth-container button {
+    min-height: 52px;
+    font-size: 1rem;
+    padding: 14px;
+  }
+}
+
