@@ -87,6 +87,8 @@ public class CartService {
             cartItemRepository.save(newItem);
         }
 
+        cart.setUpdatedAt(java.time.LocalDateTime.now());
+        cart.setEmailSent(false);
         return cartRepository.save(cart);
     }
 
@@ -109,6 +111,8 @@ public class CartService {
             if (item.getProduct().getId().equals(productId.intValue())) {
                 item.setQuantity(quantity);
                 cartItemRepository.save(item);
+                cart.setUpdatedAt(java.time.LocalDateTime.now());
+                cart.setEmailSent(false);
                 return cartRepository.save(cart);
             }
         }
@@ -129,6 +133,8 @@ public class CartService {
 
         itemToRemove.setCart(null);
         cart.getItems().remove(itemToRemove);
+        cart.setUpdatedAt(java.time.LocalDateTime.now());
+        cart.setEmailSent(false);
         return cartRepository.save(cart);
     }
 
@@ -140,6 +146,8 @@ public class CartService {
         Cart cart = getCartByUserId(userId);
         cart.getItems().forEach(item -> item.setCart(null));
         cart.getItems().clear();
+        cart.setUpdatedAt(java.time.LocalDateTime.now());
+        cart.setEmailSent(false);
         return cartRepository.save(cart);
     }
 

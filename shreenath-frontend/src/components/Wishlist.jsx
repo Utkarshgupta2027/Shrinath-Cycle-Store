@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -13,12 +13,14 @@ import {
 } from "react-icons/fa";
 import { getStoredUser } from "../utils/auth";
 import { copyTextToClipboard } from "../utils/browser";
+import AppContext from "../Context/Context";
 import "../styles/components/Wishlist.css";
 
 const API_BASE = "http://localhost:8080/api";
 
 export default function Wishlist() {
   const navigate = useNavigate();
+  const { addToCart: contextAddToCart } = useContext(AppContext);
   const user = getStoredUser();
   const userId = user?.id;
 
@@ -133,10 +135,15 @@ export default function Wishlist() {
     }
 
     try {
-      const params = new URLSearchParams({ userId, productId: item.productId, quantity: 1 });
-      const res = await fetch(`${API_BASE}/cart/add?${params}`, { method: "POST" });
-      if (!res.ok) {
-        throw new Error(await res.text());
+      const productObj = {
+        id: item.productId,
+        name: item.name,
+        quantity: item.quantity,
+        available: item.available
+      };
+      const success = await contextAddToCart(productObj, 1);
+      if (!success) {
+        throw new Error("Failed to add item to cart.");
       }
       return true;
     } catch (err) {

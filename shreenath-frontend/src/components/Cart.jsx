@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useContext } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -16,7 +16,7 @@ import {
   FaTruck,
   FaUndoAlt,
 } from "react-icons/fa";
-import { getStoredUser } from "../utils/auth";
+import AppContext from "../Context/Context";
 import "../styles/components/Cart.css";
 
 const API_BASE = "http://localhost:8080/api";
@@ -31,29 +31,15 @@ const DEFAULT_SUMMARY = {
 
 const Cart = () => {
   const navigate = useNavigate();
-  const user = getStoredUser();
+  const { user, cart: cartItems, updateQuantity, removeFromCart } = useContext(AppContext);
   const userId = user?.id;
 
-  const [cartItems, setCartItems] = useState([]);
   const [savedItems, setSavedItems] = useState([]);
   const [summary, setSummary] = useState(DEFAULT_SUMMARY);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [message, setMessage] = useState("");
   const [loadingAction, setLoadingAction] = useState("");
-
-  const normalizeCartItems = (cart) => {
-    if (!cart?.items) {
-      return [];
-    }
-
-    return cart.items.map((ci) => ({
-      ...ci.product,
-      stockQuantity: ci.product?.quantity ?? 0,
-      quantity: ci.quantity,
-      cartItemId: ci.id,
-    }));
-  };
 
   const localSubtotal = useMemo(() => {
     return cartItems.reduce((sum, item) => {
@@ -78,13 +64,17 @@ const Cart = () => {
 
   const fetchSummary = useCallback(async (code = appliedCoupon, items = []) => {
     if (!userId) {
-      setSummary(DEFAULT_SUMMARY);
+      const fallback = calculateLocalSummary(items, code);
+      setSummary(fallback);
       return;
     }
 
     try {
       const res = await axios.get(`${API_BASE}/cart/summary`, {
         params: { userId, couponCode: code || "" },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
       });
       setSummary(res.data);
       setAppliedCoupon(res.data.couponCode || "");
@@ -96,7 +86,11 @@ const Cart = () => {
       try {
         if (code) {
           const subtotal = items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 0), 0);
-          const valRes = await axios.post(`${API_BASE}/coupon/validate`, { code, userId, subtotal });
+          const valRes = await axios.post(`${API_BASE}/coupon/validate`, { code, userId, subtotal }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          });
           const v = valRes.data;
           const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
           setSummary({
@@ -123,27 +117,9 @@ const Cart = () => {
     }
   }, [appliedCoupon, calculateLocalSummary, userId]);
 
-  const fetchCart = useCallback(async () => {
-    if (!userId) {
-      setCartItems([]);
-      setSummary(DEFAULT_SUMMARY);
-      return;
-    }
-
-    try {
-      const res = await axios.get(`${API_BASE}/cart/users/${userId}`);
-      const items = normalizeCartItems(res.data);
-      setCartItems(items);
-      await fetchSummary(appliedCoupon, items);
-    } catch (error) {
-      console.error("Fetch error details:", error.response || error);
-      setMessage("Could not load cart. Please check if backend is running.");
-    }
-  }, [appliedCoupon, fetchSummary, userId]);
-
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    fetchSummary(appliedCoupon, cartItems);
+  }, [cartItems, fetchSummary, appliedCoupon]);
 
   const formatMoney = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
 
@@ -166,15 +142,13 @@ const Cart = () => {
 
     try {
       setLoadingAction(`qty-${productId}`);
-      const response = await axios.put(`${API_BASE}/cart/update`, null, {
-        params: { userId, productId, quantity: nextQuantity },
-      });
-      const items = normalizeCartItems(response.data);
-      setCartItems(items);
-      await fetchSummary(appliedCoupon, items);
+      const success = await updateQuantity(productId, nextQuantity);
+      if (!success) {
+        setMessage("Could not update quantity. Check if stock is available.");
+      }
     } catch (error) {
       console.error("Quantity update failed", error);
-      setMessage(error.response?.data || "Could not update quantity.");
+      setMessage(error.message || "Could not update quantity.");
     } finally {
       setLoadingAction("");
     }
@@ -183,31 +157,35 @@ const Cart = () => {
   const handleRemoveFromCart = async (productId) => {
     try {
       setLoadingAction(`remove-${productId}`);
-      const response = await axios.delete(`${API_BASE}/cart/remove`, {
-        params: { userId, productId },
-      });
-      const items = normalizeCartItems(response.data);
-      setCartItems(items);
-      await fetchSummary(appliedCoupon, items);
-      setMessage("Item removed from cart.");
+      const success = await removeFromCart(productId);
+      if (success) {
+        setMessage("Item removed from cart.");
+      } else {
+        setMessage("Could not remove item from cart.");
+      }
     } catch (error) {
       console.error("Backend failed to delete item:", error);
-      setMessage(error.response?.data || "Could not remove item from cart.");
+      setMessage(error.message || "Could not remove item from cart.");
     } finally {
       setLoadingAction("");
     }
   };
 
   const handleMoveToWishlist = async (item) => {
+    if (!userId) {
+      navigate("/login");
+      return;
+    }
+
     try {
       setLoadingAction(`wishlist-${item.id}`);
       const response = await axios.post(`${API_BASE}/cart/move-to-wishlist`, null, {
         params: { userId, productId: item.id },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
       });
-      const items = normalizeCartItems(response.data);
-      setCartItems(items);
       setSavedItems((prev) => [item, ...prev.filter((saved) => saved.id !== item.id)]);
-      await fetchSummary(appliedCoupon, items);
       setMessage(`${item.name} moved to wishlist and saved for later.`);
     } catch (error) {
       console.error("Move to wishlist failed:", error);
@@ -229,22 +207,15 @@ const Cart = () => {
     setMessage("Coupon removed.");
   };
 
-  const canCheckout = cartItems.length > 0 && summary.finalTotal > 0;
+  const handleCheckoutClick = () => {
+    if (!userId) {
+      navigate("/login", { state: { from: "/cart" } });
+    } else {
+      navigate("/checkout");
+    }
+  };
 
-  if (!userId) {
-    return (
-      <div className="cart-page">
-        <div className="cart-container">
-          <div className="empty-cart standalone">
-            <FaShoppingBag />
-            <h1>My Cart</h1>
-            <p>Please login to view your cart and checkout securely.</p>
-            <button className="checkout-btn" onClick={() => navigate("/login")}>Login</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const canCheckout = cartItems.length > 0;
 
   return (
     <div className="cart-page">
@@ -394,7 +365,7 @@ const Cart = () => {
                   <span>{formatMoney(summary.finalTotal || localSubtotal)}</span>
                 </div>
 
-                <button className="checkout-btn" onClick={() => navigate("/checkout")} disabled={!canCheckout}>
+                <button className="checkout-btn" onClick={handleCheckoutClick} disabled={!canCheckout}>
                   Proceed to Checkout
                 </button>
                 <button className="continue-btn" onClick={() => navigate("/")}>

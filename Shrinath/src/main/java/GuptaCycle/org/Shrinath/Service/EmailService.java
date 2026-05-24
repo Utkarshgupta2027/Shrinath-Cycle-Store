@@ -2,6 +2,8 @@ package GuptaCycle.org.Shrinath.Service;
 
 import GuptaCycle.org.Shrinath.Model.Order;
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Model.CartItem;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -261,6 +263,36 @@ public class EmailService {
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println("Failed to send restock notification to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendAbandonedCartEmail(String toEmail, String name, List<CartItem> items) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromAddress());
+            message.setTo(toEmail);
+            message.setSubject("🛒 You left items in your cart! - Shrinath Cycle Store");
+            
+            StringBuilder text = new StringBuilder();
+            text.append("Hi ").append(name).append(",\n\n");
+            text.append("We noticed you left some items in your cart. They are waiting for you!\n\n");
+            text.append("Here is what you left behind:\n");
+            
+            for (CartItem item : items) {
+                text.append("- ").append(item.getProduct().getName())
+                    .append(" (Qty: ").append(item.getQuantity())
+                    .append(") - ₹").append(item.getProduct().getPrice()).append("\n");
+            }
+            
+            text.append("\nReturn to your cart to complete your order before they sell out!\n");
+            text.append("Visit us at: http://localhost:3000/cart\n\n");
+            text.append("Best regards,\nThe Shrinath Cycle Store Team");
+            
+            message.setText(text.toString());
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send abandoned cart email to " + toEmail + ": " + e.getMessage());
         }
     }
 

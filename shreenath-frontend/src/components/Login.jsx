@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { setStoredUser } from "../utils/auth";
+import AppContext from "../Context/Context";
 import "../styles/components/auth.css";
 
 export default function Login() {
@@ -10,6 +10,7 @@ export default function Login() {
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useContext(AppContext);
 
   useEffect(() => {
     setPhoneNumber("");
@@ -47,9 +48,7 @@ export default function Login() {
         role: data.role,
       };
 
-      setStoredUser(user);
-      localStorage.setItem("userId", String(data.userId));
-      localStorage.setItem("token", data.token);
+      await login(user, data.token);
 
       setPhoneNumber("");
       setPassword("");

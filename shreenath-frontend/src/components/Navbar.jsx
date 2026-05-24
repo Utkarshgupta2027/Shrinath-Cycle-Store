@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaShoppingCart,
@@ -16,21 +16,21 @@ import {
   FaBicycle,
 } from "react-icons/fa";
 import logo from "../assets/images/logo.png";
-import { clearStoredAuth, getStoredUser, isAdminUser } from "../utils/auth";
+import { getStoredUser, isAdminUser } from "../utils/auth";
+import AppContext from "../Context/Context";
 import "../styles/components/Navbar.css";
 
 const SHOP_CATEGORIES = ["Bicycle", "Parts", "Accessories", "New Arrivals", "Tools"];
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const user = getStoredUser();
+  const { user, logout, cartCount } = useContext(AppContext);
   const userMenuRef = useRef(null);
 
   // Scroll shadow
@@ -39,19 +39,6 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // Fetch cart count
-  useEffect(() => {
-    if (!user?.id) { setCartCount(0); return; }
-    fetch(`http://localhost:8080/api/cart/users/${user.id}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.items) {
-          setCartCount(data.items.reduce((s, ci) => s + (ci.quantity || 1), 0));
-        }
-      })
-      .catch(() => {});
-  }, [location.pathname, user?.id]);
 
   // Fetch wishlist count
   useEffect(() => {
@@ -82,7 +69,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    clearStoredAuth();
+    logout();
     setShowUserMenu(false);
     setMobileOpen(false);
     navigate("/login", { state: { resetAuthForm: Date.now() } });

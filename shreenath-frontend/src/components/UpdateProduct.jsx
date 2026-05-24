@@ -9,6 +9,17 @@ const formatDateForInput = (value) => {
     return "";
   }
 
+  if (typeof value === "string" && value.includes("-")) {
+    const parts = value.split("-");
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        return value;
+      } else if (parts[2].length === 4) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+  }
+
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return "";
@@ -20,6 +31,17 @@ const formatDateForInput = (value) => {
 const formatDateDdMmYyyy = (isoDate) => {
   if (!isoDate) {
     return null;
+  }
+
+  if (typeof isoDate === "string" && isoDate.includes("-")) {
+    const parts = isoDate.split("-");
+    if (parts.length === 3) {
+      if (parts[0].length === 2 && parts[2].length === 4) {
+        return isoDate;
+      } else if (parts[0].length === 4) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
   }
 
   const date = new Date(isoDate);
@@ -129,7 +151,11 @@ const UpdateProduct = () => {
       navigate("/admin");
     } catch (error) {
       console.error("Error updating:", error.response ? error.response.data : error);
-      setErrorMessage(error.response?.data || "Failed to update product.");
+      const detail =
+        typeof error.response?.data === "string"
+          ? error.response.data
+          : error.response?.data?.message || "Failed to update product.";
+      setErrorMessage(detail);
     }
   };
 
@@ -144,6 +170,12 @@ const UpdateProduct = () => {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
+
+  const BICYCLE_SUBCATEGORIES = ["Mountain", "City", "Kids", "Ladies", "Sports", "Electric"];
+  const PARTS_CATEGORIES = ["Parts", "Spare Parts", "Tyre", "Tube", "Chain", "Brake", "Pedal", "Rim", "Seat", "Handle", "Frame"];
+  const ACCESSORIES_CATEGORIES = ["Accessories", "Helmet", "Light", "Lock", "Bottle", "Carrier", "Bag", "Pump", "Bell"];
+  const TOOLS_CATEGORIES = ["Tools", "Repair Kit", "Wrench", "Spanner", "Allen Key", "Maintenance Kit"];
+  const NEW_ARRIVAL_CATEGORIES = ["New Arrivals"];
 
   return (
     <div className="update-container">
@@ -202,11 +234,41 @@ const UpdateProduct = () => {
                   onChange={handleChange}
                 >
                   <option value="">Select category</option>
-                  <option value="Desi">Desi</option>
-                  <option value="Ranger">Ranger</option>
-                  <option value="Ladies">Ladies</option>
-                  <option value="Mountain">Mountain</option>
-                  <option value="Raw Material">Raw Material</option>
+                  <optgroup label="Bicycle">
+                    {BICYCLE_SUBCATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Parts">
+                    {PARTS_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Accessories">
+                    {ACCESSORIES_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Tools">
+                    {TOOLS_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="New Arrivals">
+                    {NEW_ARRIVAL_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               </div>
 

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import AppContext from "../Context/Context";
 import "../styles/components/home.css";
 import SearchFilterBar from "./SearchFilterBar";
 import NotifyMeModal from "./NotifyMeModal";
@@ -147,7 +148,7 @@ function Home() {
   const sliderRef = useRef(null);
   const autoSlideRef = useRef(null);
   const searchDebounceRef = useRef(null);
-  const user = getStoredUser();
+  const { user, addToCart } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -278,15 +279,13 @@ function Home() {
 
   const handleAddToCart = async (e, product) => {
     e.preventDefault();
-    if (!user?.id) { navigate("/login"); return; }
     setLoadingCart(product.id);
     try {
-      const params = new URLSearchParams({ userId: user.id, productId: product.id, quantity: 1 });
-      const response = await fetch(`http://localhost:8080/api/cart/add?${params}`, { method: "POST" });
-      if (response.ok) showToast(`✅ ${product.name} added to cart!`);
+      const success = await addToCart(product, 1);
+      if (success) showToast(`✅ ${product.name} added to cart!`);
       else showToast("❌ Failed to add to cart.");
-    } catch {
-      showToast("❌ Network error.");
+    } catch (err) {
+      showToast(`❌ ${err.message || "Network error."}`);
     } finally {
       setLoadingCart(null);
     }

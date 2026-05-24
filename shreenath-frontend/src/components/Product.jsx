@@ -174,42 +174,26 @@ const Product = () => {
   };
 
   const handleAddToCart = async (selectedProduct, shouldCheckout = false) => {
-    const userId = user?.id;
-
-    if (!userId) {
-      setActionMessage("Please login to add items to cart.");
-      navigate("/login");
-      return false;
-    }
-
     if (!selectedProduct.available || selectedProduct.quantity <= 0) {
       setActionMessage("This product is currently out of stock.");
       return false;
     }
 
     try {
-      const params = new URLSearchParams({
-        userId,
-        productId: selectedProduct.id,
-        quantity: 1,
-      });
-
-      const response = await axios.post(
-        `http://localhost:8080/api/cart/add?${params.toString()}`
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        addToCart(selectedProduct);
+      const success = await addToCart(selectedProduct, 1);
+      if (success) {
         if (shouldCheckout) {
           navigate("/checkout");
         } else {
           setActionMessage(`${selectedProduct.name} added to cart.`);
         }
         return true;
+      } else {
+        setActionMessage("Failed to add to cart. Please try again.");
       }
     } catch (err) {
       console.error("Cart error:", err);
-      setActionMessage(err.response?.data || "Failed to add to cart. Please try again.");
+      setActionMessage(err.message || "Failed to add to cart. Please try again.");
     }
 
     return false;

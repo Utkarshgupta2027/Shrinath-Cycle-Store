@@ -58,8 +58,8 @@ public class ProductController {
     public ResponseEntity<?> updateProduct(@PathVariable int id,
                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
                                            @RequestPart("product") Product product,
-                                           @RequestPart(value = "imgFile", required = false) MultipartFile imgFile,
-                                           @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages,
+                                           @RequestParam(value = "imgFile", required = false) MultipartFile imgFile,
+                                           @RequestParam(value = "extraImages", required = false) List<MultipartFile> extraImages,
                                            @RequestParam(value = "replaceExtra", defaultValue = "false") boolean replaceExtra) {
         ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
         if (authFailure != null) {
@@ -83,7 +83,7 @@ public class ProductController {
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader,
             @RequestPart("product") Product product,
             @RequestPart("imgFile") MultipartFile imgFile,
-            @RequestPart(value = "extraImages", required = false) List<MultipartFile> extraImages) {
+            @RequestParam(value = "extraImages", required = false) List<MultipartFile> extraImages) {
         ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
         if (authFailure != null) {
             return authFailure;

@@ -15,8 +15,11 @@ public class Cart {
 
     private Long userId;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.time.LocalDateTime updatedAt = java.time.LocalDateTime.now();
 
+    private boolean emailSent = false;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
 
     /* ================= GETTERS & SETTERS ================= */
@@ -29,9 +32,24 @@ public class Cart {
         return userId;
     }
 
-    // ✅ THIS WAS MISSING
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public java.time.LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public boolean isEmailSent() {
+        return emailSent;
+    }
+
+    public void setEmailSent(boolean emailSent) {
+        this.emailSent = emailSent;
     }
 
     public List<CartItem> getItems() {
@@ -42,3 +60,4 @@ public class Cart {
         this.items = items;
     }
 }
+
