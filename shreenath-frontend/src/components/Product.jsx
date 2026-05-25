@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { API_BASE_URL } from "../config";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { fetchProductById } from "../api/products";
 import AppContext from "../Context/Context";
@@ -45,7 +46,7 @@ const COLOR_OPTIONS = ["Matte Black", "Racing Red", "Ocean Blue"];
 const SIZE_OPTIONS = ["S", "M", "L"];
 const PINCODE_PATTERN = /^[1-9][0-9]{5}$/;
 
-const getImageUrl = (productId) => `http://localhost:8080/api/product/${productId}/image`;
+const getImageUrl = (productId) => `${API_BASE_URL}/api/product/${productId}/image`;
 
 const fallbackSpecs = (product) => {
   const category = (product?.category || "").toLowerCase();
@@ -110,12 +111,12 @@ const Product = () => {
         setActiveImage(getImageUrl(data.id));
 
         const reviewResponse = await fetch(
-          `http://localhost:8080/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
+          `${API_BASE_URL}/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
         );
         const reviewData = reviewResponse.ok ? await reviewResponse.json() : [];
         setReviews(Array.isArray(reviewData) ? reviewData : []);
 
-        const productsResponse = await fetch("http://localhost:8080/api/products");
+        const productsResponse = await fetch(`${API_BASE_URL}/api/products`);
         const allProducts = productsResponse.ok ? await productsResponse.json() : [];
         setRelatedProducts(
           Array.isArray(allProducts)
@@ -139,7 +140,7 @@ const Product = () => {
 
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+    fetch(`${API_BASE_URL}/api/wishlist/${user.id}`)
       .then((res) => res.json())
       .then((data) => setWishlistIds(Array.isArray(data) ? data.map((item) => item.productId) : []))
       .catch(() => {});
@@ -147,7 +148,7 @@ const Product = () => {
 
   const loadReviews = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
+      `${API_BASE_URL}/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
     );
     if (!response.ok) throw new Error("Failed to load reviews");
     const data = await response.json();
@@ -160,7 +161,7 @@ const Product = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:8080/api/product/${product.id}`, {
+      await axios.delete(`${API_BASE_URL}/api/product/${product.id}`, {
         headers: getAuthHeaders(),
       });
       setActionMessage("Product deleted.");
@@ -211,7 +212,7 @@ const Product = () => {
     const params = new URLSearchParams({ userId: user.id, productId: product.id });
 
     try {
-      const response = await fetch(`http://localhost:8080/api/wishlist/${endpoint}?${params}`, { method });
+      const response = await fetch(`${API_BASE_URL}/api/wishlist/${endpoint}?${params}`, { method });
       if (response.ok) {
         setWishlistIds((prev) =>
           isAdded ? prev.filter((id) => id !== product.id) : [...prev, product.id]
@@ -246,7 +247,7 @@ const Product = () => {
         formData.append("photo", reviewPhoto);
       }
 
-      const response = await fetch(`http://localhost:8080/api/product/${product.id}/reviews`, {
+      const response = await fetch(`${API_BASE_URL}/api/product/${product.id}/reviews`, {
         method: "POST",
         body: formData,
       });
@@ -352,7 +353,7 @@ const Product = () => {
   const galleryImages = [
     { src: getImageUrl(product.id), label: "Main" },
     ...((product.extraImageIds || []).map((imgId, i) => ({
-      src: `http://localhost:8080/api/product/${product.id}/gallery/${imgId}`,
+      src: `${API_BASE_URL}/api/product/${product.id}/gallery/${imgId}`,
       label: `Photo ${i + 2}`,
     }))),
   ];
@@ -711,13 +712,13 @@ const Product = () => {
                     </div>
                     <p>{review.comment}</p>
                     {review.hasPhoto && (
-                      <img src={`http://localhost:8080/api/review/${review.id}/photo`} alt="Customer photo" style={{marginTop:"0.5rem",maxHeight:"160px",borderRadius:"10px",objectFit:"cover"}} />
+                      <img src={`${API_BASE_URL}/api/review/${review.id}/photo`} alt="Customer photo" style={{marginTop:"0.5rem",maxHeight:"160px",borderRadius:"10px",objectFit:"cover"}} />
                     )}
                     <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginTop:"0.5rem"}}>
                       <button
                         type="button"
                         style={{fontSize:"0.8rem",background:"transparent",border:"1px solid var(--border)",borderRadius:"999px",padding:"3px 10px",cursor:"pointer",color:"var(--text-muted)"}}
-                        onClick={() => fetch(`http://localhost:8080/api/review/${review.id}/helpful`,{method:"POST"}).then(()=>loadReviews()).catch(()=>{})}
+                        onClick={() => fetch(`${API_BASE_URL}/api/review/${review.id}/helpful`,{method:"POST"}).then(()=>loadReviews()).catch(()=>{})}
                       >👍 Helpful ({review.helpfulVotes})</button>
                     </div>
                   </article>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { API_BASE_URL } from "../config";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -38,7 +39,7 @@ import { downloadBlob } from "../utils/browser";
 import { applyTheme, getSettingsKey, notifyThemeChange } from "../utils/theme";
 import "../styles/components/Settings.css";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = API_BASE_URL;
 
 const getErrorMessage = (error, fallbackMessage) => {
   const responseData = error?.response?.data;

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useContext } from "react";
+import { API_BASE_URL } from "../config";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -19,7 +20,7 @@ import {
 import AppContext from "../Context/Context";
 import "../styles/components/Cart.css";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = `${API_BASE_URL}/api`;
 const DEFAULT_SUMMARY = {
   subtotal: 0,
   discountAmount: 0,

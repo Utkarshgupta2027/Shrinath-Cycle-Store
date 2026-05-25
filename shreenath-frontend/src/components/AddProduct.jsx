@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/components/AddProduct.css";
@@ -107,7 +108,7 @@ const AddProduct = () => {
         })
       );
 
-      await axios.post("http://localhost:8080/api/product", formData, {
+      await axios.post(`${API_BASE_URL}/api/product`, formData, {
         headers: getAuthHeaders(),
       });
 

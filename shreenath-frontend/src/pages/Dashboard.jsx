@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 import { useEffect, useState } from "react";
 
 function Dashboard() {
@@ -15,7 +16,7 @@ function Dashboard() {
         return;
       }
 
-      const res = await axios.get("http://localhost:8080/api/activity", {
+      const res = await axios.get(`${API_BASE_URL}/api/activity`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

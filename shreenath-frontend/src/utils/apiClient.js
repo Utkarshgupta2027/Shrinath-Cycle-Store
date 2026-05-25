@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
-const API_ORIGIN = "http://localhost:8080";
+const API_ORIGIN = new URL(API_BASE_URL).origin;
 
 function getToken() {
   return localStorage.getItem("token");

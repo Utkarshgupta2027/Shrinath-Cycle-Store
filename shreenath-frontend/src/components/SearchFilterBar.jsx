@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { API_BASE_URL } from "../config";
 import {
   FaSearch,
   FaFilter,
@@ -39,7 +40,7 @@ export default function SearchFilterBar({ onFilterChange, totalResults }) {
   const [brandOptions, setBrandOptions] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/brands")
+    fetch(`${API_BASE_URL}/api/brands`)
       .then(res => res.ok ? res.json() : [])
       .then(data => setBrandOptions(Array.isArray(data) ? data.map(b => b.name) : []))
       .catch(() => setBrandOptions(["Hero", "Atlas", "Hercules", "Firefox", "Montra", "Avon"]));

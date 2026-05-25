@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL } from "../config";
 import AppContext from "./Context";
 import { getStoredUser, setStoredUser, clearStoredAuth } from "../utils/auth";
 
@@ -32,7 +33,7 @@ const AppProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/cart/users/${currentUserId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/cart/users/${currentUserId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -74,7 +75,7 @@ const AppProvider = ({ children }) => {
             productId: String(item.id),
             quantity: String(item.quantity)
           });
-          await fetch(`http://localhost:8080/api/cart/add?${params}`, {
+          await fetch(`${API_BASE_URL}/api/cart/add?${params}`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`
@@ -112,7 +113,7 @@ const AppProvider = ({ children }) => {
           productId: String(product.id),
           quantity: String(quantity)
         });
-        const response = await fetch(`http://localhost:8080/api/cart/add?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/api/cart/add?${params}`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -156,7 +157,7 @@ const AppProvider = ({ children }) => {
           productId: String(productId),
           quantity: String(quantity)
         });
-        const response = await fetch(`http://localhost:8080/api/cart/update?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/api/cart/update?${params}`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -197,7 +198,7 @@ const AppProvider = ({ children }) => {
           userId: String(user.id),
           productId: String(productId)
         });
-        const response = await fetch(`http://localhost:8080/api/cart/remove?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/api/cart/remove?${params}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -230,7 +231,7 @@ const AppProvider = ({ children }) => {
         const params = new URLSearchParams({
           userId: String(user.id)
         });
-        const response = await fetch(`http://localhost:8080/api/cart/clear?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/api/cart/clear?${params}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`

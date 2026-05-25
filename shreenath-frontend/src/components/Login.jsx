@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { API_BASE_URL } from "../config";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import AppContext from "../Context/Context";
 import "../styles/components/auth.css";
@@ -24,7 +25,7 @@ export default function Login() {
     setMsg("Logging in...");
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

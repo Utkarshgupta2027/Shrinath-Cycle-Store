@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaCheckCircle, FaTruck, FaBox, FaHome, FaTimesCircle, FaClock, FaUndo } from "react-icons/fa";
 import "./TrackOrder.css";
+import { API_BASE_URL } from "../config";
 
 const TrackOrder = () => {
   const { orderId } = useParams();
@@ -11,7 +12,7 @@ const TrackOrder = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/orders/${orderId}`)
+    fetch(`${API_BASE_URL}/api/orders/${orderId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Order not found");
         return res.json();

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../config";
 import { FaBell, FaTimes, FaEnvelope, FaCheckCircle } from "react-icons/fa";
 import { getStoredUser } from "../utils/auth";
 import "./NotifyMeModal.css";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = `${API_BASE_URL}/api`;
 
 export default function NotifyMeModal({ product, onClose }) {
   const user = getStoredUser();

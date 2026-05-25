@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
+import { API_BASE_URL } from "../config";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppContext from "../Context/Context";
 import "../styles/components/home.css";
@@ -175,8 +176,8 @@ function Home() {
     if (filters.sortBy) params.set("sortBy", filters.sortBy);
     const hasFilters = [...params.keys()].length > 0;
     const url = hasFilters
-      ? `http://localhost:8080/api/products/search?${params.toString()}`
-      : "http://localhost:8080/api/products";
+      ? `${API_BASE_URL}/api/products/search?${params.toString()}`
+      : `${API_BASE_URL}/api/products`;
     setSearchLoading(true);
     fetch(url)
       .then((res) => res.json())
@@ -197,7 +198,7 @@ function Home() {
 
   // Fetch featured brands for homepage (Feature 14)
   useEffect(() => {
-    fetch("http://localhost:8080/api/brands/featured")
+    fetch(`${API_BASE_URL}/api/brands/featured`)
       .then(res => res.ok ? res.json() : [])
       .then(data => setBrands(Array.isArray(data) ? data : []))
       .catch(() => {});
@@ -206,7 +207,7 @@ function Home() {
   // Fetch wishlist
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+    fetch(`${API_BASE_URL}/api/wishlist/${user.id}`)
       .then((res) => res.json())
       .then((data) => setWishlistIds(data.map((item) => item.productId)))
       .catch(() => { });
@@ -299,7 +300,7 @@ function Home() {
     const method = isAdded ? "DELETE" : "POST";
     const params = new URLSearchParams({ userId: user.id, productId });
     try {
-      const res = await fetch(`http://localhost:8080/api/wishlist/${endpoint}?${params}`, { method });
+      const res = await fetch(`${API_BASE_URL}/api/wishlist/${endpoint}?${params}`, { method });
       if (res.ok) {
         setWishlistIds((prev) => isAdded ? prev.filter((id) => id !== productId) : [...prev, productId]);
         showToast(isAdded ? "💔 Removed from wishlist" : "❤️ Added to wishlist!");
@@ -671,7 +672,7 @@ function Home() {
                 <div className="product-card" key={product.id}>
                   <Link to={`/product/${product.id}`} className="product-img-wrapper">
                     <img
-                      src={`http://localhost:8080/api/product/${product.id}/image`}
+                      src={`${API_BASE_URL}/api/product/${product.id}/image`}
                       className="product-img"
                       alt={product.name}
                       onError={(e) => { e.target.src = normalCycle; }}

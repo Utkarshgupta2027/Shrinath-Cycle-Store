@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../config";
 import { Link } from "react-router-dom";
 import { getStoredTheme, THEME_EVENT } from "../utils/theme";
 import "../styles/components/Feedback.css";
@@ -73,7 +74,7 @@ export default function Feedback() {
     setMsg("");
 
     try {
-      const res = await fetch("http://localhost:8080/api/feedback", {
+      const res = await fetch(`${API_BASE_URL}/api/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, rating: rating || null }),

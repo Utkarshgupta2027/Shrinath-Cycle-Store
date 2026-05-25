@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { API_BASE_URL } from "../config";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaShoppingCart,
@@ -43,7 +44,7 @@ const Navbar = () => {
   // Fetch wishlist count
   useEffect(() => {
     if (!user?.id) { setWishlistCount(0); return; }
-    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+    fetch(`${API_BASE_URL}/api/wishlist/${user.id}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => { if (Array.isArray(data)) setWishlistCount(data.length); })
       .catch(() => {});

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { API_BASE_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo, FaFileInvoice } from "react-icons/fa";
 import { getStoredUser, getAuthHeaders } from "../utils/auth";
@@ -20,7 +21,7 @@ export default function Orders() {
   const fetchOrders = useCallback(() => {
     if (!userId) return;
     setLoading(true);
-    fetch(`http://localhost:8080/api/orders/user/${userId}`)
+    fetch(`${API_BASE_URL}/api/orders/user/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch orders");
         return res.json();
@@ -40,7 +41,7 @@ export default function Orders() {
 
     setActionLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/cancel`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/cancel`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
@@ -75,7 +76,7 @@ export default function Orders() {
 
     setActionLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/address`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/address`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address: newAddress }),
@@ -109,7 +110,7 @@ export default function Orders() {
 
   const downloadInvoice = async (orderId) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/invoice`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/invoice`, {
         headers: getAuthHeaders(),
       });
       if (!res.ok) { alert("Failed to generate invoice."); return; }
@@ -132,7 +133,7 @@ export default function Orders() {
 
     setActionLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/return-exchange`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/return-exchange`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -269,7 +270,7 @@ export default function Orders() {
                         <li key={item.id} className="order-item-row">
                           <div className="order-item-img-wrap">
                             <img
-                              src={`http://localhost:8080/api/product/${item.productId || item.id}/image`}
+                              src={`${API_BASE_URL}/api/product/${item.productId || item.id}/image`}
                               alt={item.name}
                               onError={(e) => {
                                 e.target.src = "https://via.placeholder.com/60";

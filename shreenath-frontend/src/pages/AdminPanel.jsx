@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 import {
   FaChartLine,
   FaEdit,
@@ -20,7 +21,7 @@ import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 import { confirmAction } from "../utils/browser";
 import "./AdminPanel.css";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = API_BASE_URL;
 const CATEGORY_OPTIONS = {
   Bicycle: ["Mountain", "City", "Kids", "Ladies", "Sports", "Electric"],
   Parts: ["Parts", "Spare Parts", "Tyre", "Tube", "Chain", "Brake", "Pedal", "Rim", "Seat", "Handle", "Frame"],
@@ -1512,19 +1513,19 @@ function AdminPanel() {
                             <div style={{color:"#f59e0b",fontSize:"1rem"}}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</div>
                             <p style={{marginTop:"0.4rem",fontSize:"0.9rem"}}>{review.comment}</p>
                             {review.hasPhoto && (
-                              <img src={`http://localhost:8080/api/review/${review.id}/photo`} alt="Review" style={{marginTop:"0.5rem",maxHeight:"120px",borderRadius:"8px",objectFit:"cover"}} />
+                              <img src={`${API_BASE}/api/review/${review.id}/photo`} alt="Review" style={{marginTop:"0.5rem",maxHeight:"120px",borderRadius:"8px",objectFit:"cover"}} />
                             )}
                           </div>
                           <div style={{display:"flex",gap:"0.5rem",flexShrink:0}}>
                             <button
                               className="add-product-btn"
                               style={{background:"#065f46",fontSize:"0.8rem",padding:"0.4rem 1rem"}}
-                              onClick={() => axios.put(`http://localhost:8080/api/admin/reviews/${review.id}/moderate`, {action:"APPROVE"},{headers:getAuthHeaders()}).then(()=>setPendingReviews(prev=>prev.filter(r=>r.id!==review.id))).catch(()=>{})}
+                              onClick={() => axios.put(`${API_BASE}/api/admin/reviews/${review.id}/moderate`, {action:"APPROVE"},{headers:getAuthHeaders()}).then(()=>setPendingReviews(prev=>prev.filter(r=>r.id!==review.id))).catch(()=>{})}
                             >✅ Approve</button>
                             <button
                               className="delete-btn"
                               style={{fontSize:"0.8rem",padding:"0.4rem 1rem"}}
-                              onClick={() => axios.put(`http://localhost:8080/api/admin/reviews/${review.id}/moderate`, {action:"REJECT"},{headers:getAuthHeaders()}).then(()=>setPendingReviews(prev=>prev.filter(r=>r.id!==review.id))).catch(()=>{})}
+                              onClick={() => axios.put(`${API_BASE}/api/admin/reviews/${review.id}/moderate`, {action:"REJECT"},{headers:getAuthHeaders()}).then(()=>setPendingReviews(prev=>prev.filter(r=>r.id!==review.id))).catch(()=>{})}
                             >❌ Reject</button>
                           </div>
                         </div>
@@ -1544,7 +1545,7 @@ function AdminPanel() {
                 <form onSubmit={async (e) => {
                   e.preventDefault(); setSavingSettings(true);
                   try {
-                    await axios.put("http://localhost:8080/api/admin/settings", settingsForm, {headers:getAuthHeaders()});
+                    await axios.put(`${API_BASE}/api/admin/settings`, settingsForm, {headers:getAuthHeaders()});
                     alert("Settings saved successfully!");
                   } catch { alert("Failed to save settings."); } finally { setSavingSettings(false); }
                 }}>
@@ -1594,10 +1595,10 @@ function AdminPanel() {
                     e.preventDefault(); setSavingCat(true);
                     try {
                       if(editingCatId) {
-                        const r = await axios.put(`http://localhost:8080/api/admin/categories/${editingCatId}`,catForm,{headers:getAuthHeaders()});
+                        const r = await axios.put(`${API_BASE}/api/admin/categories/${editingCatId}`,catForm,{headers:getAuthHeaders()});
                         setCategories(p=>p.map(c=>c.id===editingCatId?r.data:c));
                       } else {
-                        const r = await axios.post("http://localhost:8080/api/admin/categories",catForm,{headers:getAuthHeaders()});
+                        const r = await axios.post(`${API_BASE}/api/admin/categories`,catForm,{headers:getAuthHeaders()});
                         setCategories(p=>[...p,r.data]);
                       }
                       setCatForm({name:"",description:"",featured:false,displayOrder:0,active:true}); setEditingCatId(null);
@@ -1625,7 +1626,7 @@ function AdminPanel() {
                           <td>{cat.active?"✅":"❌"}</td>
                           <td>
                             <button className="edit-btn" onClick={()=>{setCatForm({name:cat.name,description:cat.description||"",featured:cat.featured,displayOrder:cat.displayOrder,active:cat.active});setEditingCatId(cat.id);}}>Edit</button>
-                            <button className="delete-btn" style={{marginLeft:"0.5rem"}} onClick={()=>{if(window.confirm(`Delete category "${cat.name}"?`))axios.delete(`http://localhost:8080/api/admin/categories/${cat.id}`,{headers:getAuthHeaders()}).then(()=>setCategories(p=>p.filter(c=>c.id!==cat.id))).catch(()=>alert("Could not delete."));}}>Delete</button>
+                            <button className="delete-btn" style={{marginLeft:"0.5rem"}} onClick={()=>{if(window.confirm(`Delete category "${cat.name}"?`))axios.delete(`${API_BASE}/api/admin/categories/${cat.id}`,{headers:getAuthHeaders()}).then(()=>setCategories(p=>p.filter(c=>c.id!==cat.id))).catch(()=>alert("Could not delete."));}}>Delete</button>
                           </td>
                         </tr>
                       ))}
@@ -1646,10 +1647,10 @@ function AdminPanel() {
                     e.preventDefault(); setSavingBrand(true);
                     try {
                       if(editingBrandId) {
-                        const r = await axios.put(`http://localhost:8080/api/admin/brands/${editingBrandId}`,brandForm,{headers:getAuthHeaders()});
+                        const r = await axios.put(`${API_BASE}/api/admin/brands/${editingBrandId}`,brandForm,{headers:getAuthHeaders()});
                         setBrands(p=>p.map(b=>b.id===editingBrandId?r.data:b));
                       } else {
-                        const r = await axios.post("http://localhost:8080/api/admin/brands",brandForm,{headers:getAuthHeaders()});
+                        const r = await axios.post(`${API_BASE}/api/admin/brands`,brandForm,{headers:getAuthHeaders()});
                         setBrands(p=>[...p,r.data]);
                       }
                       setBrandForm({name:"",description:"",logoUrl:"",featured:false,displayOrder:0,active:true}); setEditingBrandId(null);
@@ -1678,7 +1679,7 @@ function AdminPanel() {
                           <td>{brand.active?"✅":"❌"}</td>
                           <td>
                             <button className="edit-btn" onClick={()=>{setBrandForm({name:brand.name,description:brand.description||"",logoUrl:brand.logoUrl||"",featured:brand.featured,displayOrder:brand.displayOrder,active:brand.active});setEditingBrandId(brand.id);}}>Edit</button>
-                            <button className="delete-btn" style={{marginLeft:"0.5rem"}} onClick={()=>{if(window.confirm(`Delete brand "${brand.name}"?`))axios.delete(`http://localhost:8080/api/admin/brands/${brand.id}`,{headers:getAuthHeaders()}).then(()=>setBrands(p=>p.filter(b=>b.id!==brand.id))).catch(()=>alert("Could not delete."));}}>Delete</button>
+                            <button className="delete-btn" style={{marginLeft:"0.5rem"}} onClick={()=>{if(window.confirm(`Delete brand "${brand.name}"?`))axios.delete(`${API_BASE}/api/admin/brands/${brand.id}`,{headers:getAuthHeaders()}).then(()=>setBrands(p=>p.filter(b=>b.id!==brand.id))).catch(()=>alert("Could not delete."));}}>Delete</button>
                           </td>
                         </tr>
                       ))}

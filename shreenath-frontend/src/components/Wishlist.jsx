@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useContext } from "react";
+import { API_BASE_URL } from "../config";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -16,7 +17,7 @@ import { copyTextToClipboard } from "../utils/browser";
 import AppContext from "../Context/Context";
 import "../styles/components/Wishlist.css";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = `${API_BASE_URL}/api`;
 
 export default function Wishlist() {
   const navigate = useNavigate();

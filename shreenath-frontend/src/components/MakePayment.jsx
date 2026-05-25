@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { API_BASE_URL } from "../config";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -25,7 +26,7 @@ import { getStoredUser, readStoredJson } from "../utils/auth";
 import { copyTextToClipboard, downloadBlob } from "../utils/browser";
 import "../styles/components/MakePayment.css";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = `${API_BASE_URL}/api`;
 const WALLET_BALANCE = 1200;
 const COD_LIMIT = 50000;
 const HIGH_VALUE_EMI_THRESHOLD = 30000;

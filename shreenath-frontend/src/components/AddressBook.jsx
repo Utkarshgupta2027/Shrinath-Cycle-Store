@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { API_BASE_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft, FaCheckCircle, FaEdit, FaHome, FaMapMarkerAlt,
@@ -7,7 +8,7 @@ import {
 import { getStoredUser, getAuthHeaders, readStoredJson } from "../utils/auth";
 import "../styles/components/AddressBook.css";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = `${API_BASE_URL}/api`;
 
 const EMPTY_FORM = {
   label: "Home",

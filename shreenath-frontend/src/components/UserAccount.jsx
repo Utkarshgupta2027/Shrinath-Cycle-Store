@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { API_BASE_URL } from "../config";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -36,7 +37,7 @@ import {
 } from "../utils/auth";
 import "../styles/components/userAccount.css";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = API_BASE_URL;
 
 const getAccountStorageKey = (userId, key) => `account:${userId}:${key}`;
 
