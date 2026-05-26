@@ -48,17 +48,18 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String phoneNumber = loginRequest.get("phoneNumber");
+        String identifier  = isBlank(phoneNumber) ? loginRequest.get("email") : phoneNumber;
         String password    = loginRequest.get("password");
 
-        if (isBlank(phoneNumber) || isBlank(password)) {
+        if (isBlank(identifier) || isBlank(password)) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Phone number and password are required."));
+                    .body(Map.of("message", "Phone number/email and password are required."));
         }
 
-        User user = authService.authenticate(phoneNumber, password);
+        User user = authService.authenticate(identifier, password);
         if (user == null) {
             return ResponseEntity.status(401)
-                    .body(Map.of("message", "Invalid phone number or password."));
+                    .body(Map.of("message", "Invalid phone number/email or password."));
         }
 
         String accessToken  = jwtUtils.generateToken(user.getPhoneNumber());

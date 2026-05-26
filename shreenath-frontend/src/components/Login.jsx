@@ -5,7 +5,7 @@ import AppContext from "../Context/Context";
 import "../styles/components/auth.css";
 
 export default function Login() {
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState("");
@@ -14,7 +14,7 @@ export default function Login() {
   const { login } = useContext(AppContext);
 
   useEffect(() => {
-    setPhoneNumber("");
+    setIdentifier("");
     setPassword("");
     setShowPassword(false);
     setMsg("");
@@ -29,7 +29,7 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phoneNumber: phoneNumber.trim(),
+          phoneNumber: identifier.trim(),
           password,
         }),
       });
@@ -51,7 +51,7 @@ export default function Login() {
 
       await login(user, data.token);
 
-      setPhoneNumber("");
+      setIdentifier("");
       setPassword("");
       setShowPassword(false);
       setMsg("");
@@ -71,16 +71,15 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="auth-form" autoComplete="off">
           <div className="input-group">
-            <label>Phone Number</label>
+            <label>Phone Number or Email</label>
             <input
-              type="tel"
-              name="login-phone"
+              type="text"
+              name="login-identifier"
               required
-              placeholder="Enter your 10 digit number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="Enter phone number or email"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               autoComplete="off"
-              inputMode="numeric"
             />
           </div>
 

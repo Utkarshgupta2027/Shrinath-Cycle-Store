@@ -49,28 +49,65 @@ public class AuthService {
     @Value("${app.admin.email:gutkarsh702@gmail.com}")
     private String adminEmail;
 
+    @Value("${app.admin.password:}")
+    private String adminPassword;
+
     @PostConstruct
     public void initAdminUser() {
-        User existingAdminByEmail = userRepository.findByEmail(adminEmail).orElse(null);
-        User existingAdminByPhone = userRepository.findByPhoneNumber(adminPhoneNumber).orElse(null);
+        String configuredAdminEmail = normalize(adminEmail).toLowerCase();
+        String configuredAdminPhone = normalize(adminPhoneNumber);
+        String configuredAdminPassword = normalize(adminPassword);
 
-        if (existingAdminByEmail == null && existingAdminByPhone == null) {
-            User admin = new User();
+        if (configuredAdminEmail.isEmpty() || configuredAdminPhone.isEmpty()) {
+            System.out.println("Admin user initialization skipped. ADMIN_EMAIL and ADMIN_PHONE_NUMBER are required.");
+            return;
+        }
+
+        User existingAdminByEmail = userRepository.findByEmail(configuredAdminEmail).orElse(null);
+        User existingAdminByPhone = userRepository.findByPhoneNumber(configuredAdminPhone).orElse(null);
+        User admin = existingAdminByEmail != null ? existingAdminByEmail : existingAdminByPhone;
+
+        if (admin == null) {
+            admin = new User();
             admin.setName("Utkarsh Gupta");
-            admin.setEmail(adminEmail);
-            admin.setPhoneNumber(adminPhoneNumber);
-            admin.setPassword(passwordEncoder.encode("Anshu@123"));
+            admin.setEmail(configuredAdminEmail);
+            admin.setPhoneNumber(configuredAdminPhone);
+            admin.setPassword(passwordEncoder.encode(
+                    configuredAdminPassword.isEmpty() ? "change-this-admin-password" : configuredAdminPassword
+            ));
             admin.setVerified(true);
             userRepository.save(admin);
             System.out.println("Admin user initialized successfully.");
-        } else if (existingAdminByEmail != null && existingAdminByPhone == null) {
-            existingAdminByEmail.setPhoneNumber(adminPhoneNumber);
-            userRepository.save(existingAdminByEmail);
-            System.out.println("Admin user phone number updated successfully.");
-        } else if (existingAdminByPhone != null && existingAdminByEmail == null) {
-            existingAdminByPhone.setEmail(adminEmail);
-            userRepository.save(existingAdminByPhone);
-            System.out.println("Admin user email updated successfully.");
+            return;
+        }
+
+        if (existingAdminByEmail != null && existingAdminByPhone != null
+                && !existingAdminByEmail.getId().equals(existingAdminByPhone.getId())) {
+            System.out.println("Admin user initialization skipped. ADMIN_EMAIL and ADMIN_PHONE_NUMBER belong to different users.");
+            return;
+        }
+
+        boolean changed = false;
+        if (!configuredAdminEmail.equals(normalize(admin.getEmail()).toLowerCase())) {
+            admin.setEmail(configuredAdminEmail);
+            changed = true;
+        }
+        if (!configuredAdminPhone.equals(normalize(admin.getPhoneNumber()))) {
+            admin.setPhoneNumber(configuredAdminPhone);
+            changed = true;
+        }
+        if (!configuredAdminPassword.isEmpty() && !passwordEncoder.matches(configuredAdminPassword, admin.getPassword())) {
+            admin.setPassword(passwordEncoder.encode(configuredAdminPassword));
+            changed = true;
+        }
+        if (!admin.isVerified()) {
+            admin.setVerified(true);
+            changed = true;
+        }
+
+        if (changed) {
+            userRepository.save(admin);
+            System.out.println("Admin user synchronized successfully.");
         } else {
             System.out.println("Admin user already exists.");
         }
@@ -114,15 +151,17 @@ public class AuthService {
         return savedUser;
     }
 
-    public User authenticate(String phoneNumber, String password) {
-        String normalizedPhoneNumber = normalize(phoneNumber);
+    public User authenticate(String identifier, String password) {
+        String normalizedIdentifier = normalize(identifier);
         String rawPassword = password == null ? "" : password;
 
-        if (normalizedPhoneNumber.isEmpty() || rawPassword.trim().isEmpty()) {
+        if (normalizedIdentifier.isEmpty() || rawPassword.trim().isEmpty()) {
             return null;
         }
 
-        User user = userRepository.findByPhoneNumber(normalizedPhoneNumber).orElse(null);
+        User user = normalizedIdentifier.contains("@")
+                ? userRepository.findByEmail(normalizedIdentifier.toLowerCase()).orElse(null)
+                : userRepository.findByPhoneNumber(normalizedIdentifier).orElse(null);
 
         if (user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
             return user;
