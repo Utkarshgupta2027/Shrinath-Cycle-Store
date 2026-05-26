@@ -65,7 +65,7 @@ public class AuthService {
 
         User existingAdminByEmail = userRepository.findByEmail(configuredAdminEmail).orElse(null);
         User existingAdminByPhone = userRepository.findByPhoneNumber(configuredAdminPhone).orElse(null);
-        User admin = existingAdminByEmail != null ? existingAdminByEmail : existingAdminByPhone;
+        User admin = existingAdminByPhone != null ? existingAdminByPhone : existingAdminByEmail;
 
         if (admin == null) {
             admin = new User();
@@ -81,16 +81,15 @@ public class AuthService {
             return;
         }
 
-        if (existingAdminByEmail != null && existingAdminByPhone != null
-                && !existingAdminByEmail.getId().equals(existingAdminByPhone.getId())) {
-            System.out.println("Admin user initialization skipped. ADMIN_EMAIL and ADMIN_PHONE_NUMBER belong to different users.");
-            return;
-        }
-
         boolean changed = false;
-        if (!configuredAdminEmail.equals(normalize(admin.getEmail()).toLowerCase())) {
+        boolean emailBelongsToAnotherUser = existingAdminByEmail != null
+                && !existingAdminByEmail.getId().equals(admin.getId());
+
+        if (!emailBelongsToAnotherUser && !configuredAdminEmail.equals(normalize(admin.getEmail()).toLowerCase())) {
             admin.setEmail(configuredAdminEmail);
             changed = true;
+        } else if (emailBelongsToAnotherUser) {
+            System.out.println("Admin email belongs to another user; keeping existing email on admin phone account.");
         }
         if (!configuredAdminPhone.equals(normalize(admin.getPhoneNumber()))) {
             admin.setPhoneNumber(configuredAdminPhone);

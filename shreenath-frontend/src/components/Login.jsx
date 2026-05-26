@@ -37,7 +37,11 @@ export default function Login() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setMsg(data.message || "Invalid credentials");
+        if (res.status === 429) {
+          setMsg(data.message || "Too many login attempts. Please try again later.");
+        } else {
+          setMsg(data.message || "Invalid credentials");
+        }
         return;
       }
 
