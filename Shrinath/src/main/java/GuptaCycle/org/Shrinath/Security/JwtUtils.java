@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 /**
@@ -119,6 +121,16 @@ public class JwtUtils {
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        byte[] secretBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        if (secretBytes.length >= 64) {
+            return Keys.hmacShaKeyFor(secretBytes);
+        }
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-512");
+            return Keys.hmacShaKeyFor(digest.digest(secretBytes));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-512 is not available for JWT signing.", e);
+        }
     }
 }
