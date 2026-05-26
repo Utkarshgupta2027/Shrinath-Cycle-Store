@@ -45,7 +45,7 @@ public class AuthController {
     /**
      * Returns both an access token (24 h) and a refresh token (7 d).
      */
-    @PostMapping("/login")
+    @PostMapping({"/login", "/signin"})
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String phoneNumber = loginRequest.get("phoneNumber");
         String identifier  = isBlank(phoneNumber) ? loginRequest.get("email") : phoneNumber;

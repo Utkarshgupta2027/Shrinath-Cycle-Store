@@ -166,6 +166,27 @@ public class AuthService {
             return user;
         }
 
+        if (isConfiguredAdminIdentifier(normalizedIdentifier) && rawPassword.equals(normalize(adminPassword))) {
+            User admin = userRepository.findByPhoneNumber(normalize(adminPhoneNumber))
+                    .or(() -> userRepository.findByEmail(normalize(adminEmail).toLowerCase()))
+                    .orElseGet(() -> {
+                        User newAdmin = new User();
+                        newAdmin.setName("Utkarsh Gupta");
+                        newAdmin.setEmail(normalize(adminEmail).toLowerCase());
+                        newAdmin.setPhoneNumber(normalize(adminPhoneNumber));
+                        newAdmin.setVerified(true);
+                        return newAdmin;
+                    });
+
+            admin.setPassword(passwordEncoder.encode(rawPassword));
+            admin.setPhoneNumber(normalize(adminPhoneNumber));
+            if (normalize(admin.getEmail()).isEmpty()) {
+                admin.setEmail(normalize(adminEmail).toLowerCase());
+            }
+            admin.setVerified(true);
+            return userRepository.save(admin);
+        }
+
         return null;
     }
 
@@ -175,6 +196,12 @@ public class AuthService {
 
     public boolean isAdminPhoneNumber(String phoneNumber) {
         return normalize(phoneNumber).equals(normalize(adminPhoneNumber));
+    }
+
+    private boolean isConfiguredAdminIdentifier(String identifier) {
+        String normalizedIdentifier = normalize(identifier);
+        return normalizedIdentifier.equals(normalize(adminPhoneNumber))
+                || normalizedIdentifier.equalsIgnoreCase(normalize(adminEmail));
     }
 
     public User findByPhoneNumber(String phoneNumber) {
