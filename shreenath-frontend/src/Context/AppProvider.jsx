@@ -5,23 +5,43 @@ import { getStoredUser, setStoredUser, clearStoredAuth } from "../utils/auth";
 
 const AppProvider = ({ children }) => {
   const [user, setUser] = useState(getStoredUser());
-  const [cart, setCart] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
 
-  // Helper to get guest cart
+  // ── Sync guest cart init (avoids empty-cart flash on page load) ──────────────
   const getGuestCart = () => {
     try {
       const stored = localStorage.getItem("guest_cart");
-      return stored ? JSON.parse(stored) : [];
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      // Ensure each item has the fields Cart.jsx expects
+      return Array.isArray(parsed)
+        ? parsed.map(item => ({
+            ...item,
+            available: item.available !== false, // treat missing as true
+            stockQuantity: item.stockQuantity ?? item.quantity ?? 0,
+            quantity: item.quantity ?? 1,
+          }))
+        : [];
     } catch {
       return [];
     }
   };
 
-  // Helper to save guest cart
   const saveGuestCart = (items) => {
     localStorage.setItem("guest_cart", JSON.stringify(items));
   };
+
+  // Synchronously init cart so guest users never see a flash of empty cart
+  const initCart = () => {
+    const storedUser = getStoredUser();
+    if (storedUser?.id) return []; // logged-in user: backend will populate via fetchCart
+    return getGuestCart();
+  };
+
+  const [cart, setCart] = useState(initCart);
+  const [cartCount, setCartCount] = useState(() => {
+    const initial = initCart();
+    return initial.reduce((acc, item) => acc + (item.quantity || 1), 0);
+  });
 
   // Fetch cart
   const fetchCart = useCallback(async (currentUserId = user?.id) => {
@@ -131,7 +151,7 @@ const AppProvider = ({ children }) => {
         throw err;
       }
     } else {
-      // Guest add
+      // Guest add — store explicit fields so Cart.jsx can always read them correctly
       const guestItems = getGuestCart();
       const exists = guestItems.find(item => item.id === product.id);
       let updated;
@@ -140,11 +160,20 @@ const AppProvider = ({ children }) => {
           item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
-        updated = [...guestItems, { ...product, quantity, stockQuantity: product.quantity || 0 }];
+        // Explicitly save all fields Cart.jsx needs
+        const guestItem = {
+          ...product,
+          quantity,                                    // cart quantity (e.g. 1)
+          stockQuantity: product.quantity ?? 0,        // stock level from API
+          available: product.available !== false,      // default true if missing
+        };
+        updated = [...guestItems, guestItem];
       }
       saveGuestCart(updated);
-      setCart(updated);
-      setCartCount(updated.reduce((acc, item) => acc + (item.quantity || 1), 0));
+      // Re-read through getGuestCart() to apply normalisation
+      const normalized = getGuestCart();
+      setCart(normalized);
+      setCartCount(normalized.reduce((acc, item) => acc + (item.quantity || 1), 0));
       return true;
     }
   };
@@ -185,8 +214,9 @@ const AppProvider = ({ children }) => {
         );
       }
       saveGuestCart(updated);
-      setCart(updated);
-      setCartCount(updated.reduce((acc, item) => acc + (item.quantity || 1), 0));
+      const normalized = getGuestCart();
+      setCart(normalized);
+      setCartCount(normalized.reduce((acc, item) => acc + (item.quantity || 1), 0));
       return true;
     }
   };
@@ -219,8 +249,9 @@ const AppProvider = ({ children }) => {
       const guestItems = getGuestCart();
       const updated = guestItems.filter(item => item.id !== productId);
       saveGuestCart(updated);
-      setCart(updated);
-      setCartCount(updated.reduce((acc, item) => acc + (item.quantity || 1), 0));
+      const normalized = getGuestCart();
+      setCart(normalized);
+      setCartCount(normalized.reduce((acc, item) => acc + (item.quantity || 1), 0));
       return true;
     }
   };
