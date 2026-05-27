@@ -1,30 +1,56 @@
-import React, { useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import AppProvider from "./Context/AppProvider";
+import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
+// ─── Eager imports (critical, always needed) ───────────────
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import AddProduct from "./components/AddProduct";
-import Cart from "./components/Cart";
-import Product from "./components/Product";
-import UpdateProduct from "./components/UpdateProduct";
-import CheckoutPopup from "./components/CheckoutPopup";
-import MakePayment from "./components/MakePayment";
-import UserAccount from "./components/UserAccount";
-import Orders from "./components/orders.jsx";
-import Wishlist from "./components/Wishlist.jsx";
-import Settings from "./components/Settings.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import AdminPanel from "./pages/AdminPanel.jsx";
-import TrackOrder from "./pages/TrackOrder.jsx";
-import Feedback from "./components/Feedback.jsx";
-import AddressBook from "./components/AddressBook.jsx";
-import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
+
+// ─── Lazy imports (code-split, loaded only when visited) ───
+const AddProduct    = lazy(() => import("./components/AddProduct"));
+const Cart          = lazy(() => import("./components/Cart"));
+const Product       = lazy(() => import("./components/Product"));
+const UpdateProduct = lazy(() => import("./components/UpdateProduct"));
+const CheckoutPopup = lazy(() => import("./components/CheckoutPopup"));
+const MakePayment   = lazy(() => import("./components/MakePayment"));
+const UserAccount   = lazy(() => import("./components/UserAccount"));
+const Orders        = lazy(() => import("./components/orders.jsx"));
+const Wishlist      = lazy(() => import("./components/Wishlist.jsx"));
+const Settings      = lazy(() => import("./components/Settings.jsx"));
+const Dashboard     = lazy(() => import("./pages/Dashboard.jsx"));
+const AdminPanel    = lazy(() => import("./pages/AdminPanel.jsx"));
+const TrackOrder    = lazy(() => import("./pages/TrackOrder.jsx"));
+const Feedback      = lazy(() => import("./components/Feedback.jsx"));
+const AddressBook   = lazy(() => import("./components/AddressBook.jsx"));
+
+// ─── Loading fallback ──────────────────────────────────────
+function PageLoader() {
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "60vh",
+      background: "var(--obsidian, #0a0c14)",
+    }}>
+      <div style={{
+        width: 40,
+        height: 40,
+        border: "3px solid rgba(201,168,76,0.2)",
+        borderTop: "3px solid #c9a84c",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite",
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
 
 function AppLayout() {
   const location = useLocation();
@@ -53,26 +79,31 @@ function AppLayout() {
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {!hideNavbar && <Navbar />}
       <div style={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/addproduct" element={<AddProduct />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/product/:productId" element={<Product />} />
-          <Route path="/updateproduct/:id" element={<UpdateProduct />} />
-          <Route path="/checkout" element={<CheckoutPopup />} />
-          <Route path="/makepayment" element={<MakePayment />} />
-          <Route path="/useraccount" element={<UserAccount />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/track/:orderId" element={<TrackOrder />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/addresses" element={<AddressBook />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* ── Critical routes (not lazy) ── */}
+            <Route path="/"          element={<Home />} />
+            <Route path="/login"     element={<Login />} />
+            <Route path="/register"  element={<Register />} />
+
+            {/* ── Lazy-loaded routes ── */}
+            <Route path="/addproduct"             element={<AddProduct />} />
+            <Route path="/cart"                   element={<Cart />} />
+            <Route path="/product/:productId"     element={<Product />} />
+            <Route path="/updateproduct/:id"      element={<UpdateProduct />} />
+            <Route path="/checkout"               element={<CheckoutPopup />} />
+            <Route path="/makepayment"            element={<MakePayment />} />
+            <Route path="/useraccount"            element={<UserAccount />} />
+            <Route path="/orders"                 element={<Orders />} />
+            <Route path="/wishlist"               element={<Wishlist />} />
+            <Route path="/settings"              element={<Settings />} />
+            <Route path="/dashboard"              element={<Dashboard />} />
+            <Route path="/admin"                  element={<AdminPanel />} />
+            <Route path="/track/:orderId"         element={<TrackOrder />} />
+            <Route path="/feedback"              element={<Feedback />} />
+            <Route path="/addresses"             element={<AddressBook />} />
+          </Routes>
+        </Suspense>
       </div>
       <Footer />
     </div>

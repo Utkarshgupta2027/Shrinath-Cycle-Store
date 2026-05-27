@@ -675,6 +675,8 @@ function Home() {
                       src={`${API_BASE_URL}/api/product/${product.id}/image`}
                       className="product-img"
                       alt={product.name}
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => { e.target.src = normalCycle; }}
                     />
                     {/* Badges */}

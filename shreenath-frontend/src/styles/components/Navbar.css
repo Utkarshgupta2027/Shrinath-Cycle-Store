@@ -1,7 +1,7 @@
 /* =========================================================
    ✦ NAVBAR — Obsidian Edition
+   Fonts loaded via <link> in index.html — no @import needed
    ========================================================= */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
 
 /* ── Design Tokens ── */
 :root {
@@ -561,6 +561,8 @@ body.app-theme-light .nav-badge {
   top: calc(100% + 12px);
   right: 0;
   min-width: 250px;
+  /* Prevent overflow on small screens */
+  max-width: calc(100vw - 24px);
   background: #0e1017;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
@@ -732,7 +734,8 @@ body.app-theme-light .nav-badge {
 ════════════════════════════════ */
 .mobile-drawer {
   position: fixed;
-  top: var(--nav-height-sm);
+  /* Use the actual current nav height so there's no gap */
+  top: var(--nav-height);
   left: 0;
   right: 0;
   background: #0a0c14;
@@ -741,7 +744,16 @@ body.app-theme-light .nav-badge {
   box-shadow: var(--shadow-lg);
   z-index: 1099;
   padding: 16px;
+  max-height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   animation: slideDown 0.24s var(--ease-out) both;
+}
+
+/* When scrolled, navbar shrinks — keep drawer flush */
+.global-navbar.scrolled ~ * .mobile-drawer,
+.global-navbar.scrolled + .mobile-drawer {
+  top: var(--nav-height-sm);
 }
 
 @keyframes slideDown {
@@ -998,18 +1010,25 @@ body.app-theme-light .nav-badge {
     padding: 0 16px;
   }
 
-  /* Hide wishlist on very small screens to make room, keep cart */
-  .nav-links li.wishlist-link-item {
-    display: none;
+  .nav-links {
+    gap: 4px;
   }
 
-  .nav-links {
-    gap: 6px;
+  /* Make icon links bigger touch targets */
+  .nav-icon-link {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 8px;
+    font-size: 1.1rem;
+    justify-content: center;
   }
 
   .user-menu-trigger {
     padding: 3px;
     border-radius: 50%;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
   }
 
   .user-avatar {
@@ -1019,6 +1038,12 @@ body.app-theme-light .nav-badge {
 
   .chevron {
     display: none;
+  }
+
+  /* Dropdown must not overflow viewport */
+  .user-dropdown {
+    right: -8px;
+    min-width: 230px;
   }
 }
 

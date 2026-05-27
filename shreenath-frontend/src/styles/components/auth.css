@@ -1,27 +1,45 @@
 /* ============================================
-   🔒 AUTH PAGES - OBSIDIAN PREMIUM
+   🔒 AUTH PAGES — Obsidian Premium
+   Responsive for all screen sizes
    ============================================ */
+
+/* ── Full-page wrapper ── */
 .auth-page {
-  padding: 60px 24px;
-  background: #0a0c14; /* Obsidian background */
-  min-height: calc(100vh - 80px);
+  padding: 40px 16px;
+  background: #0a0c14;
+  min-height: 100vh; /* Fill full viewport (no navbar on auth pages) */
   display: flex;
   justify-content: center;
   align-items: center;
   color: #f1f5f9;
 }
 
+/* ── Card ── */
 .auth-card {
-  background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   width: 100%;
   max-width: 450px;
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  animation: authCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Brand logo / header ── */
 .auth-card h2 {
   font-size: 2rem;
   font-weight: 700;
@@ -37,6 +55,7 @@
   margin-bottom: 32px;
 }
 
+/* ── Form ── */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -64,6 +83,8 @@
   background: rgba(255, 255, 255, 0.03);
   transition: all 0.3s ease;
   outline: none;
+  /* Prevent zoom on iOS — font-size must be >= 16px on focus */
+  font-size: max(16px, 1rem);
 }
 
 .input-group input::placeholder {
@@ -76,6 +97,7 @@
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
 }
 
+/* ── Password field ── */
 .password-field {
   position: relative;
   display: flex;
@@ -96,17 +118,25 @@
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
+  padding: 8px;
+  /* Touch target */
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .password-toggle-btn:hover {
   color: #e2c678;
 }
 
+/* ── Submit button ── */
 .auth-submit-btn {
   margin-top: 10px;
   padding: 16px;
   background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
-  color: #0a0c14; /* Dark text for contrast against gold */
+  color: #0a0c14;
   border: none;
   font-size: 1.05rem;
   font-weight: 700;
@@ -114,6 +144,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+  min-height: 52px; /* Touch target */
+  letter-spacing: 0.02em;
 }
 
 .auth-submit-btn:hover {
@@ -122,6 +154,11 @@
   background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
 }
 
+.auth-submit-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Status message ── */
 .auth-message {
   margin-top: 20px;
   text-align: center;
@@ -129,19 +166,29 @@
   font-weight: 500;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 10px;
+  padding: 10px 14px;
   border-radius: 6px;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
+/* Green success variant */
+.auth-message.success {
+  color: #6ee7b7;
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+/* ── Switch link ── */
 .auth-switch {
-  margin-top: 32px;
+  margin-top: 28px;
   text-align: center;
   font-size: 0.95rem;
   color: #94a3b8;
 }
 
 .auth-switch a {
-  color: #c9a84c; /* Gold link */
+  color: #c9a84c;
   font-weight: 600;
   text-decoration: none;
   margin-left: 4px;
@@ -151,4 +198,121 @@
 .auth-switch a:hover {
   color: #e2c678;
   text-decoration: underline;
+}
+
+
+/* ════════════════════════════════════════════════
+   📱 RESPONSIVE — Auth Pages
+════════════════════════════════════════════════ */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+  .auth-page {
+    padding: 32px 16px;
+    align-items: flex-start;
+    padding-top: max(60px, env(safe-area-inset-top, 60px));
+  }
+
+  .auth-card {
+    padding: 32px 28px;
+    border-radius: 14px;
+  }
+
+  .auth-card h2 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 24px 12px;
+    padding-top: 48px;
+    align-items: flex-start;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+    border-radius: 12px;
+    /* Full width feel on small phones */
+    max-width: 100%;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .auth-card h2 {
+    font-size: 1.6rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.88rem;
+    margin-bottom: 24px;
+  }
+
+  .auth-form {
+    gap: 16px;
+  }
+
+  .input-group input {
+    padding: 13px;
+    font-size: 16px; /* Prevents iOS auto-zoom */
+  }
+
+  .auth-submit-btn {
+    font-size: 1rem;
+    padding: 14px;
+    margin-top: 6px;
+  }
+
+  .auth-switch {
+    margin-top: 22px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Tight Mobile — iPhone SE / 375px */
+@media (max-width: 390px) {
+  .auth-page {
+    padding: 20px 10px;
+    padding-top: 40px;
+  }
+
+  .auth-card {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+
+  .auth-card h2 {
+    font-size: 1.45rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.84rem;
+    margin-bottom: 20px;
+  }
+
+  .input-group label {
+    font-size: 0.85rem;
+  }
+
+  .input-group input {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .password-field input {
+    padding-right: 72px;
+  }
+
+  .auth-submit-btn {
+    font-size: 0.95rem;
+    padding: 13px;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  .auth-switch {
+    margin-top: 18px;
+    font-size: 0.85rem;
+  }
 }

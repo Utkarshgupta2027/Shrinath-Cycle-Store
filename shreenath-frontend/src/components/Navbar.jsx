@@ -41,14 +41,15 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Fetch wishlist count
+  // Fetch wishlist count — only re-fetch when user changes or on wishlist page
   useEffect(() => {
     if (!user?.id) { setWishlistCount(0); return; }
     fetch(`${API_BASE_URL}/api/wishlist/${user.id}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => { if (Array.isArray(data)) setWishlistCount(data.length); })
       .catch(() => {});
-  }, [location.pathname, user?.id]);
+  // Re-fetch only when user changes; wishlist page will handle its own updates
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close dropdown on outside click
   useEffect(() => {

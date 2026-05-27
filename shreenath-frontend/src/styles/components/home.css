@@ -1,8 +1,8 @@
 /* =========================================================
    ✦ HOME PAGE — Obsidian Edition
    Matches navbar design tokens exactly
+   Fonts loaded via <link> in index.html — no @import needed
    ========================================================= */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
 
 /* ── Design Tokens (mirrors navbar) ── */
 :root {
@@ -888,6 +888,8 @@ body.app-theme-light .product-card {
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 30px;
+  /* Prevent pills from touching screen edges on mobile */
+  padding: 0 2px;
 }
 
 .filter-toolbar {
@@ -1041,7 +1043,7 @@ body.app-theme-light .product-card {
 ═══════════════════════════════════════════════ */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(272px, 100%), 1fr));
   gap: 20px;
 }
 
@@ -1371,6 +1373,7 @@ body.app-theme-light .product-card {
   padding: 0 20px 18px;
   position: relative;
   z-index: 1;
+  flex-wrap: wrap;
 }
 
 .add-to-cart-btn {
@@ -1607,7 +1610,11 @@ body.app-theme-light .product-card {
     var(--shadow-md),
     0 0 20px rgba(201, 168, 76, 0.12);
   animation: toastIn 0.35s var(--ease-out) both;
-  white-space: nowrap;
+  /* Allow wrapping on small screens instead of overflowing */
+  white-space: normal;
+  text-align: center;
+  max-width: calc(100vw - 32px);
+  width: max-content;
   font-family: var(--font-display);
 
   /* Gold left accent */
@@ -1759,8 +1766,9 @@ body.app-theme-light .product-card {
   .hero-cta-secondary {
     width: 100%;
     justify-content: center;
-    padding: 12px 22px;
+    padding: 13px 22px;
     font-size: 0.88rem;
+    min-height: 48px; /* touch target */
   }
 
   .hero-stats {
@@ -1778,6 +1786,28 @@ body.app-theme-light .product-card {
 
   .feature-item:last-child {
     border-bottom: none;
+  }
+
+  /* Product card actions stack on very small screens */
+  .add-to-cart-btn {
+    min-height: 44px; /* touch target */
+  }
+
+  .view-details-btn {
+    min-height: 44px;
+  }
+
+  /* Tighter filter pills */
+  .filter-pill {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  /* Toast closer to bottom on mobile */
+  .toast-notification {
+    bottom: 20px;
+    font-size: 0.84rem;
+    padding: 11px 18px;
   }
 }
 
