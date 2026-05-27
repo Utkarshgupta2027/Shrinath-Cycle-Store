@@ -1749,6 +1749,139 @@ body.app-theme-light .product-card {
     align-items: center;
     gap: 16px;
   }
+
+  /* ──────────────────────────────────────────────────
+     📱 FLIPKART-STYLE 2-COL PRODUCT GRID
+  ────────────────────────────────────────────────── */
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0;
+  }
+
+  .product-card {
+    border-radius: 10px;
+    /* Remove hover lift on mobile (no hover on touch) */
+    transition: box-shadow 0.2s ease;
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+
+  /* ── Square image fills card top ── */
+  .product-img-wrapper {
+    height: auto;
+    aspect-ratio: 1 / 1;
+    padding: 12px;
+    background: var(--obsidian-4);
+  }
+
+  /* ── Compact info area ── */
+  .product-info {
+    padding: 10px 10px 4px;
+    gap: 4px;
+  }
+
+  .product-info h3 {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    /* Truncate at 2 lines like Flipkart */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.3em;
+  }
+
+  /* Hide verbose text on mobile */
+  .product-desc,
+  .product-pricing-note,
+  .stock-status,
+  .rating-count {
+    display: none;
+  }
+
+  /* Compact rating stars only */
+  .product-rating {
+    gap: 1px;
+    margin: 0;
+  }
+
+  .star {
+    font-size: 0.65rem;
+  }
+
+  /* Compact price row */
+  .product-price-row {
+    margin-top: 4px;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: baseline;
+  }
+
+  .product-price {
+    font-size: 1rem;
+  }
+
+  .product-mrp {
+    font-size: 0.72rem;
+  }
+
+  /* Badges — smaller on 2-col cards */
+  .badge {
+    font-size: 0.58rem;
+    padding: 3px 6px;
+  }
+
+  .floating-discount-badge {
+    font-size: 0.62rem;
+    padding: 4px 7px;
+    bottom: 8px;
+    left: 8px;
+  }
+
+  /* Wishlist button — smaller */
+  .wishlist-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.78rem;
+    top: 8px;
+    right: 8px;
+  }
+
+  /* ── Compact action row ── */
+  .product-card-actions {
+    padding: 6px 10px 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .add-to-cart-btn {
+    flex: 1;
+    padding: 9px 6px;
+    font-size: 0.75rem;
+    gap: 4px;
+    min-height: 38px;
+    border-radius: 8px;
+  }
+
+  .view-details-btn {
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    font-size: 0.75rem;
+    min-height: 38px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .notify-me-btn {
+    flex: 1;
+    padding: 8px 6px;
+    font-size: 0.72rem;
+    justify-content: center;
+  }
 }
 
 /* Mobile (480px and down) */
@@ -1768,7 +1901,7 @@ body.app-theme-light .product-card {
     justify-content: center;
     padding: 13px 22px;
     font-size: 0.88rem;
-    min-height: 48px; /* touch target */
+    min-height: 48px;
   }
 
   .hero-stats {
@@ -1788,15 +1921,6 @@ body.app-theme-light .product-card {
     border-bottom: none;
   }
 
-  /* Product card actions stack on very small screens */
-  .add-to-cart-btn {
-    min-height: 44px; /* touch target */
-  }
-
-  .view-details-btn {
-    min-height: 44px;
-  }
-
   /* Tighter filter pills */
   .filter-pill {
     padding: 6px 14px;
@@ -1808,6 +1932,44 @@ body.app-theme-light .product-card {
     bottom: 20px;
     font-size: 0.84rem;
     padding: 11px 18px;
+  }
+
+  /* 2-col grid: tighter gaps at 480px */
+  .product-grid {
+    gap: 8px;
+  }
+
+  /* Reduce section padding so cards get more horizontal room */
+  .section-container {
+    padding: 0 12px;
+  }
+
+  .product-info {
+    padding: 8px 8px 2px;
+  }
+
+  .product-info h3 {
+    font-size: 0.78rem;
+  }
+
+  .product-price {
+    font-size: 0.92rem;
+  }
+
+  .product-mrp {
+    font-size: 0.68rem;
+  }
+
+  .add-to-cart-btn {
+    padding: 8px 4px;
+    font-size: 0.7rem;
+    min-height: 36px;
+  }
+
+  .view-details-btn {
+    padding: 8px 10px;
+    font-size: 0.7rem;
+    min-height: 36px;
   }
 }
 
@@ -1889,6 +2051,50 @@ body.app-theme-light .product-card {
 
   .hero-dot.active {
     width: 24px;
+  }
+
+  /* 390px / iPhone SE — tightest 2-col layout */
+  .product-grid {
+    gap: 6px;
+  }
+
+  .section-container {
+    padding: 0 10px;
+  }
+
+  .product-img-wrapper {
+    padding: 8px;
+  }
+
+  .product-info {
+    padding: 7px 7px 2px;
+    gap: 3px;
+  }
+
+  .product-info h3 {
+    font-size: 0.74rem;
+    min-height: 2.1em;
+  }
+
+  .product-price {
+    font-size: 0.88rem;
+  }
+
+  .product-card-actions {
+    padding: 5px 7px 8px;
+    gap: 5px;
+  }
+
+  .add-to-cart-btn {
+    font-size: 0.66rem;
+    padding: 7px 4px;
+    min-height: 34px;
+  }
+
+  .view-details-btn {
+    font-size: 0.66rem;
+    padding: 7px 8px;
+    min-height: 34px;
   }
 }
 
