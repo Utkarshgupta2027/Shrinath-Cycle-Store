@@ -1,9 +1,75 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { API_BASE_URL } from "../config";
 import { useNavigate } from "react-router-dom";
-import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo, FaFileInvoice } from "react-icons/fa";
+import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTimes, FaEdit, FaCheck, FaUndo, FaFileInvoice, FaCheckCircle, FaExclamationTriangle, FaBan } from "react-icons/fa";
 import { getStoredUser, getAuthHeaders } from "../utils/auth";
 import "../styles/components/Orders.css";
+
+/* ── Custom dialog state shape ──
+   mode: 'cancel-confirm' | 'success' | 'error' | null
+   title, message, orderId, reason (for cancel form)
+*/
+const DIALOG_NONE = { mode: null, title: "", message: "", orderId: null, reason: "" };
+
+function OrderDialog({ dialog, onClose, onCancelConfirm, onReasonChange }) {
+  if (!dialog.mode) return null;
+
+  const isCancel = dialog.mode === "cancel-confirm";
+  const isSuccess = dialog.mode === "success";
+  const isError = dialog.mode === "error";
+
+  return (
+    <div className="od-overlay" role="dialog" aria-modal="true" aria-labelledby="od-title">
+      <div className={`od-dialog ${isSuccess ? "od-success" : isError ? "od-error" : "od-warn"}`}>
+
+        {/* Icon */}
+        <div className="od-icon-ring">
+          {isSuccess && <FaCheckCircle className="od-icon od-icon-success" />}
+          {isError   && <FaExclamationTriangle className="od-icon od-icon-error" />}
+          {isCancel  && <FaBan className="od-icon od-icon-warn" />}
+        </div>
+
+        <h2 id="od-title" className="od-title">{dialog.title}</h2>
+        <p className="od-message">{dialog.message}</p>
+
+        {/* Reason input — only for cancel-confirm */}
+        {isCancel && (
+          <div className="od-reason-wrap">
+            <label className="od-reason-label">Reason for cancellation</label>
+            <textarea
+              className="od-reason-input"
+              rows={3}
+              placeholder="e.g. Changed my mind, Found a better price..."
+              value={dialog.reason}
+              onChange={(e) => onReasonChange(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div className="od-actions">
+          {isCancel && (
+            <>
+              <button className="od-btn od-btn-danger" onClick={() => onCancelConfirm(dialog.orderId, dialog.reason)}>
+                Yes, Cancel Order
+              </button>
+              <button className="od-btn od-btn-ghost" onClick={onClose}>
+                Keep Order
+              </button>
+            </>
+          )}
+          {(isSuccess || isError) && (
+            <button className={`od-btn ${isSuccess ? "od-btn-gold" : "od-btn-danger"}`} onClick={onClose}>
+              OK
+            </button>
+          )}
+        </div>
+
+        {/* Close × */}
+        <button className="od-close" onClick={onClose} aria-label="Close dialog">✕</button>
+      </div>
+    </div>
+  );
+}
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -17,6 +83,15 @@ export default function Orders() {
   const [newAddress, setNewAddress] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [returnForms, setReturnForms] = useState({});
+  const [dialog, setDialog] = useState(DIALOG_NONE);
+
+  const closeDialog = () => setDialog(DIALOG_NONE);
+
+  const showSuccess = (title, message) =>
+    setDialog({ mode: "success", title, message, orderId: null, reason: "" });
+
+  const showError = (title, message) =>
+    setDialog({ mode: "error", title, message, orderId: null, reason: "" });
 
   const fetchOrders = useCallback(() => {
     if (!userId) return;
@@ -35,10 +110,20 @@ export default function Orders() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleCancelOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-    const reason = window.prompt("Reason for cancellation", "Changed my mind") || "";
+  /* Opens the cancel confirmation dialog */
+  const handleCancelOrder = (orderId) => {
+    setDialog({
+      mode: "cancel-confirm",
+      title: "Cancel this order?",
+      message: "This action cannot be undone. Please provide a reason so we can improve.",
+      orderId,
+      reason: "Changed my mind",
+    });
+  };
 
+  /* Called when user confirms inside the dialog */
+  const executeCancelOrder = async (orderId, reason) => {
+    closeDialog();
     setActionLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/cancel`, {
@@ -46,18 +131,16 @@ export default function Orders() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
       });
-      
+
       if (res.ok) {
-        alert("Order cancelled successfully.");
+        showSuccess("Order Cancelled", "Your order has been cancelled successfully.");
         fetchOrders();
       } else {
         const msg = await res.text();
-        console.error("Cancel order failed:", res.status, msg);
-        alert(`Failed to cancel order (${res.status}): ${msg || "Server error"}`);
+        showError("Cancellation Failed", msg || "Could not cancel the order. Please try again.");
       }
     } catch (err) {
-      console.error("Network error cancelling order:", err);
-      alert("Network error. Could not connect to the server to cancel order.");
+      showError("Network Error", "Could not connect to the server. Please check your connection.");
     } finally {
       setActionLoading(false);
     }
@@ -70,7 +153,7 @@ export default function Orders() {
 
   const handleUpdateAddress = async (orderId) => {
     if (!newAddress.trim()) {
-      alert("Address cannot be empty.");
+      showError("Invalid Address", "Address cannot be empty.");
       return;
     }
 
@@ -86,10 +169,10 @@ export default function Orders() {
         fetchOrders();
       } else {
         const msg = await res.text();
-        alert(msg || "Failed to update address.");
+        showError("Update Failed", msg || "Failed to update address.");
       }
     } catch (err) {
-      alert("Network error. Could not update address.");
+      showError("Network Error", "Could not update address. Please check your connection.");
     } finally {
       setActionLoading(false);
     }
@@ -113,21 +196,21 @@ export default function Orders() {
       const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/invoice`, {
         headers: getAuthHeaders(),
       });
-      if (!res.ok) { alert("Failed to generate invoice."); return; }
+      if (!res.ok) { showError("Invoice Error", "Failed to generate invoice."); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url; a.download = `invoice-${orderId}.pdf`; a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert("Could not download invoice.");
+      showError("Invoice Error", "Could not download invoice.");
     }
   };
 
   const handleReturnExchangeRequest = async (orderId) => {
     const form = returnForms[orderId] || {};
     if (!form.reason?.trim()) {
-      alert("Please enter a reason for your return/exchange request.");
+      showError("Missing Reason", "Please enter a reason for your return/exchange request.");
       return;
     }
 
@@ -143,14 +226,14 @@ export default function Orders() {
         }),
       });
       if (res.ok) {
-        alert("Request submitted successfully.");
+        showSuccess("Request Submitted", "Your return/exchange request has been submitted successfully.");
         setReturnForms((current) => ({ ...current, [orderId]: {} }));
       } else {
         const msg = await res.text();
-        alert(msg || "Failed to submit request.");
+        showError("Request Failed", msg || "Failed to submit request.");
       }
     } catch (err) {
-      alert("Network error. Could not submit request.");
+      showError("Network Error", "Could not submit request. Please check your connection.");
     } finally {
       setActionLoading(false);
     }
@@ -175,6 +258,14 @@ export default function Orders() {
 
   return (
     <div className="orders-page">
+      {/* Custom dialog overlay */}
+      <OrderDialog
+        dialog={dialog}
+        onClose={closeDialog}
+        onCancelConfirm={executeCancelOrder}
+        onReasonChange={(val) => setDialog((d) => ({ ...d, reason: val }))}
+      />
+
       <div className="orders-container">
         <button className="back-link" onClick={() => navigate(-1)}>
           <FaArrowLeft /> Back
@@ -363,5 +454,3 @@ export default function Orders() {
     </div>
   );
 }
-
-
