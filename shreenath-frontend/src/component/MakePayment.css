@@ -1,8 +1,8 @@
 /* Main Container - OBSIDIAN PREMIUM */
 .checkout-container {
   max-width: 900px;
-  margin: 120px auto;
-  padding: 30px 25px;
+  margin: 90px auto 40px;
+  padding: 30px 28px;
   background: rgba(255, 255, 255, 0.03); /* Glassmorphism */
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -10,6 +10,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   animation: fadeIn 0.7s ease-in-out;
   color: #f1f5f9;
+  box-sizing: border-box;
 }
 
 .checkout-container h2 {
@@ -169,20 +170,134 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* ============================================
+   RESPONSIVE — 768px
+   ============================================ */
+@media (max-width: 768px) {
   .checkout-container {
-    margin: 100px 15px;
-    padding: 20px;
+    margin: 80px 16px 32px;
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+
+  .checkout-container h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .checkout-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .total-price {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
   }
 
   .checkout-item {
-    flex-direction: column;
-    text-align: center;
+    gap: 12px;
+    padding: 10px;
   }
 
   .checkout-item img {
+    width: 56px;
+    height: 56px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .checkout-item h4 {
+    font-size: 0.95rem;
+  }
+
+  .checkout-item p {
+    font-size: 0.88rem;
+  }
+
+  .payment-option {
+    padding: 13px 14px;
+    font-size: 1rem;
+  }
+
+  .confirm-btn {
+    font-size: 1.1rem;
+    padding: 14px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE — 480px (phones 375–480px)
+   ============================================ */
+@media (max-width: 480px) {
+  .checkout-container {
+    margin: 72px 10px 24px;
+    padding: 18px 14px;
+    border-radius: 12px;
+  }
+
+  .checkout-container h2 {
+    font-size: 1.35rem;
+    margin-bottom: 16px;
+  }
+
+  .checkout-section {
+    margin-bottom: 20px;
+  }
+
+  .checkout-section h3 {
+    font-size: 1rem;
     margin-bottom: 10px;
+  }
+
+  .address-box {
+    font-size: 0.9rem;
+    padding: 12px 14px;
+  }
+
+  .total-price {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+
+  .checkout-item {
+    /* Keep horizontal layout even on small phones */
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .checkout-item img {
+    width: 48px;
+    height: 48px;
     margin-right: 0;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .checkout-item h4 {
+    font-size: 0.88rem;
+  }
+
+  .checkout-item p {
+    font-size: 0.82rem;
+    margin-top: 3px;
+  }
+
+  .payment-option {
+    padding: 12px;
+    font-size: 0.92rem;
+    gap: 10px;
+  }
+
+  .confirm-btn {
+    font-size: 1rem;
+    padding: 13px;
+    margin-top: 16px;
+  }
+
+  .error-text {
+    font-size: 0.88rem;
   }
 }

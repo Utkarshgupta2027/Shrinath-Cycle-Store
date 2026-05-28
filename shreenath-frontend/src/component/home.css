@@ -864,7 +864,7 @@ body {
 ═══════════════════════════════════════════════ */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
 }
 
@@ -1115,7 +1115,7 @@ body {
   display: flex;
   gap: 8px;
   margin-top: auto;
-  padding: 0 20px 18px;
+  padding: 0 16px 16px;
   position: relative;
   z-index: 1;
 }
@@ -1446,10 +1446,22 @@ body {
     min-height: 500px;
   }
 
+  .hero-content {
+    padding: 0 4% 60px;
+  }
+
+  .hero-headline {
+    font-size: 1.9rem;
+  }
+
   .hero-cta-primary,
   .hero-cta-secondary {
-    padding: 12px 22px;
-    font-size: 0.88rem;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+  }
+
+  .hero-actions {
+    gap: 10px;
   }
 
   .hero-stats {
@@ -1458,18 +1470,86 @@ body {
 
   .features-container {
     grid-template-columns: 1fr;
+    padding: 0 16px;
   }
 
   .feature-item {
     border-right: none;
     border-bottom: 1px solid var(--border);
+    padding: 16px;
   }
 
   .feature-item:last-child {
     border-bottom: none;
   }
 
+  /* 2 columns on phones 375–480px, 1 col only at very narrow */
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Compact product card for 2-col layout */
+  .product-img-wrapper {
+    height: 160px;
+    padding: 16px;
+  }
+
+  .product-info {
+    padding: 12px 14px;
+    gap: 5px;
+  }
+
+  .product-info h3 {
+    font-size: 0.82rem;
+  }
+
+  .product-price {
+    font-size: 1rem;
+  }
+
+  .product-desc {
+    display: none; /* hide on tiny cards to save space */
+  }
+
+  .product-card-actions {
+    padding: 0 10px 12px;
+    gap: 6px;
+    flex-direction: column;
+  }
+
+  .add-to-cart-btn {
+    padding: 10px;
+    font-size: 0.76rem;
+  }
+
+  .view-details-btn {
+    padding: 9px 10px;
+    font-size: 0.76rem;
+    justify-content: center;
+  }
+
+  .section-container {
+    padding: 0 12px;
+  }
+
+  .filter-pills {
+    gap: 6px;
+  }
+
+  .filter-pill {
+    padding: 6px 14px;
+    font-size: 0.78rem;
+  }
+}
+
+/* ── Ultra-narrow (≤ 360px) ── */
+@media (max-width: 360px) {
   .product-grid {
     grid-template-columns: 1fr;
+  }
+
+  .product-card-actions {
+    flex-direction: row;
   }
 }

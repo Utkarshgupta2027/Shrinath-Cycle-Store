@@ -2,26 +2,29 @@
    🛒 CART PAGE - OBSIDIAN PREMIUM
    ============================================ */
 .cart-page {
-  padding: 40px 24px;
+  padding: 40px 16px;
   background: #0a0c14; /* Obsidian background */
   min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
   color: #f1f5f9;
+  box-sizing: border-box;
 }
 
 .cart-container {
   width: 100%;
   max-width: 1000px;
+  box-sizing: border-box;
 }
 
 .shopping-cart-card {
   background: rgba(255, 255, 255, 0.03); /* Glassmorphism card */
   backdrop-filter: blur(12px);
   border-radius: 16px;
-  padding: 32px 40px;
+  padding: 28px 32px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
 }
 
 .cart-title {
@@ -56,9 +59,10 @@
 .cart-item {
   display: flex;
   align-items: center;
-  padding: 24px 0;
+  padding: 20px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  gap: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .cart-item:last-child {
@@ -112,7 +116,8 @@
 .cart-item-actions {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 16px;
+  flex-shrink: 0;
 }
 
 .quantity-controls {
@@ -198,6 +203,7 @@
   justify-content: space-between;
   width: 300px;
   margin-bottom: 24px;
+  gap: 12px;
 }
 
 .total-row {
@@ -231,23 +237,165 @@
   background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
 }
 
+/* ============================================
+   BACK LINK
+   ============================================ */
+.back-link {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #c9a84c;
+}
+
+/* ============================================
+   RESPONSIVE — 768px
+   ============================================ */
 @media (max-width: 768px) {
+  .cart-page {
+    padding: 24px 14px;
+  }
+
+  .shopping-cart-card {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .cart-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+
   .cart-item {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 0;
+    /* keep horizontal row: image | info | actions */
+    flex-wrap: nowrap;
+  }
+
+  .cart-item-image-wrapper {
+    width: 72px;
+    height: 72px;
+    padding: 8px;
+    flex-shrink: 0;
+  }
+
+  .cart-item-details {
+    flex: 1;
+    min-width: 0; /* allow truncation */
+  }
+
+  .item-name {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-price {
+    font-size: 0.88rem;
   }
 
   .cart-item-actions {
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 16px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .quantity-controls {
+    gap: 10px;
+    padding: 5px 10px;
+  }
+
+  .item-total {
+    font-size: 1rem;
+    min-width: auto;
+    text-align: right;
   }
 
   .cart-summary {
     align-items: stretch;
+    margin-top: 20px;
   }
 
-  .summary-row, .checkout-btn {
+  .summary-row,
+  .checkout-btn {
     width: 100%;
+  }
+
+  .checkout-btn {
+    font-size: 1rem;
+    padding: 14px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE — 480px (phones 375–480px)
+   ============================================ */
+@media (max-width: 480px) {
+  .cart-page {
+    padding: 16px 10px;
+  }
+
+  .shopping-cart-card {
+    padding: 16px 12px;
+    border-radius: 10px;
+  }
+
+  .cart-title {
+    font-size: 1.3rem;
+  }
+
+  .cart-item {
+    /* Stack image + info vertically, keep actions row below */
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .cart-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .cart-item-details {
+    flex: 1;
+  }
+
+  .cart-item-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: unset;
+  }
+
+  .item-total {
+    font-size: 0.95rem;
+  }
+
+  .remove-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .qty-btn {
+    font-size: 0.8rem;
+  }
+
+  .summary-row.total-row {
+    font-size: 1.05rem;
   }
 }
