@@ -25,6 +25,7 @@ const SHOP_CATEGORIES = ["Bicycle", "Parts", "Accessories", "New Arrivals", "Too
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [mobileSearchTerm, setMobileSearchTerm] = useState("");
   const [wishlistCount, setWishlistCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -67,6 +68,15 @@ const Navbar = () => {
     if (searchTerm.trim()) {
       navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
       setSearchTerm("");
+    }
+  };
+
+  const handleMobileSearch = (e) => {
+    e.preventDefault();
+    if (mobileSearchTerm.trim()) {
+      navigate(`/?search=${encodeURIComponent(mobileSearchTerm.trim())}`);
+      setMobileSearchTerm("");
+      setMobileOpen(false);
     }
   };
 
@@ -240,19 +250,37 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Mobile persistent search bar — always visible below navbar on mobile */}
+      <div className="mobile-search-bar">
+        <form onSubmit={handleMobileSearch} className="mobile-search-bar-form">
+          <FaSearch className="mobile-search-bar-icon" />
+          <input
+            type="text"
+            placeholder="Search cycles, accessories..."
+            value={mobileSearchTerm}
+            onChange={(e) => setMobileSearchTerm(e.target.value)}
+            className="mobile-search-bar-input"
+            id="mobile-search-input"
+          />
+          {mobileSearchTerm && (
+            <button
+              type="button"
+              className="mobile-search-bar-clear"
+              onClick={() => setMobileSearchTerm("")}
+              aria-label="Clear search"
+            >
+              <FaTimes />
+            </button>
+          )}
+          <button type="submit" className="mobile-search-bar-btn">
+            Search
+          </button>
+        </form>
+      </div>
+
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="mobile-drawer">
-          <form onSubmit={(e) => { handleSearch(e); setMobileOpen(false); }} className="mobile-search-form">
-            <FaSearch />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="mobile-search-input"
-            />
-          </form>
           {user && (
             <div className="mobile-user-header">
               <div className="mobile-avatar">{(userName || "U")[0].toUpperCase()}</div>

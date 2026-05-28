@@ -929,6 +929,159 @@ body.app-theme-light .nav-badge {
 
 
 /* ════════════════════════════════
+   MOBILE PERSISTENT SEARCH BAR
+   Always visible below navbar on mobile; hidden on desktop
+════════════════════════════════ */
+.mobile-search-bar {
+  display: none; /* hidden on desktop */
+}
+
+@media (max-width: 768px) {
+  .mobile-search-bar {
+    display: block;
+    position: sticky;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    z-index: 1098; /* just below drawer */
+    background: var(--nav-bg-scrolled, rgba(8, 10, 18, 0.97));
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid var(--nav-border);
+    padding: 8px 14px;
+    transition: top 0.35s var(--ease-smooth), background 0.4s ease;
+  }
+
+  /* When navbar shrinks on scroll, search bar follows */
+  .global-navbar.scrolled ~ .mobile-search-bar,
+  .global-navbar.scrolled + .mobile-search-bar {
+    top: var(--nav-height-sm);
+  }
+
+  .mobile-search-bar-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-1);
+    border: 1px solid var(--nav-border);
+    border-radius: var(--radius-md);
+    padding: 0 12px;
+    height: 42px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .mobile-search-bar-form:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-subtle), var(--shadow-gold);
+    background: var(--surface-2);
+  }
+
+  .mobile-search-bar-icon {
+    color: var(--ink-dim);
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  .mobile-search-bar-form:focus-within .mobile-search-bar-icon {
+    color: var(--gold);
+  }
+
+  .mobile-search-bar-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .mobile-search-bar-input::placeholder {
+    color: var(--ink-dim);
+    font-style: italic;
+  }
+
+  .mobile-search-bar-clear {
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    cursor: pointer;
+    font-size: 0.78rem;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+
+  .mobile-search-bar-clear:hover {
+    color: var(--danger);
+    background: var(--danger-bg);
+  }
+
+  .mobile-search-bar-btn {
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    border: none;
+    cursor: pointer;
+    color: #0a0c14;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
+    min-height: 30px;
+  }
+
+  .mobile-search-bar-btn:hover {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    transform: scale(1.04);
+    box-shadow: 0 3px 10px rgba(201, 168, 76, 0.4);
+  }
+
+  /* Adjust mobile drawer top to account for navbar + search bar (~58px) */
+  .mobile-drawer {
+    top: calc(var(--nav-height) + 58px);
+    max-height: calc(100vh - var(--nav-height) - 58px);
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-search-bar {
+    padding: 7px 12px;
+  }
+
+  .mobile-search-bar-form {
+    height: 40px;
+  }
+
+  .mobile-search-bar-btn {
+    font-size: 0.68rem;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 390px) {
+  .mobile-search-bar {
+    padding: 6px 10px;
+  }
+
+  .mobile-search-bar-input {
+    font-size: 0.88rem;
+  }
+}
+
+
+/* ════════════════════════════════
    RESPONSIVE
 ════════════════════════════════ */
 
