@@ -4,6 +4,12 @@ import './styles/global/index.css';
 import './utils/apiClient';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { syncThemeFromStorage } from './utils/theme';
+
+// Apply the saved theme immediately — before React mounts —
+// so there's no flash of wrong theme on page load / refresh.
+syncThemeFromStorage();
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

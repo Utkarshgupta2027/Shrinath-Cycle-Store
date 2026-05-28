@@ -57,7 +57,7 @@ const defaultSettings = {
   profileVisible: true,
   orderHistoryVisible: false,
   personalizedOffers: true,
-  theme: "light",
+  theme: "dark",
   language: "English",
   region: "India",
   connectedAccounts: {
@@ -616,23 +616,54 @@ export default function Settings() {
 
           <section className="settings-section">
             <div className="settings-section-title">
-              <FaGlobeAsia /> Theme Settings
+              <FaDesktop /> Theme Settings
             </div>
+            <p className="settings-section-copy">
+              Choose how ShreeNath Cycle Store looks for you. Changes apply instantly across the entire app.
+            </p>
             <div className="theme-choice-row">
               <button
-                className={settings.theme === "light" ? "active" : ""}
-                onClick={() => updateSetting("theme", "light", "Light theme enabled.")}
-              >
-                <FaSun /> Light
-              </button>
-              <button
-                className={settings.theme === "dark" ? "active" : ""}
+                className={`theme-card ${settings.theme === "dark" ? "active" : ""}`}
                 onClick={() => updateSetting("theme", "dark", "Dark theme enabled.")}
+                aria-pressed={settings.theme === "dark"}
               >
-                <FaMoon /> Dark
+                <div className="theme-card-preview theme-preview-dark">
+                  <div className="theme-preview-bar" />
+                  <div className="theme-preview-content">
+                    <div className="theme-preview-line long" />
+                    <div className="theme-preview-line short" />
+                  </div>
+                </div>
+                <div className="theme-card-label">
+                  <FaMoon />
+                  <span>Dark</span>
+                  {settings.theme === "dark" && <span className="theme-active-chip">Active</span>}
+                </div>
+                <p className="theme-card-desc">Easy on the eyes, great for night use</p>
+              </button>
+
+              <button
+                className={`theme-card ${settings.theme === "light" ? "active" : ""}`}
+                onClick={() => updateSetting("theme", "light", "Light theme enabled.")}
+                aria-pressed={settings.theme === "light"}
+              >
+                <div className="theme-card-preview theme-preview-light">
+                  <div className="theme-preview-bar" />
+                  <div className="theme-preview-content">
+                    <div className="theme-preview-line long" />
+                    <div className="theme-preview-line short" />
+                  </div>
+                </div>
+                <div className="theme-card-label">
+                  <FaSun />
+                  <span>Light</span>
+                  {settings.theme === "light" && <span className="theme-active-chip">Active</span>}
+                </div>
+                <p className="theme-card-desc">Clean and bright for daytime browsing</p>
               </button>
             </div>
           </section>
+
         </div>
 
         <div className="settings-grid">

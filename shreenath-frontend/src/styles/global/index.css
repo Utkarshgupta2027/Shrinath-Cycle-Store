@@ -497,3 +497,296 @@ body.app-theme-light .secure-badges span,
 body.app-theme-light .policy-list span {
   background: transparent !important;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   🏠 HOME PAGE — Light Theme
+   The homepage uses hardcoded dark colors, so we override
+   every major section explicitly here.
+═══════════════════════════════════════════════════════════ */
+
+/* Page-level background */
+body.app-theme-light .home-page,
+body.app-theme-light .products-section {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(201, 168, 76, 0.1), transparent 28%),
+    radial-gradient(circle at 92% 8%, rgba(56, 189, 248, 0.07), transparent 26%),
+    linear-gradient(180deg, #fffaf2 0%, #f4ede2 100%) !important;
+  color: #1f2937 !important;
+}
+
+/* Hero section */
+body.app-theme-light .hero-section {
+  background:
+    radial-gradient(circle at 20% 50%, rgba(201, 168, 76, 0.14), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(56, 189, 248, 0.1), transparent 36%),
+    linear-gradient(135deg, #fffdf8 0%, #f5edd8 100%) !important;
+  border-color: rgba(92, 73, 48, 0.08) !important;
+}
+
+body.app-theme-light .hero-title,
+body.app-theme-light .hero-title span,
+body.app-theme-light .hero-tagline {
+  color: #1f2937 !important;
+  text-shadow: none !important;
+}
+
+body.app-theme-light .hero-subtitle,
+body.app-theme-light .hero-description {
+  color: #5f6b7a !important;
+}
+
+body.app-theme-light .hero-badge {
+  background: rgba(168, 116, 26, 0.1) !important;
+  border-color: rgba(168, 116, 26, 0.18) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .hero-stats,
+body.app-theme-light .stat-item {
+  color: #5f6b7a !important;
+}
+
+body.app-theme-light .stat-item strong {
+  color: #1f2937 !important;
+}
+
+/* Section headings */
+body.app-theme-light .section-badge {
+  background: rgba(168, 116, 26, 0.1) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .section-title,
+body.app-theme-light .section-title h2,
+body.app-theme-light .products-section h2,
+body.app-theme-light .featured-heading,
+body.app-theme-light .categories-heading {
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .section-subtitle,
+body.app-theme-light .section-description {
+  color: #5f6b7a !important;
+}
+
+/* Category cards */
+body.app-theme-light .category-card,
+body.app-theme-light .category-pill,
+body.app-theme-light .quick-category-btn,
+body.app-theme-light .filter-pill {
+  background: rgba(255, 251, 245, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.1) !important;
+  color: #243041 !important;
+  box-shadow: 0 4px 14px rgba(95, 74, 49, 0.07) !important;
+}
+
+body.app-theme-light .category-card:hover,
+body.app-theme-light .filter-pill:hover,
+body.app-theme-light .filter-pill.active {
+  background: rgba(168, 116, 26, 0.08) !important;
+  border-color: rgba(168, 116, 26, 0.22) !important;
+  color: #a8741a !important;
+}
+
+/* Product cards */
+body.app-theme-light .product-card,
+body.app-theme-light .product-link {
+  background: rgba(255, 252, 247, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.09) !important;
+  box-shadow: 0 8px 24px rgba(95, 74, 49, 0.07) !important;
+}
+
+body.app-theme-light .product-card:hover {
+  box-shadow: 0 16px 40px rgba(95, 74, 49, 0.12) !important;
+  border-color: rgba(168, 116, 26, 0.22) !important;
+}
+
+body.app-theme-light .product-card-img-wrap,
+body.app-theme-light .product-img-container {
+  background: rgba(240, 231, 218, 0.5) !important;
+}
+
+body.app-theme-light .product-name,
+body.app-theme-light .product-info h3,
+body.app-theme-light .product-link h3 {
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .product-price {
+  color: #a8741a !important;
+}
+
+body.app-theme-light .product-rating,
+body.app-theme-light .product-meta {
+  color: #738093 !important;
+}
+
+/* Featured / spotlight cards */
+body.app-theme-light .featured-card,
+body.app-theme-light .spotlight-card {
+  background: rgba(255, 252, 247, 0.88) !important;
+  border-color: rgba(92, 73, 48, 0.1) !important;
+}
+
+/* Trust / features strip */
+body.app-theme-light .trust-strip,
+body.app-theme-light .features-strip,
+body.app-theme-light .why-us-section {
+  background: rgba(255, 250, 242, 0.7) !important;
+  border-color: rgba(92, 73, 48, 0.08) !important;
+}
+
+body.app-theme-light .trust-strip-item,
+body.app-theme-light .feature-item {
+  color: #243041 !important;
+}
+
+/* Search / filter bar */
+body.app-theme-light .search-filter-bar,
+body.app-theme-light .filter-bar,
+body.app-theme-light .products-toolbar {
+  background: rgba(255, 251, 245, 0.92) !important;
+  border-color: rgba(92, 73, 48, 0.1) !important;
+}
+
+body.app-theme-light .sort-select,
+body.app-theme-light .filter-select {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.14) !important;
+  color: #1f2937 !important;
+}
+
+/* Add-to-cart / wishlist buttons on cards */
+body.app-theme-light .add-to-cart-btn,
+body.app-theme-light .card-action-btn {
+  background: rgba(168, 116, 26, 0.08) !important;
+  border-color: rgba(168, 116, 26, 0.18) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .add-to-cart-btn:hover {
+  background: rgba(168, 116, 26, 0.15) !important;
+}
+
+/* ─── Settings page light theme ─── */
+body.app-theme-light .settings-page {
+  background:
+    radial-gradient(circle at 6% 0%, rgba(201, 168, 76, 0.1), transparent 28%),
+    radial-gradient(circle at 94% 6%, rgba(56, 189, 248, 0.07), transparent 24%),
+    linear-gradient(180deg, #fffaf2 0%, #f2eadf 100%) !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .settings-container {
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .settings-header {
+  background: rgba(255, 249, 241, 0.88) !important;
+  border-color: rgba(92, 73, 48, 0.1) !important;
+}
+
+body.app-theme-light .settings-section {
+  background: rgba(255, 252, 247, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.09) !important;
+  box-shadow: 0 8px 24px rgba(95, 74, 49, 0.07) !important;
+}
+
+body.app-theme-light .settings-section-title {
+  color: #1f2937 !important;
+  border-color: rgba(92, 73, 48, 0.08) !important;
+}
+
+body.app-theme-light .settings-toggle-row {
+  border-color: rgba(92, 73, 48, 0.07) !important;
+}
+
+body.app-theme-light .settings-field input,
+body.app-theme-light .settings-select-row select,
+body.app-theme-light .address-edit-input,
+body.app-theme-light .settings-address-form input,
+body.app-theme-light .settings-form input[type="password"],
+body.app-theme-light .settings-form input[type="text"],
+body.app-theme-light .settings-form input[type="email"] {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(92, 73, 48, 0.14) !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .settings-mini-card {
+  background: rgba(255, 253, 248, 0.84) !important;
+  border-color: rgba(92, 73, 48, 0.1) !important;
+}
+
+body.app-theme-light .settings-mini-card p,
+body.app-theme-light .activity-item strong,
+body.app-theme-light .activity-item small {
+  color: #5f6b7a !important;
+}
+
+body.app-theme-light .settings-empty {
+  color: #738093 !important;
+}
+
+body.app-theme-light .settings-banner.success {
+  background: rgba(47, 143, 107, 0.1) !important;
+  border-color: rgba(47, 143, 107, 0.2) !important;
+  color: #2f8f6b !important;
+}
+
+body.app-theme-light .settings-banner.error {
+  background: rgba(208, 93, 98, 0.1) !important;
+  border-color: rgba(208, 93, 98, 0.2) !important;
+  color: #b94a50 !important;
+}
+
+body.app-theme-light .danger-section {
+  background: rgba(255, 245, 245, 0.85) !important;
+  border-color: rgba(208, 93, 98, 0.18) !important;
+}
+
+body.app-theme-light .theme-choice-row button.active {
+  background: rgba(168, 116, 26, 0.12) !important;
+  border-color: rgba(168, 116, 26, 0.3) !important;
+  color: #a8741a !important;
+}
+
+body.app-theme-light .modal-box {
+  background: #fffdf8 !important;
+  border-color: rgba(92, 73, 48, 0.12) !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .modal-box h3 {
+  color: #1f2937 !important;
+}
+
+body.app-theme-light .modal-box p {
+  color: #5f6b7a !important;
+}
+
+/* ─── Smooth transition on all themed pages ─── */
+body.app-theme-light,
+body.app-theme-dark {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.app-theme-light .home-page,
+body.app-theme-light .settings-page,
+body.app-theme-light .cart-page,
+body.app-theme-light .checkout-page,
+body.app-theme-light .orders-page,
+body.app-theme-light .payment-page,
+body.app-theme-light .product-page,
+body.app-theme-light .wishlist-page,
+body.app-theme-dark .home-page,
+body.app-theme-dark .settings-page,
+body.app-theme-dark .cart-page,
+body.app-theme-dark .checkout-page,
+body.app-theme-dark .orders-page,
+body.app-theme-dark .payment-page,
+body.app-theme-dark .product-page,
+body.app-theme-dark .wishlist-page {
+  transition: background 0.3s ease, color 0.25s ease;
+}
+
