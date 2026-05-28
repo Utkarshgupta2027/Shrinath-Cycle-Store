@@ -54,6 +54,7 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET,
                         "/api/products",
+                        "/api/products/search",      // Guest-accessible product search/filter
                         "/api/product/*",
                         "/api/product/*/image",
                         "/api/product/*/gallery/*",  // extra gallery images

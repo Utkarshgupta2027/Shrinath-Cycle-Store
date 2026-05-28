@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000") // Allow React frontend
 public class HomeController {
 
    @GetMapping("/Home")
