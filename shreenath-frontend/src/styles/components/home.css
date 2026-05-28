@@ -1769,6 +1769,12 @@ body.app-theme-light .product-card {
     transform: none;
   }
 
+  /* ── Always show full color on mobile — hover never fires on touch ── */
+  .product-img {
+    mix-blend-mode: normal;
+    opacity: 1;
+  }
+
   /* ── Square image fills card top ── */
   .product-img-wrapper {
     height: auto;
