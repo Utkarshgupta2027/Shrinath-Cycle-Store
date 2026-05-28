@@ -66,6 +66,8 @@ function CheckoutPopup() {
   const [acceptTerms, setAcceptTerms] = useState(true);
   const [placing, setPlacing] = useState(false);
   const [confirmation, setConfirmation] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const [summary, setSummary] = useState({ subtotal: 0, discountAmount: 0, deliveryCharges: 0, finalTotal: 0 });
   const [pageMessage, setPageMessage] = useState("");
 
@@ -105,6 +107,23 @@ function CheckoutPopup() {
     if (!cart?.items) return [];
     return cart.items.map((ci) => ({ ...ci.product, quantity: ci.quantity }));
   };
+
+  // Auto-redirect to /orders after order success alert
+  useEffect(() => {
+    if (!showAlert) return;
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(interval);
+          navigate("/orders");
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showAlert, navigate]);
 
   const localSubtotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0),
@@ -315,8 +334,10 @@ function CheckoutPopup() {
         await fetch(`${API_BASE}/cart/clear?userId=${userId}`, { method: "DELETE" }).catch(() => {});
         handleSaveAddress();
         handleSavePaymentMethod();
-        setConfirmation({ id: placedOrder?.id || "NEW", total: finalTotal, estimate: deliveryEstimate });
+        const conf = { id: placedOrder?.id || "NEW", total: finalTotal, estimate: deliveryEstimate };
+        setConfirmation(conf);
         setCartItems([]);
+        setShowAlert(true);    // ← trigger the alert dialog + auto-redirect
       } else {
         const errorMessage = await res.text();
         setPageMessage(errorMessage || "Failed to place order. Please try again.");
@@ -348,13 +369,50 @@ function CheckoutPopup() {
 
         {pageMessage && <div className="coupon-message">{pageMessage}</div>}
 
-        {confirmation && (
-          <div className="order-confirmation">
-            <FaCheckCircle />
-            <div>
-              <h2>Order placed successfully!</h2>
-              <p>Order #{confirmation.id} is confirmed. Total paid: {formatMoney(confirmation.total)}. {confirmation.estimate}.</p>
-              <button onClick={() => navigate("/orders")}>View My Orders</button>
+        {/* ── Order Success Alert Dialog ── */}
+        {showAlert && confirmation && (
+          <div className="order-success-overlay" role="dialog" aria-modal="true" aria-labelledby="order-success-title">
+            <div className="order-success-dialog">
+              <div className="order-success-icon-ring">
+                <svg viewBox="0 0 52 52" className="order-success-checkmark">
+                  <circle cx="26" cy="26" r="25" fill="none" />
+                  <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+              </div>
+              <h2 id="order-success-title">Order Placed Successfully!</h2>
+              <p className="order-success-order-id">Order #{confirmation.id}</p>
+              <div className="order-success-details">
+                <div>
+                  <span>Amount Paid</span>
+                  <strong>{formatMoney(confirmation.total)}</strong>
+                </div>
+                <div>
+                  <span>Delivery</span>
+                  <strong>{confirmation.estimate}</strong>
+                </div>
+              </div>
+              <p className="order-success-redirect-note">
+                Redirecting to your orders in <strong>{countdown}</strong> second{countdown !== 1 ? "s" : ""}...
+              </p>
+              <div className="order-success-progress">
+                <div
+                  className="order-success-progress-bar"
+                  style={{ width: `${((3 - countdown) / 3) * 100}%` }}
+                />
+              </div>
+              <button
+                className="order-success-btn"
+                onClick={() => navigate("/orders")}
+              >
+                View My Orders
+              </button>
+              <button
+                className="order-success-close"
+                onClick={() => { setShowAlert(false); navigate("/orders"); }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
             </div>
           </div>
         )}
