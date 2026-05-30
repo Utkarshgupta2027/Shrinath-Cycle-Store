@@ -1,11 +1,11 @@
-.wishlist-page {
+﻿.wishlist-page {
   min-height: calc(100vh - 80px);
   padding: 40px 24px 64px;
   background:
     radial-gradient(circle at 8% 0%, rgba(248, 113, 113, 0.14), transparent 30%),
-    radial-gradient(circle at 90% 8%, rgba(201, 168, 76, 0.12), transparent 28%),
-    #080b12;
-  color: #f8fafc;
+    radial-gradient(circle at 90% 8%, rgba(54, 173, 163, 0.12), transparent 28%),
+    #080d28;
+  color: #eef2ff;
 }
 
 .wishlist-container {
@@ -22,14 +22,14 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 800;
 }
 
 .back-link:hover {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .wishlist-header,
@@ -76,7 +76,7 @@
 
 .wishlist-header p {
   margin: 10px 0 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .share-wishlist-btn,
@@ -90,11 +90,11 @@
   padding: 0 16px;
   border: 0;
   border-radius: 14px;
-  background: linear-gradient(135deg, #e2c678, #c9a84c);
-  color: #090b11;
+  background: linear-gradient(135deg, #36ADA3, #2a8f87);
+  color: #080d28;
   cursor: pointer;
   font-weight: 900;
-  box-shadow: 0 12px 26px rgba(201, 168, 76, 0.22);
+  box-shadow: 0 12px 26px rgba(54, 173, 163, 0.22);
 }
 
 .share-wishlist-btn:disabled {
@@ -107,7 +107,7 @@
   min-height: 50vh;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 1.1rem;
 }
 
@@ -125,9 +125,9 @@
 }
 
 .wishlist-message {
-  border: 1px solid rgba(201, 168, 76, 0.25);
-  background: rgba(201, 168, 76, 0.08);
-  color: #e2c678;
+  border: 1px solid rgba(54, 173, 163, 0.25);
+  background: rgba(54, 173, 163, 0.08);
+  color: #36ADA3;
 }
 
 .wishlist-empty-state {
@@ -161,7 +161,7 @@
 .wishlist-empty-state p {
   max-width: 440px;
   margin: 0 0 22px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   line-height: 1.65;
 }
 
@@ -190,7 +190,7 @@
 }
 
 .wishlist-section-title span {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.92rem;
   font-weight: 800;
 }
@@ -270,8 +270,8 @@
 }
 
 .wishlist-brand {
-  background: rgba(201, 168, 76, 0.12);
-  color: #e2c678;
+  background: rgba(54, 173, 163, 0.12);
+  color: #36ADA3;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -302,12 +302,12 @@
 }
 
 .wishlist-name:hover {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .wishlist-rating {
   margin-bottom: 12px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.9rem;
 }
 
@@ -317,7 +317,7 @@
 }
 
 .wishlist-star.filled {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .wishlist-price-row {
@@ -325,12 +325,12 @@
 }
 
 .wishlist-price-row strong {
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 1.25rem;
 }
 
 .wishlist-list-price {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   text-decoration: line-through;
 }
 
@@ -348,16 +348,16 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   cursor: pointer;
   font-weight: 800;
 }
 
 .price-alert-btn.active,
 .price-alert-btn:hover {
-  border-color: rgba(201, 168, 76, 0.35);
-  background: rgba(201, 168, 76, 0.1);
-  color: #e2c678;
+  border-color: rgba(54, 173, 163, 0.30);
+  background: rgba(54, 173, 163, 0.10);
+  color: #36ADA3;
 }
 
 .wishlist-actions {
@@ -382,8 +382,8 @@
 }
 
 .wishlist-cart-btn {
-  background: linear-gradient(135deg, #e2c678, #c9a84c);
-  color: #090b11;
+  background: linear-gradient(135deg, #36ADA3, #2a8f87);
+  color: #080d28;
 }
 
 .wishlist-buy-btn {
@@ -393,7 +393,7 @@
 
 .move-cart-btn {
   background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  color: #eef2ff;
 }
 
 .wishlist-remove-btn {
@@ -426,7 +426,7 @@
 }
 
 .recommendation-card:hover {
-  border-color: rgba(201, 168, 76, 0.35);
+  border-color: rgba(54, 173, 163, 0.30);
   transform: translateY(-3px);
 }
 
@@ -439,7 +439,7 @@
 .recommendation-card span {
   display: block;
   margin-top: 8px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.82rem;
 }
 
@@ -451,13 +451,13 @@
 
 .recommendation-card p {
   margin: 0;
-  color: #e2c678;
+  color: #36ADA3;
   font-weight: 900;
 }
 
 .recommendation-empty {
   margin: 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 @media (max-width: 980px) {

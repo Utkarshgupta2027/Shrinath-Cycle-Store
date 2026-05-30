@@ -1,9 +1,9 @@
-/* ============================================
+﻿/* ============================================
    📦 ORDERS PAGE - OBSIDIAN PREMIUM
    ============================================ */
 .orders-page {
   padding: 40px 24px;
-  background: #0a0c14; /* Obsidian background */
+  background: #080d28; /* Obsidian background */
   min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
@@ -18,7 +18,7 @@
 .back-link {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -31,7 +31,7 @@
 }
 
 .back-link:hover {
-  color: #c9a84c; /* Gold hover */
+  color: #2a8f87; /* Gold hover */
 }
 
 .orders-title {
@@ -45,7 +45,7 @@
 .orders-loading {
   text-align: center;
   padding: 60px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 1rem;
 }
 
@@ -89,27 +89,27 @@
 }
 
 .orders-empty p {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   margin-bottom: 24px;
 }
 
 .orders-action-btn {
   padding: 12px 28px;
-  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
-  color: #0a0c14; /* Dark text for contrast against gold */
+  background: linear-gradient(135deg, #2a8f87 0%, #a6842f 100%);
+  color: #080d28; /* Dark text for contrast against gold */
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 15px rgba(54, 173, 163, 0.30);
 }
 
 .orders-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
-  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+  box-shadow: 0 8px 25px rgba(54, 173, 163, 0.40);
+  background: linear-gradient(135deg, #36ADA3 0%, #2a8f87 100%);
 }
 
 /* ============================================
@@ -133,7 +133,7 @@
 
 .order-card:hover {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  border-color: rgba(201, 168, 76, 0.3); /* Gold hover border */
+  border-color: rgba(54, 173, 163, 0.30); /* Gold hover border */
 }
 
 /* Header */
@@ -166,8 +166,8 @@
 }
 
 .order-status.placed {
-  background: rgba(201, 168, 76, 0.1);
-  color: #c9a84c;
+  background: rgba(54, 173, 163, 0.10);
+  color: #2a8f87;
   border: 1px solid rgba(201, 168, 76, 0.2);
 }
 
@@ -201,7 +201,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 /* Body */
@@ -218,12 +218,12 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   font-size: 0.9rem;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .address-icon {
-  color: #c9a84c;
+  color: #2a8f87;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -231,7 +231,7 @@
 .order-items h4 {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 16px;
@@ -285,12 +285,12 @@
 
 .order-item-price {
   font-size: 0.9rem;
-  color: #c9a84c;
+  color: #2a8f87;
   font-weight: 600;
 }
 
 .no-items {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.9rem;
 }
 
@@ -307,7 +307,7 @@
 .order-total-label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .order-total-value {
@@ -325,9 +325,9 @@
 }
 
 .track-order-btn {
-  background: rgba(201, 168, 76, 0.1);
-  color: #c9a84c;
-  border: 1px solid rgba(201, 168, 76, 0.3);
+  background: rgba(54, 173, 163, 0.10);
+  color: #2a8f87;
+  border: 1px solid rgba(54, 173, 163, 0.30);
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -338,7 +338,7 @@
 
 .track-order-btn:hover {
   background: rgba(201, 168, 76, 0.2);
-  border-color: #c9a84c;
+  border-color: #2a8f87;
 }
 
 .cancel-order-btn {
@@ -377,7 +377,7 @@
 .edit-addr-btn {
   background: none;
   border: none;
-  color: #c9a84c;
+  color: #2a8f87;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -390,7 +390,7 @@
 }
 
 .edit-addr-btn:hover {
-  background: rgba(201, 168, 76, 0.1);
+  background: rgba(54, 173, 163, 0.10);
 }
 
 .address-edit-group {
@@ -413,7 +413,7 @@
 }
 
 .address-edit-input:focus {
-  border-color: #c9a84c;
+  border-color: #2a8f87;
 }
 
 .address-edit-actions {
@@ -422,8 +422,8 @@
 }
 
 .save-addr-btn {
-  background: #c9a84c;
-  color: #0a0c14;
+  background: #2a8f87;
+  color: #080d28;
   border: none;
   padding: 6px 14px;
   border-radius: 4px;
@@ -450,7 +450,7 @@
 }
 
 .save-addr-btn:hover {
-  background: #e2c678;
+  background: #36ADA3;
 }
 
 .cancel-addr-btn:hover {
@@ -478,7 +478,7 @@
 
 /* AWB Badge */
 .order-awb-badge { display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; color:#34d399; background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.25); border-radius:999px; padding:4px 12px; margin-top:6px; }
-.awb-track-link { color:#e2c678; font-weight:800; text-decoration:none; border-left:1px solid rgba(52,211,153,.3); padding-left:8px; margin-left:4px; }
+.awb-track-link { color:#36ADA3; font-weight:800; text-decoration:none; border-left:1px solid rgba(52,211,153,.3); padding-left:8px; margin-left:4px; }
 .awb-track-link:hover { text-decoration:underline; }
 
 /* ── Feature 13: Invoice download button ── */
@@ -692,7 +692,7 @@
   backdrop-filter: blur(20px);
   text-align: center;
   animation: od-slide 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  color: #f8fafc;
+  color: #eef2ff;
 }
 
 @keyframes od-slide {
@@ -747,7 +747,7 @@
 
 .od-message {
   margin: 0 0 18px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -817,12 +817,12 @@
 .od-btn-ghost {
   background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.12);
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
 }
 
 .od-btn-gold {
-  background: linear-gradient(135deg, #e2c678, #c9a84c);
-  color: #090b11;
+  background: linear-gradient(135deg, #36ADA3, #2a8f87);
+  color: #080d28;
   box-shadow: 0 4px 14px rgba(201,168,76,.3);
 }
 

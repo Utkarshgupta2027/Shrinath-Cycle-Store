@@ -2,10 +2,10 @@
   min-height: calc(100vh - 80px);
   padding: 40px 24px 64px;
   background:
-    radial-gradient(circle at 8% 0%, rgba(201, 168, 76, 0.16), transparent 30%),
-    radial-gradient(circle at 92% 8%, rgba(20, 184, 166, 0.12), transparent 28%),
-    #080b12;
-  color: #f8fafc;
+    radial-gradient(ellipse at 0% 0%, rgba(54,173,163,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(35,47,114,0.50) 0%, transparent 60%),
+    linear-gradient(180deg, #080d28 0%, #0a0f30 100%);
+  color: #eef2ff;
 }
 
 .cart-container {
@@ -21,14 +21,14 @@
   margin-bottom: 20px;
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.60);
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 800;
 }
 
 .back-link:hover {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .cart-header,
@@ -58,8 +58,8 @@
   margin-bottom: 10px;
   padding: 7px 11px;
   border-radius: 999px;
-  background: rgba(201, 168, 76, 0.12);
-  color: #e2c678;
+  background: rgba(54, 173, 163, 0.14);
+  color: #36ADA3;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -76,7 +76,7 @@
 
 .cart-header p {
   margin: 10px 0 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .cart-header-badge {
@@ -95,10 +95,10 @@
 .cart-message {
   margin-bottom: 18px;
   padding: 13px 16px;
-  border: 1px solid rgba(201, 168, 76, 0.25);
+  border: 1px solid rgba(54, 173, 163, 0.28);
   border-radius: 16px;
-  background: rgba(201, 168, 76, 0.08);
-  color: #e2c678;
+  background: rgba(54, 173, 163, 0.10);
+  color: #36ADA3;
 }
 
 .empty-cart {
@@ -118,7 +118,7 @@
 
 .empty-cart svg {
   margin-bottom: 14px;
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 2.4rem;
 }
 
@@ -131,7 +131,7 @@
 .empty-cart p {
   max-width: 430px;
   margin: 0 0 22px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   line-height: 1.65;
 }
 
@@ -163,7 +163,7 @@
 }
 
 .cart-section-title span {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.92rem;
   font-weight: 800;
 }
@@ -212,7 +212,7 @@
 .item-brand {
   display: inline-flex;
   margin-bottom: 8px;
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -230,7 +230,7 @@
 }
 
 .item-name:hover {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .item-meta-row {
@@ -242,7 +242,7 @@
 }
 
 .item-price {
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-weight: 800;
 }
 
@@ -274,7 +274,7 @@
   align-items: center;
   gap: 8px;
   margin: 7px 0 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -310,13 +310,13 @@
   border: 0;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.07);
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   cursor: pointer;
 }
 
 .qty-btn:hover:not(:disabled) {
-  background: rgba(201, 168, 76, 0.14);
-  color: #e2c678;
+  background: rgba(54, 173, 163, 0.14);
+  color: #36ADA3;
 }
 
 .qty-btn:disabled {
@@ -336,16 +336,16 @@
   gap: 12px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(201, 168, 76, 0.08);
+  background: rgba(54, 173, 163, 0.10);
 }
 
 .item-total span {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.65);
   font-size: 0.84rem;
 }
 
 .item-total strong {
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 1.05rem;
 }
 
@@ -420,7 +420,7 @@
 }
 
 .coupon-card h2 svg {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .coupon-form {
@@ -440,19 +440,19 @@
 
 .coupon-form input:focus {
   outline: none;
-  border-color: rgba(201, 168, 76, 0.5);
+  border-color: rgba(54, 173, 163, 0.45);
 }
 
 .coupon-form button,
 .applied-coupon button {
   padding: 0 14px;
-  background: #e2c678;
-  color: #090b11;
+  background: #36ADA3;
+  color: #080d28;
 }
 
 .coupon-card p {
   margin: 12px 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   line-height: 1.55;
 }
 
@@ -493,7 +493,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
 }
 
 .discount-row span:last-child {
@@ -510,7 +510,7 @@
 }
 
 .total-row span:last-child {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .checkout-btn,
@@ -521,9 +521,9 @@
 }
 
 .checkout-btn {
-  background: linear-gradient(135deg, #e2c678, #c9a84c);
-  color: #090b11;
-  box-shadow: 0 12px 26px rgba(201, 168, 76, 0.24);
+  background: linear-gradient(135deg, #36ADA3, #2a8f87);
+  color: #ffffff;
+  box-shadow: 0 12px 26px rgba(54, 173, 163, 0.28);
 }
 
 .checkout-btn:hover:not(:disabled) {
@@ -538,7 +538,7 @@
 .continue-btn {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);
-  color: #f8fafc;
+  color: #f0f4ff;
 }
 
 .trust-card {
@@ -550,7 +550,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-weight: 800;
 }
 
@@ -560,19 +560,19 @@
 
 .support-card-cart {
   background:
-    linear-gradient(145deg, rgba(201, 168, 76, 0.12), rgba(255, 255, 255, 0.04)),
+    linear-gradient(145deg, rgba(54, 173, 163, 0.12), rgba(255, 255, 255, 0.04)),
     rgba(255, 255, 255, 0.04) !important;
 }
 
 .support-card-cart > svg {
   margin-bottom: 10px;
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 1.8rem;
 }
 
 .support-card-cart p {
   margin: 0 0 14px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   line-height: 1.6;
 }
 
@@ -582,7 +582,7 @@
   padding: 10px 13px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  color: #f0f4ff;
   font-weight: 900;
   text-decoration: none;
 }
@@ -615,7 +615,7 @@
 .saved-card span {
   display: block;
   margin-top: 8px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.82rem;
 }
 
@@ -627,13 +627,13 @@
 
 .saved-card p {
   margin: 0;
-  color: #e2c678;
+  color: #36ADA3;
   font-weight: 900;
 }
 
 .save-empty {
   margin: 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 /* ═══════════════════════════════════════════════

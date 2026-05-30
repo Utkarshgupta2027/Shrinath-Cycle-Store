@@ -1,9 +1,9 @@
-/* PAGE CENTERING - OBSIDIAN PREMIUM */
+﻿/* PAGE CENTERING - OBSIDIAN PREMIUM */
 .update-container {
   display: flex;
   justify-content: center;
   padding-top: 5rem;
-  background: #0a0c14; /* Obsidian */
+  background: #080d28; /* Obsidian */
   min-height: 100vh;
   color: #f1f5f9;
 }
@@ -78,9 +78,9 @@
 /* FOCUS EFFECT */
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #c9a84c;
+  border-color: #2a8f87;
   background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 0 8px rgba(54, 173, 163, 0.30);
 }
 
 /* IMAGE PREVIEW */
@@ -104,13 +104,13 @@
 }
 
 .checkbox-group input[type="checkbox"] {
-  accent-color: #c9a84c;
+  accent-color: #2a8f87;
   width: 18px;
   height: 18px;
 }
 
 .checkbox-group label {
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-weight: 500;
   margin-bottom: 0;
 }
@@ -119,21 +119,21 @@
 .submit-btn {
   grid-column: span 2;
   padding: 12px;
-  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
-  color: #0a0c14; /* Dark text for contrast against gold */
+  background: linear-gradient(135deg, #2a8f87 0%, #a6842f 100%);
+  color: #080d28; /* Dark text for contrast against gold */
   font-size: 17px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
   transition: 0.3s ease;
-  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 15px rgba(54, 173, 163, 0.30);
 }
 
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
-  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+  box-shadow: 0 8px 25px rgba(54, 173, 163, 0.40);
+  background: linear-gradient(135deg, #36ADA3 0%, #2a8f87 100%);
 }
 
 /* BACK BUTTON */

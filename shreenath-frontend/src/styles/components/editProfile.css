@@ -1,4 +1,4 @@
-/* ===========================
+﻿/* ===========================
    ✏️ EDIT PROFILE - OBSIDIAN PREMIUM
    =========================== */
 .edit-profile-container {
@@ -48,14 +48,14 @@
 }
 
 .edit-profile-form input:focus {
-  border-color: #c9a84c;
+  border-color: #2a8f87;
   background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 0 8px rgba(54, 173, 163, 0.30);
 }
 
 .edit-profile-form input:disabled {
   background: rgba(0, 0, 0, 0.2);
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   cursor: not-allowed;
   border-color: rgba(255, 255, 255, 0.02);
 }
@@ -63,21 +63,21 @@
 .edit-profile-form button {
   margin-top: 20px;
   padding: 14px;
-  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
-  color: #0a0c14; /* Dark text for contrast against gold */
+  background: linear-gradient(135deg, #2a8f87 0%, #a6842f 100%);
+  color: #080d28; /* Dark text for contrast against gold */
   font-size: 16px;
   font-weight: 700;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 15px rgba(54, 173, 163, 0.30);
 }
 
 .edit-profile-form button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
-  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+  box-shadow: 0 8px 25px rgba(54, 173, 163, 0.40);
+  background: linear-gradient(135deg, #36ADA3 0%, #2a8f87 100%);
 }
 
 .success-msg {

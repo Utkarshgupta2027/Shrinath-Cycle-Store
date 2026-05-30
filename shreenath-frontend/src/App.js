@@ -37,13 +37,13 @@ function PageLoader() {
       alignItems: "center",
       justifyContent: "center",
       minHeight: "60vh",
-      background: "var(--obsidian, #0a0c14)",
+      background: "var(--theme-bg, #080d28)",
     }}>
       <div style={{
         width: 40,
         height: 40,
-        border: "3px solid rgba(201,168,76,0.2)",
-        borderTop: "3px solid #c9a84c",
+        border: "3px solid rgba(54,173,163,0.18)",
+        borderTop: "3px solid #36ADA3",
         borderRadius: "50%",
         animation: "spin 0.8s linear infinite",
       }} />

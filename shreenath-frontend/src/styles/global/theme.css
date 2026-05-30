@@ -1,0 +1,150 @@
+/* ================================================================
+   🎨 SHRINATH CYCLE STORE — GLOBAL THEME TOKENS
+   Two palettes from Color Hunt:
+   DARK  → #121358 · #232F72 · #2F578A · #36ADA3
+   LIGHT → #9FA1FF · #B5BAFF · #AEE2FF · #D9F9DF
+   ================================================================ */
+
+/* ── DARK THEME ── */
+body.app-theme-dark {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --theme-bg:          #080d28;
+  --theme-bg-soft:     #0e1240;
+  --theme-surface:     #121358;
+  --theme-surface-2:   #1c2468;
+  --theme-surface-3:   #232F72;
+  --theme-elevated:    #2F578A;
+
+  /* Accent — teal */
+  --theme-accent:        #36ADA3;
+  --theme-accent-hover:  #3ec8bd;
+  --theme-accent-subtle: rgba(54, 173, 163, 0.14);
+  --theme-accent-glow:   rgba(54, 173, 163, 0.25);
+  --theme-accent-text:   #ffffff;
+
+  /* Secondary accent — soft lavender */
+  --theme-accent2:        #7b7fff;
+  --theme-accent2-subtle: rgba(123, 127, 255, 0.12);
+
+  /* Text */
+  --theme-text:       #eef2ff;
+  --theme-text-muted: rgba(224, 228, 255, 0.62);
+  --theme-text-dim:   rgba(224, 228, 255, 0.36);
+
+  /* Borders & Dividers */
+  --theme-border:     rgba(255, 255, 255, 0.08);
+  --theme-border-2:   rgba(255, 255, 255, 0.05);
+
+  /* State colors */
+  --theme-success:        #2dd4bf;
+  --theme-success-subtle: rgba(45, 212, 191, 0.12);
+  --theme-danger:         #f87171;
+  --theme-danger-subtle:  rgba(248, 113, 113, 0.12);
+  --theme-warning:        #fbbf24;
+  --theme-warning-subtle: rgba(251, 191, 36, 0.12);
+
+  /* Shadows */
+  --theme-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.50);
+  --theme-shadow-md: 0 8px 28px  rgba(0, 0, 0, 0.55);
+  --theme-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.65);
+  --theme-shadow-accent: 0 8px 28px rgba(54, 173, 163, 0.28);
+
+  /* Gradients */
+  --theme-gradient-page:
+    radial-gradient(ellipse at 0% 0%, rgba(54,173,163,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(35,47,114,0.50) 0%, transparent 60%),
+    linear-gradient(180deg, #080d28 0%, #0a0f30 100%);
+  --theme-gradient-card:
+    linear-gradient(135deg, rgba(54,173,163,0.07) 0%, rgba(35,47,114,0.04) 100%);
+  --theme-gradient-hero:
+    linear-gradient(135deg, #121358 0%, #1c2468 50%, #232F72 100%);
+  --theme-gradient-btn:
+    linear-gradient(135deg, #36ADA3 0%, #2F578A 100%);
+
+  /* App-level aliases (used by existing code) */
+  --app-bg:          var(--theme-bg);
+  --app-bg-soft:     var(--theme-bg-soft);
+  --app-surface:     var(--theme-surface);
+  --app-surface-2:   var(--theme-surface-3);
+  --app-border:      var(--theme-border);
+  --app-text:        var(--theme-text);
+  --app-text-muted:  var(--theme-text-muted);
+  --app-card-shadow: var(--theme-shadow-md);
+
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+/* ── LIGHT THEME ── */
+body.app-theme-light {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --theme-bg:          #f0f4ff;
+  --theme-bg-soft:     #ffffff;
+  --theme-surface:     #ffffff;
+  --theme-surface-2:   #eef0ff;
+  --theme-surface-3:   #e2e5ff;
+  --theme-elevated:    #d9f9df;
+
+  /* Accent — rich purple (darkened for contrast on white) */
+  --theme-accent:        #4f52c8;
+  --theme-accent-hover:  #3f42b0;
+  --theme-accent-subtle: rgba(159, 161, 255, 0.16);
+  --theme-accent-glow:   rgba(79, 82, 200, 0.22);
+  --theme-accent-text:   #ffffff;
+
+  /* Secondary accent — soft teal */
+  --theme-accent2:        #1fa99f;
+  --theme-accent2-subtle: rgba(31, 169, 159, 0.12);
+
+  /* Text */
+  --theme-text:       #121358;
+  --theme-text-muted: rgba(18, 19, 88, 0.62);
+  --theme-text-dim:   rgba(18, 19, 88, 0.38);
+
+  /* Borders & Dividers */
+  --theme-border:   rgba(79, 82, 200, 0.12);
+  --theme-border-2: rgba(79, 82, 200, 0.07);
+
+  /* State colors */
+  --theme-success:        #059669;
+  --theme-success-subtle: rgba(5, 150, 105, 0.10);
+  --theme-danger:         #dc2626;
+  --theme-danger-subtle:  rgba(220, 38, 38, 0.10);
+  --theme-warning:        #d97706;
+  --theme-warning-subtle: rgba(217, 119, 6, 0.10);
+
+  /* Shadows */
+  --theme-shadow-sm: 0 2px 10px rgba(79, 82, 200, 0.08);
+  --theme-shadow-md: 0 8px 28px  rgba(79, 82, 200, 0.12);
+  --theme-shadow-lg: 0 20px 60px rgba(79, 82, 200, 0.16);
+  --theme-shadow-accent: 0 8px 24px rgba(79, 82, 200, 0.24);
+
+  /* Gradients */
+  --theme-gradient-page:
+    radial-gradient(ellipse at 0% 0%, rgba(174,226,255,0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(217,249,223,0.40) 0%, transparent 60%),
+    linear-gradient(180deg, #f0f4ff 0%, #e8eeff 100%);
+  --theme-gradient-card:
+    linear-gradient(135deg, rgba(159,161,255,0.08) 0%, rgba(174,226,255,0.06) 100%);
+  --theme-gradient-hero:
+    linear-gradient(135deg, #eef0ff 0%, #d9f9df 100%);
+  --theme-gradient-btn:
+    linear-gradient(135deg, #4f52c8 0%, #36ADA3 100%);
+
+  /* App-level aliases */
+  --app-bg:          var(--theme-bg);
+  --app-bg-soft:     var(--theme-bg-soft);
+  --app-surface:     var(--theme-surface);
+  --app-surface-2:   var(--theme-surface-2);
+  --app-border:      var(--theme-border);
+  --app-text:        var(--theme-text);
+  --app-text-muted:  var(--theme-text-muted);
+  --app-card-shadow: var(--theme-shadow-md);
+
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}

@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    ✨ FEEDBACK PAGE — OBSIDIAN PREMIUM THEME
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
@@ -11,15 +11,15 @@
     radial-gradient(ellipse at 10% 0%,  rgba(201,168,76,.18) 0%, transparent 38%),
     radial-gradient(ellipse at 90% 5%,  rgba(56,189,248,.12) 0%, transparent 32%),
     radial-gradient(ellipse at 50% 95%, rgba(139,92,246,.10) 0%, transparent 40%),
-    #080b12;
-  color: #f8fafc;
+    #080d28;
+  color: #eef2ff;
   font-family: 'DM Sans', sans-serif;
 }
 
 .feedback-page.light-surface {
   background:
     radial-gradient(ellipse at 10% 0%,  rgba(201,168,76,.22) 0%, transparent 36%),
-    linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    linear-gradient(180deg, #f0f4ff 0%, #e2e8f0 100%);
   color: #0f172a;
 }
 
@@ -47,7 +47,7 @@
   border-radius: 999px;
   background: rgba(201,168,76,.12);
   border: 1px solid rgba(201,168,76,.22);
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: .08em;
@@ -69,14 +69,14 @@
 }
 
 .feedback-hero h1 span {
-  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 60%, #f0d98a 100%);
+  background: linear-gradient(135deg, #36ADA3 0%, #2a8f87 60%, #f0d98a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .feedback-hero p {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 1.05rem;
   line-height: 1.7;
   margin: 0 0 36px;
@@ -136,7 +136,7 @@
 }
 
 .fic-text span {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: .85rem;
   line-height: 1.5;
 }
@@ -194,7 +194,7 @@
 }
 
 .feedback-field label {
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-size: .78rem;
   font-weight: 800;
   letter-spacing: .06em;
@@ -212,7 +212,7 @@
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,.1);
   background: rgba(0,0,0,.22);
-  color: #f8fafc;
+  color: #eef2ff;
   font: inherit;
   font-size: .97rem;
   outline: none;
@@ -236,7 +236,7 @@
 
 .light-surface .feedback-field input::placeholder,
 .light-surface .feedback-field textarea::placeholder {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .feedback-field input:focus,
@@ -248,7 +248,7 @@
 
 .feedback-field select option {
   background: #0f172a;
-  color: #f8fafc;
+  color: #eef2ff;
 }
 
 .feedback-field textarea {
@@ -265,7 +265,7 @@
 }
 
 .star-rating-group label {
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-size: .78rem;
   font-weight: 800;
   letter-spacing: .06em;
@@ -293,7 +293,7 @@
 }
 
 .star-btn.active {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .star-btn:hover {
@@ -316,8 +316,8 @@
   padding: 16px 24px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 60%, #b8922e 100%);
-  color: #080b12;
+  background: linear-gradient(135deg, #36ADA3 0%, #2a8f87 60%, #b8922e 100%);
+  color: #080d28;
   font: inherit;
   font-size: 1rem;
   font-weight: 900;
@@ -347,7 +347,7 @@
   width: 18px;
   height: 18px;
   border: 2px solid rgba(8,11,18,.3);
-  border-top-color: #080b12;
+  border-top-color: #080d28;
   border-radius: 50%;
   animation: spin .7s linear infinite;
   flex-shrink: 0;
@@ -412,17 +412,17 @@
 }
 
 .feedback-breadcrumb a {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   text-decoration: none;
   transition: color .2s;
 }
 
 .feedback-breadcrumb a:hover {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .feedback-breadcrumb span {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 /* ══════════════════════════════════════════════════════

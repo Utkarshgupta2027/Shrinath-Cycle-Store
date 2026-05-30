@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════════
    MakePayment.css  —  Shrinath Cycle Store Payment Page
    ═══════════════════════════════════════════════════════════ */
 
@@ -69,7 +69,7 @@
 .payment-header p {
   margin: 0;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   max-width: 560px;
 }
 
@@ -305,7 +305,7 @@
   display: grid;
   gap: 6px;
   font-size: 0.87rem;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
 }
 
 .details-grid input,
@@ -318,7 +318,7 @@
   border-radius: 12px;
   border: 1px solid rgba(148,163,184,.2);
   background: rgba(15,23,42,.85);
-  color: #f8fafc;
+  color: #eef2ff;
   padding: 10px 14px;
   font: inherit;
   font-size: 0.9rem;
@@ -393,7 +393,7 @@
   color: #fff;
 }
 
-.upi-app-name  { font-size: 0.72rem; color: #94a3b8; }
+.upi-app-name  { font-size: 0.72rem; color: rgba(224, 228, 255, 0.55); }
 .upi-app-check { position: absolute; top: 5px; right: 7px; font-size: 0.65rem; color: #4ade80; font-weight: 800; }
 
 /* ── UPI mode toggle ──────────────────────────────────────── */
@@ -451,7 +451,7 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: #f8fafc;
+  background: #f0f4ff;
   color: #020617;
   font-size: 1.6rem;
 }
@@ -523,7 +523,7 @@
   background: rgba(15,23,42,.7);
   border: 1px solid rgba(148,163,184,.14);
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .cod-note svg { flex-shrink: 0; font-size: 1.2rem; color: #fde68a; margin-top: 2px; }
@@ -539,7 +539,7 @@
   gap: 10px;
   margin-top: 14px;
   font-size: 0.87rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   cursor: pointer;
 }
 
@@ -596,7 +596,7 @@
   background: rgba(15,23,42,.75);
   border: 1px solid rgba(148,163,184,.12);
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .gateway-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -611,7 +611,7 @@
   background: rgba(15,23,42,.7);
   border: 1px solid rgba(148,163,184,.12);
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   margin-top: 12px;
 }
 
@@ -628,7 +628,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .price-lines div strong { color: #e5eefb; font-weight: 600; }

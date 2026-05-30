@@ -6,12 +6,15 @@
 /* ── Full-page wrapper ── */
 .auth-page {
   padding: 40px 16px;
-  background: #0a0c14;
-  min-height: 100vh; /* Fill full viewport (no navbar on auth pages) */
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(54,173,163,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(35,47,114,0.50) 0%, transparent 60%),
+    linear-gradient(180deg, #080d28 0%, #0a0f30 100%);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #f1f5f9;
+  color: #eef2ff;
 }
 
 /* ── Card ── */
@@ -49,7 +52,7 @@
 }
 
 .auth-subtitle {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.95rem;
   text-align: center;
   margin-bottom: 32px;
@@ -93,8 +96,8 @@
 
 .input-group input:focus {
   background: rgba(255, 255, 255, 0.06);
-  border-color: #c9a84c;
-  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+  border-color: #2a8f87;
+  box-shadow: 0 0 0 3px rgba(54, 173, 163, 0.12);
 }
 
 /* ── Password field ── */
@@ -114,7 +117,7 @@
   right: 12px;
   border: none;
   background: transparent;
-  color: #c9a84c;
+  color: #2a8f87;
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
@@ -128,30 +131,30 @@
 }
 
 .password-toggle-btn:hover {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 /* ── Submit button ── */
 .auth-submit-btn {
   margin-top: 10px;
   padding: 16px;
-  background: linear-gradient(135deg, #c9a84c 0%, #a6842f 100%);
-  color: #0a0c14;
+  background: linear-gradient(135deg, #36ADA3 0%, #2a8f87 100%);
+  color: #ffffff;
   border: none;
   font-size: 1.05rem;
   font-weight: 700;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
-  min-height: 52px; /* Touch target */
+  box-shadow: 0 4px 15px rgba(54, 173, 163, 0.30);
+  min-height: 52px;
   letter-spacing: 0.02em;
 }
 
 .auth-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(201, 168, 76, 0.4);
-  background: linear-gradient(135deg, #e2c678 0%, #c9a84c 100%);
+  box-shadow: 0 8px 25px rgba(54, 173, 163, 0.45);
+  background: linear-gradient(135deg, #3ec8bd 0%, #36ADA3 100%);
 }
 
 .auth-submit-btn:active {
@@ -184,11 +187,11 @@
   margin-top: 28px;
   text-align: center;
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .auth-switch a {
-  color: #c9a84c;
+  color: #36ADA3;
   font-weight: 600;
   text-decoration: none;
   margin-left: 4px;
@@ -196,8 +199,77 @@
 }
 
 .auth-switch a:hover {
-  color: #e2c678;
+  color: #3ec8bd;
   text-decoration: underline;
+}
+
+/* ── Light Theme ── */
+body.app-theme-light .auth-page {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(174,226,255,0.30) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(217,249,223,0.35) 0%, transparent 60%),
+    linear-gradient(180deg, #f0f4ff 0%, #e8eeff 100%);
+  color: #121358;
+}
+
+body.app-theme-light .auth-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(79, 82, 200, 0.16);
+  box-shadow: 0 8px 32px rgba(79, 82, 200, 0.10);
+}
+
+body.app-theme-light .auth-card h2 {
+  color: #121358;
+}
+
+body.app-theme-light .auth-subtitle {
+  color: rgba(18, 19, 88, 0.62);
+}
+
+body.app-theme-light .input-group label {
+  color: #121358;
+}
+
+body.app-theme-light .input-group input {
+  background: rgba(238, 240, 255, 0.80);
+  border-color: rgba(79, 82, 200, 0.18);
+  color: #121358;
+}
+
+body.app-theme-light .input-group input:focus {
+  border-color: rgba(79, 82, 200, 0.55);
+  box-shadow: 0 0 0 3px rgba(79, 82, 200, 0.12);
+}
+
+body.app-theme-light .input-group input::placeholder {
+  color: rgba(18, 19, 88, 0.40);
+}
+
+body.app-theme-light .password-toggle-btn {
+  color: #4f52c8;
+}
+
+body.app-theme-light .auth-submit-btn {
+  background: linear-gradient(135deg, #4f52c8 0%, #36ADA3 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(79, 82, 200, 0.25);
+}
+
+body.app-theme-light .auth-submit-btn:hover {
+  box-shadow: 0 8px 25px rgba(79, 82, 200, 0.35);
+  background: linear-gradient(135deg, #6366d6 0%, #36ADA3 100%);
+}
+
+body.app-theme-light .auth-switch {
+  color: rgba(18, 19, 88, 0.62);
+}
+
+body.app-theme-light .auth-switch a {
+  color: #4f52c8;
+}
+
+body.app-theme-light .auth-switch a:hover {
+  color: #6366d6;
 }
 
 

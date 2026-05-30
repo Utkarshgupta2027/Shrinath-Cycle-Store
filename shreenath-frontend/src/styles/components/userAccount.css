@@ -1,11 +1,11 @@
-.user-account-page {
+﻿.user-account-page {
   min-height: calc(100vh - 80px);
   padding: 40px 24px 64px;
   background:
-    radial-gradient(circle at 8% 0%, rgba(201, 168, 76, 0.14), transparent 30%),
+    radial-gradient(circle at 8% 0%, rgba(54, 173, 163, 0.14), transparent 30%),
     radial-gradient(circle at 92% 8%, rgba(14, 165, 233, 0.12), transparent 28%),
-    #080b12;
-  color: #f8fafc;
+    #080d28;
+  color: #eef2ff;
 }
 
 .account-container {
@@ -40,12 +40,12 @@
   height: 120px;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(201, 168, 76, 0.28);
+  border: 2px solid rgba(54, 173, 163, 0.28);
   border-radius: 50%;
   background:
     radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.22), transparent 26%),
-    rgba(201, 168, 76, 0.12);
-  color: #e2c678;
+    rgba(54, 173, 163, 0.12);
+  color: #36ADA3;
   font-size: 3.1rem;
   font-weight: 900;
 }
@@ -56,8 +56,8 @@
   margin-bottom: 10px;
   padding: 7px 11px;
   border-radius: 999px;
-  background: rgba(201, 168, 76, 0.12);
-  color: #e2c678;
+  background: rgba(54, 173, 163, 0.12);
+  color: #36ADA3;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -77,11 +77,11 @@
   align-items: center;
   gap: 8px;
   margin: 6px 0;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
 }
 
 .account-hero p svg {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .account-hero-actions {
@@ -106,15 +106,15 @@
 }
 
 .account-primary-btn {
-  background: linear-gradient(135deg, #e2c678, #c9a84c);
-  color: #090b11;
-  box-shadow: 0 12px 26px rgba(201, 168, 76, 0.22);
+  background: linear-gradient(135deg, #36ADA3, #2a8f87);
+  color: #080d28;
+  box-shadow: 0 12px 26px rgba(54, 173, 163, 0.22);
 }
 
 .account-secondary-btn {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
+  color: #eef2ff;
 }
 
 .account-message {
@@ -167,7 +167,7 @@
 }
 
 .account-section-title span {
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.92rem;
   font-weight: 800;
 }
@@ -190,7 +190,7 @@
 .account-form label {
   display: grid;
   gap: 8px;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-weight: 800;
 }
 
@@ -208,7 +208,7 @@
 .account-form input:focus,
 .address-form input:focus {
   outline: none;
-  border-color: rgba(201, 168, 76, 0.5);
+  border-color: rgba(54, 173, 163, 0.45);
 }
 
 .personal-details-list {
@@ -234,7 +234,7 @@
 .personal-details-list span {
   display: block;
   margin-bottom: 6px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -251,8 +251,8 @@
   width: fit-content;
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(201, 168, 76, 0.12);
-  color: #e2c678 !important;
+  background: rgba(54, 173, 163, 0.12);
+  color: #36ADA3 !important;
 }
 
 .shortcut-panel {
@@ -266,18 +266,18 @@
   gap: 12px;
   margin-bottom: 10px;
   padding: 16px;
-  color: #f8fafc;
+  color: #eef2ff;
   font-weight: 900;
   text-decoration: none;
   transition: border 0.2s ease, transform 0.2s ease;
 }
 
 .shortcut-card svg {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .shortcut-card:hover {
-  border-color: rgba(201, 168, 76, 0.35);
+  border-color: rgba(54, 173, 163, 0.30);
   transform: translateY(-2px);
 }
 
@@ -314,7 +314,7 @@
 
 .address-card p {
   margin: 5px 0;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   line-height: 1.45;
 }
 
@@ -335,7 +335,7 @@
   border: 0;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  color: #eef2ff;
   cursor: pointer;
   font-weight: 900;
 }
@@ -356,7 +356,7 @@
 .order-number {
   display: block;
   margin-bottom: 7px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   font-weight: 900;
 }
 
@@ -371,7 +371,7 @@
 
 .account-order-card p {
   margin: 9px 0 0;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
 }
 
 .order-detail-actions {
@@ -384,19 +384,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-size: 0.9rem;
 }
 
 .order-detail-actions svg {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .account-empty-inline {
   padding: 20px;
   border: 1px dashed rgba(255, 255, 255, 0.13);
   border-radius: 16px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   text-align: center;
 }
 
@@ -423,7 +423,7 @@
 
 .payment-card p {
   margin: 5px 0 0;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
 }
 
 .notification-toggle {
@@ -433,7 +433,7 @@
   gap: 16px;
   padding: 15px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  color: #f8fafc;
+  color: #eef2ff;
   font-weight: 900;
 }
 
@@ -448,17 +448,17 @@
 }
 
 .notification-toggle svg {
-  color: #e2c678;
+  color: #36ADA3;
 }
 
 .notification-toggle input {
   width: 20px;
   height: 20px;
-  accent-color: #c9a84c;
+  accent-color: #2a8f87;
 }
 
 .service-panel > svg {
-  color: #e2c678;
+  color: #36ADA3;
   font-size: 2rem;
 }
 
@@ -468,7 +468,7 @@
 }
 
 .service-panel p {
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   line-height: 1.65;
 }
 
@@ -485,7 +485,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #cbd5e1;
+  color: rgba(224, 228, 255, 0.75);
   font-weight: 900;
 }
 
@@ -514,7 +514,7 @@
 
 .account-login-card > svg {
   margin-bottom: 16px;
-  color: rgba(201, 168, 76, 0.55);
+  color: rgba(54, 173, 163, 0.50);
   font-size: 4rem;
 }
 
@@ -525,7 +525,7 @@
 
 .account-login-card p {
   max-width: 460px;
-  color: #94a3b8;
+  color: rgba(224, 228, 255, 0.55);
   line-height: 1.65;
 }
 
