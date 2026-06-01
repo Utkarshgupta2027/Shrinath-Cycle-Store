@@ -39,4 +39,17 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Modifying
     void deleteByProductId(Integer productId);
+
+    // ── Bulk stats for N+1 elimination ────────────────────────────────────────
+
+    /**
+     * Fetches average rating and review count for all given product IDs in a
+     * single aggregated query. Each element in the returned list is an
+     * Object[] { productId (Integer), avgRating (Double), reviewCount (Long) }.
+     */
+    @Query("select r.product.id, coalesce(avg(r.rating), 0.0), count(r) " +
+           "from Review r " +
+           "where r.product.id in :productIds and r.status = 'APPROVED' " +
+           "group by r.product.id")
+    List<Object[]> findRatingStatsByProductIds(@Param("productIds") List<Integer> productIds);
 }

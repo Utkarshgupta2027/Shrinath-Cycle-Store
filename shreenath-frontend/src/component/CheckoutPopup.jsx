@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaShoppingBag, FaArrowLeft } from "react-icons/fa";
+import { API_BASE_URL } from "../config";
 import "./CheckoutPopup.css";
 
 function CheckoutPopup() {
@@ -28,7 +29,7 @@ function CheckoutPopup() {
       return;
     }
 
-    fetch(`http://localhost:8080/api/cart/users/${userId}`)
+    fetch(`${API_BASE_URL}/api/cart/users/${userId}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch cart");
@@ -129,14 +130,14 @@ function CheckoutPopup() {
 
     setPlacing(true);
     try {
-      const res = await fetch("http://localhost:8080/api/orders", {
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(order),
       });
 
       if (res.ok) {
-        await fetch(`http://localhost:8080/api/cart/clear?userId=${userId}`, {
+        await fetch(`${API_BASE_URL}/api/cart/clear?userId=${userId}`, {
           method: "DELETE",
         }).catch(() => {});
 
@@ -208,7 +209,7 @@ function CheckoutPopup() {
                     <li key={item.id} className="checkout-item">
                       <div className="checkout-item-img-wrap">
                         <img
-                          src={`http://localhost:8080/api/product/${item.id}/image`}
+                          src={`${API_BASE_URL}/api/product/${item.id}/image`}
                           alt={item.name}
                           onError={(e) => {
                             e.target.src = "https://via.placeholder.com/80";

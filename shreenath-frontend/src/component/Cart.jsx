@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 import { FaTrash, FaPlus, FaMinus, FaArrowLeft } from "react-icons/fa";
 import "./Cart.css";
 
@@ -37,7 +38,7 @@ const Cart = () => {
     }
 
     try {
-      const res = await axios.get(`http://localhost:8080/api/cart/users/${userId}`);
+      const res = await axios.get(`${API_BASE_URL}/api/cart/users/${userId}`);
       setCartItems(normalizeCartItems(res.data));
     } catch (error) {
       console.error("Fetch error details:", error.response || error);
@@ -64,7 +65,7 @@ const Cart = () => {
     if (!item) return;
 
     try {
-      const response = await axios.put("http://localhost:8080/api/cart/update", null, {
+      const response = await axios.put(`${API_BASE_URL}/api/cart/update`, null, {
         params: { userId, productId, quantity: item.quantity + 1 }
       });
       setCartItems(normalizeCartItems(response.data));
@@ -79,7 +80,7 @@ const Cart = () => {
     if (!item || item.quantity <= 1) return;
 
     try {
-      const response = await axios.put("http://localhost:8080/api/cart/update", null, {
+      const response = await axios.put(`${API_BASE_URL}/api/cart/update`, null, {
         params: { userId, productId, quantity: item.quantity - 1 }
       });
       setCartItems(normalizeCartItems(response.data));
@@ -91,7 +92,7 @@ const Cart = () => {
 
   const handleRemoveFromCart = async (productId) => {
     try {
-      const response = await axios.delete("http://localhost:8080/api/cart/remove", {
+      const response = await axios.delete(`${API_BASE_URL}/api/cart/remove`, {
         params: { 
           userId: userId, 
           productId: productId 
@@ -128,7 +129,7 @@ const Cart = () => {
                   <li key={item.id} className="cart-item">
                     <div className="cart-item-image-wrapper">
                       <img
-                        src={`http://localhost:8080/api/product/${item.id}/image`}
+                        src={`${API_BASE_URL}/api/product/${item.id}/image`}
                         alt={item.name}
                         className="cart-item-img"
                         onError={(e) => {

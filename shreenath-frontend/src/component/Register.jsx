@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 import "./auth.css";
 
 function Register() {
@@ -24,7 +25,7 @@ function Register() {
       };
 
       const response = await axios.post(
-        "http://localhost:8080/api/auth/register",
+        `${API_BASE_URL}/api/auth/register`,
         payload
       );
 

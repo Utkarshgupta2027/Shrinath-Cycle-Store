@@ -4,6 +4,7 @@ import { fetchProductById } from "../api/products";
 import AppContext from "../Context/Context";
 import "./product.css";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 import { FaArrowLeft, FaShoppingCart, FaEdit, FaTrash } from "react-icons/fa";
 
@@ -46,7 +47,7 @@ const Product = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:8080/api/product/${product.id}`, {
+      await axios.delete(`${API_BASE_URL}/api/product/${product.id}`, {
         headers: getAuthHeaders(),
       });
       alert("Product deleted!");
@@ -76,7 +77,7 @@ const Product = () => {
       });
 
       const response = await axios.post(
-        `http://localhost:8080/api/cart/add?${params.toString()}`
+        `${API_BASE_URL}/api/cart/add?${params.toString()}`
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -111,7 +112,7 @@ const Product = () => {
         <div className="product-layout">
           <div className="product-image-box">
             <img
-              src={`http://localhost:8080/api/product/${product.id}/image`}
+              src={`${API_BASE_URL}/api/product/${product.id}/image`}
               alt={product.name}
               className="product-image"
               onError={(e) => {

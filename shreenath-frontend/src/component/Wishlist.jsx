@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaTrash, FaShoppingCart, FaHeart, FaArrowLeft } from "react-icons/fa";
+import { API_BASE_URL } from "../config";
 import "./Wishlist.css";
 
 export default function Wishlist() {
@@ -30,7 +31,7 @@ export default function Wishlist() {
     setLoading(true);
     setError("");
 
-    fetch(`http://localhost:8080/api/wishlist/${userId}`)
+    fetch(`${API_BASE_URL}/api/wishlist/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch wishlist");
         return res.json();
@@ -49,7 +50,7 @@ export default function Wishlist() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/wishlist/remove?userId=${user.id}&productId=${productId}`,
+        `${API_BASE_URL}/api/wishlist/remove?userId=${user.id}&productId=${productId}`,
         { method: "DELETE" }
       );
 
@@ -76,7 +77,7 @@ export default function Wishlist() {
 
     try {
       const params = new URLSearchParams({ userId: user.id, productId, quantity: 1 });
-      const res = await fetch(`http://localhost:8080/api/cart/add?${params}`, {
+      const res = await fetch(`${API_BASE_URL}/api/cart/add?${params}`, {
         method: "POST",
       });
 
@@ -141,7 +142,7 @@ export default function Wishlist() {
                 {/* BUG FIX: Use backend image endpoint with productId */}
                 <Link to={`/product/${item.productId}`} className="wishlist-img-link">
                   <img
-                    src={`http://localhost:8080/api/product/${item.productId}/image`}
+                    src={`${API_BASE_URL}/api/product/${item.productId}/image`}
                     alt={item.name}
                     className="wishlist-img"
                     loading="lazy"

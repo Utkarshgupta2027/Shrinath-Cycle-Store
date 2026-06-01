@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./home.css";
+import { API_BASE_URL } from "../config";
 
 import {
   FaShoppingCart,
@@ -153,7 +154,7 @@ function Home() {
 
   // Fetch products
   useEffect(() => {
-    fetch("http://localhost:8080/api/products")
+    fetch(`${API_BASE_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Product fetch error:", err));
@@ -162,7 +163,7 @@ function Home() {
   // Fetch wishlist
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+    fetch(`${API_BASE_URL}/api/wishlist/${user.id}`)
       .then((res) => res.json())
       .then((data) => setWishlistIds(data.map((item) => item.productId)))
       .catch(() => { });
@@ -205,7 +206,7 @@ function Home() {
     setLoadingCart(product.id);
     try {
       const params = new URLSearchParams({ userId: user.id, productId: product.id, quantity: 1 });
-      const response = await fetch(`http://localhost:8080/api/cart/add?${params}`, { method: "POST" });
+      const response = await fetch(`${API_BASE_URL}/api/cart/add?${params}`, { method: "POST" });
       if (response.ok) showToast(`✅ ${product.name} added to cart!`);
       else showToast("❌ Failed to add to cart.");
     } catch {
@@ -223,7 +224,7 @@ function Home() {
     const method = isAdded ? "DELETE" : "POST";
     const params = new URLSearchParams({ userId: user.id, productId });
     try {
-      const res = await fetch(`http://localhost:8080/api/wishlist/${endpoint}?${params}`, { method });
+      const res = await fetch(`${API_BASE_URL}/api/wishlist/${endpoint}?${params}`, { method });
       if (res.ok) {
         setWishlistIds((prev) => isAdded ? prev.filter((id) => id !== productId) : [...prev, productId]);
         showToast(isAdded ? "💔 Removed from wishlist" : "❤️ Added to wishlist!");
@@ -505,7 +506,7 @@ function Home() {
                 <div className="product-card" key={product.id}>
                   <Link to={`/product/${product.id}`} className="product-img-wrapper">
                     <img
-                      src={`http://localhost:8080/api/product/${product.id}/image`}
+                      src={`${API_BASE_URL}/api/product/${product.id}/image`}
                       className="product-img"
                       alt={product.name}
                       onError={(e) => { e.target.src = normalCycle; }}

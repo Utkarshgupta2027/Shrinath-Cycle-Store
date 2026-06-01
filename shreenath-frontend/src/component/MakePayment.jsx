@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import AppContext from "../Context/Context";
 // import "./CheckoutPopup.css";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 import "./MakePayment.css";
 
 function MakePayment() {
@@ -102,7 +103,7 @@ function MakePayment() {
             {cart.map((item) => (
               <li key={item.id} className="checkout-item">
                 <img
-                  src={`http://localhost:8080/api/product/${item.id}/image`}
+                  src={`${API_BASE_URL}/api/product/${item.id}/image`}
                   alt={item.name}
                 />
                 <div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./AddProduct.css";
+import { API_BASE_URL } from "../config";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 
 const formatDateDdMmYyyy = (isoDate) => {
@@ -88,7 +89,7 @@ const AddProduct = () => {
         })
       );
 
-      await axios.post("http://localhost:8080/api/product", formData, {
+      await axios.post(`${API_BASE_URL}/api/product`, formData, {
         headers: getAuthHeaders(),
       });
 

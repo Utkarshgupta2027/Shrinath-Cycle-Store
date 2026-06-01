@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBoxOpen, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { API_BASE_URL } from "../config";
 import "./Orders.css";
 
 export default function Orders() {
@@ -23,7 +24,7 @@ export default function Orders() {
       return;
     }
 
-    fetch(`http://localhost:8080/api/orders/user/${userId}`)
+    fetch(`${API_BASE_URL}/api/orders/user/${userId}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch orders");
@@ -110,7 +111,7 @@ export default function Orders() {
                         <li key={item.id} className="order-item-row">
                           <div className="order-item-img-wrap">
                             <img
-                              src={`http://localhost:8080/api/product/${item.productId || item.id}/image`}
+                              src={`${API_BASE_URL}/api/product/${item.productId || item.id}/image`}
                               alt={item.name}
                               onError={(e) => {
                                 e.target.src = "https://via.placeholder.com/60";

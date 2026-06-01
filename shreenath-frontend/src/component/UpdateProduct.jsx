@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./UpdateProduct.css";
+import { API_BASE_URL } from "../config";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 
 const formatDateForInput = (value) => {
@@ -61,7 +62,7 @@ const UpdateProduct = () => {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/product/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/api/product/${id}`);
         const product = response.data;
 
         setUpdateProduct({
@@ -76,7 +77,7 @@ const UpdateProduct = () => {
           stockQuantity: product.quantity || "",
         });
 
-        setPreviewUrl(`http://localhost:8080/api/product/${id}/image`);
+        setPreviewUrl(`${API_BASE_URL}/api/product/${id}/image`);
       } catch (error) {
         console.error("Error fetching product or image:", error);
         alert("Failed to load product details.");
@@ -119,7 +120,7 @@ const UpdateProduct = () => {
     );
 
     try {
-      await axios.put(`http://localhost:8080/api/product/${id}`, form, {
+      await axios.put(`${API_BASE_URL}/api/product/${id}`, form, {
         headers: { "Content-Type": "multipart/form-data", ...getAuthHeaders() },
       });
       alert("Product updated successfully!");

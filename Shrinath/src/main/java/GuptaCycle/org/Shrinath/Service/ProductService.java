@@ -17,11 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class ProductService {
@@ -49,11 +52,11 @@ public class ProductService {
     @Autowired
     private EmailService emailService;
 
+    // ─── Public API ───────────────────────────────────────────────────────────
+
     public List<ProductResponse> getAllProducts() {
-        return repo.findAll()
-                .stream()
-                .map(this::toProductResponse)
-                .toList();
+        List<Product> products = repo.findAll();
+        return toProductResponseList(products);
     }
 
     /**
@@ -84,18 +87,13 @@ public class ProductService {
                 inStockOnly
         );
 
-        List<ProductResponse> responses = products.stream()
-                .map(this::toProductResponse)
-                .toList();
-
+        List<ProductResponse> responses = toProductResponseList(products);
         return sort(responses, sortBy);
     }
 
     public List<ProductResponse> getLowStockProducts() {
-        return repo.findLowStockProducts(LOW_STOCK_THRESHOLD)
-                .stream()
-                .map(this::toProductResponse)
-                .toList();
+        List<Product> products = repo.findLowStockProducts(LOW_STOCK_THRESHOLD);
+        return toProductResponseList(products);
     }
 
     public Product getProductById(int id) {
@@ -104,7 +102,9 @@ public class ProductService {
 
     public ProductResponse getProductResponseById(int id) {
         Product product = getProductById(id);
-        return product == null ? null : toProductResponse(product);
+        if (product == null) return null;
+        // Single-product fetch: still use per-product queries (only 3 DB hits, acceptable)
+        return toProductResponseSingle(product);
     }
 
     public Product addProduct(Product product, MultipartFile imgFile, List<MultipartFile> extraImages) throws IOException {
@@ -213,31 +213,71 @@ public class ProductService {
         }
     }
 
-    // ─── Private helpers ──────────────────────────────────────────────────────
+    // ─── Batch conversion — eliminates N+1 DB queries ────────────────────────
 
-    private List<ProductResponse> sort(List<ProductResponse> list, String sortBy) {
-        if (sortBy == null || sortBy.isBlank()) return list;
-        return switch (sortBy.toUpperCase()) {
-            case "PRICE_ASC"    -> list.stream().sorted(Comparator.comparing(p -> p.getPrice() == null ? BigDecimal.ZERO : p.getPrice())).toList();
-            case "PRICE_DESC"   -> list.stream().sorted(Comparator.comparing((ProductResponse p) -> p.getPrice() == null ? BigDecimal.ZERO : p.getPrice()).reversed()).toList();
-            case "NEWEST"       -> list.stream().sorted(Comparator.comparing((ProductResponse p) -> p.getReleaseDate() == null ? new java.util.Date(0) : p.getReleaseDate()).reversed()).toList();
-            case "RATING"       -> list.stream().sorted(Comparator.comparingDouble(ProductResponse::getAverageRating).reversed()).toList();
-            case "POPULARITY"   -> list.stream().sorted(Comparator.comparingLong(ProductResponse::getReviewCount).reversed()).toList();
-            default             -> list;
-        };
+    /**
+     * Converts a list of products into ProductResponse objects using only
+     * 3 total DB queries regardless of list size (vs. 3×N previously):
+     *   1. Bulk fetch rating stats (avg + count) for all product IDs
+     *   2. Bulk fetch extra gallery image IDs for all product IDs
+     *   3. (Products themselves were already loaded by the caller)
+     */
+    private List<ProductResponse> toProductResponseList(List<Product> products) {
+        if (products == null || products.isEmpty()) return Collections.emptyList();
+
+        List<Integer> productIds = products.stream()
+                .map(Product::getId)
+                .collect(Collectors.toList());
+
+        // ── Bulk query 1: rating stats ─────────────────────────────────────────
+        Map<Integer, Double> avgRatingMap = new HashMap<>();
+        Map<Integer, Long>   reviewCountMap = new HashMap<>();
+
+        List<Object[]> ratingStats = reviewRepository.findRatingStatsByProductIds(productIds);
+        for (Object[] row : ratingStats) {
+            Integer pid   = (Integer) row[0];
+            Double  avg   = row[1] instanceof Number ? ((Number) row[1]).doubleValue() : 0.0;
+            Long    count = row[2] instanceof Number ? ((Number) row[2]).longValue()   : 0L;
+            avgRatingMap.put(pid, avg);
+            reviewCountMap.put(pid, count);
+        }
+
+        // ── Bulk query 2: extra gallery image IDs ──────────────────────────────
+        Map<Integer, List<Long>> extraImageMap = new HashMap<>();
+        List<Object[]> imageRows = productImageRepository.findImageIdsByProductIds(productIds);
+        for (Object[] row : imageRows) {
+            Integer pid     = (Integer) row[0];
+            Long    imageId = (Long) row[1];
+            extraImageMap.computeIfAbsent(pid, k -> new ArrayList<>()).add(imageId);
+        }
+
+        // ── Map to response objects ────────────────────────────────────────────
+        return products.stream()
+                .map(p -> {
+                    double avg   = avgRatingMap.getOrDefault(p.getId(), 0.0);
+                    long   count = reviewCountMap.getOrDefault(p.getId(), 0L);
+                    List<Long> extraIds = extraImageMap.getOrDefault(p.getId(), Collections.emptyList());
+                    return buildProductResponse(p, avg, count, extraIds);
+                })
+                .collect(Collectors.toList());
     }
 
-    private String blankToNull(String s) {
-        return (s == null || s.isBlank()) ? null : s.trim();
-    }
+    // ─── Single-product conversion (used only for getProductResponseById) ─────
 
-    private ProductResponse toProductResponse(Product product) {
+    private ProductResponse toProductResponseSingle(Product product) {
         Double averageRating = reviewRepository.findAverageRatingByProductId(product.getId());
         long reviewCount = reviewRepository.countByProductId(product.getId());
         List<Long> extraIds = productImageRepository
                 .findByProductIdOrderByDisplayOrderAsc(product.getId())
-                .stream().map(pi -> pi.getId()).collect(Collectors.toList());
+                .stream().map(ProductImage::getId).collect(Collectors.toList());
+        double avg = averageRating == null ? 0.0 : Math.round(averageRating * 10.0) / 10.0;
+        return buildProductResponse(product, avg, reviewCount, extraIds);
+    }
 
+    // ─── Shared builder ───────────────────────────────────────────────────────
+
+    private ProductResponse buildProductResponse(Product product, double averageRating,
+                                                  long reviewCount, List<Long> extraIds) {
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
@@ -250,10 +290,28 @@ public class ProductService {
                 product.getQuantity(),
                 product.getImgName(),
                 product.getImgType(),
-                averageRating == null ? 0 : Math.round(averageRating * 10.0) / 10.0,
+                Math.round(averageRating * 10.0) / 10.0,
                 reviewCount,
                 extraIds
         );
+    }
+
+    // ─── Sort helper ──────────────────────────────────────────────────────────
+
+    private List<ProductResponse> sort(List<ProductResponse> list, String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) return list;
+        return switch (sortBy.toUpperCase()) {
+            case "PRICE_ASC"  -> list.stream().sorted(Comparator.comparing(p -> p.getPrice() == null ? BigDecimal.ZERO : p.getPrice())).collect(Collectors.toList());
+            case "PRICE_DESC" -> list.stream().sorted(Comparator.comparing((ProductResponse p) -> p.getPrice() == null ? BigDecimal.ZERO : p.getPrice()).reversed()).collect(Collectors.toList());
+            case "NEWEST"     -> list.stream().sorted(Comparator.comparing((ProductResponse p) -> p.getReleaseDate() == null ? new java.util.Date(0) : p.getReleaseDate()).reversed()).collect(Collectors.toList());
+            case "RATING"     -> list.stream().sorted(Comparator.comparingDouble(ProductResponse::getAverageRating).reversed()).collect(Collectors.toList());
+            case "POPULARITY" -> list.stream().sorted(Comparator.comparingLong(ProductResponse::getReviewCount).reversed()).collect(Collectors.toList());
+            default           -> list;
+        };
+    }
+
+    private String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s.trim();
     }
 
     // ─── Helper: persist extra gallery images ─────────────────────────────────

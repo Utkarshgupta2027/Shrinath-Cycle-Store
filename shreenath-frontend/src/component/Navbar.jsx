@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import logo from "../images/logo.png";
 import { getStoredUser, isAdminUser } from "../utils/auth";
+import { API_BASE_URL } from "../config";
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -40,7 +41,7 @@ const Navbar = () => {
   // Fetch cart count
   useEffect(() => {
     if (!user?.id) { setCartCount(0); return; }
-    fetch(`http://localhost:8080/api/cart/users/${user.id}`)
+    fetch(`${API_BASE_URL}/api/cart/users/${user.id}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.items) {
@@ -53,7 +54,7 @@ const Navbar = () => {
   // Fetch wishlist count
   useEffect(() => {
     if (!user?.id) { setWishlistCount(0); return; }
-    fetch(`http://localhost:8080/api/wishlist/${user.id}`)
+    fetch(`${API_BASE_URL}/api/wishlist/${user.id}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => { if (Array.isArray(data)) setWishlistCount(data.length); })
       .catch(() => {});
