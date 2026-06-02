@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- ===================================================
+       ShreeNath Cycle Store — Sitemap
+       Base URL: https://shrinath-cycle-store-frontend.onrender.com
+       Last Updated: 2026-06-02
+  =================================================== -->
+
+  <!-- 🏠 Homepage — Highest priority -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 🛍️ Products / Shop -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/cart</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/wishlist</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 🔐 Auth Pages -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/login</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/register</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- 📦 Orders & Tracking -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/orders</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- 💳 Checkout & Payment -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/checkout</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 👤 User Account -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/useraccount</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/addresses</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/settings</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- 💬 Feedback -->
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/feedback</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Note: Dynamic routes like /product/:id and /track/:orderId are
+       intentionally excluded as they require IDs unknown at build time.
+       You can add specific product URLs here manually, e.g.:
+  <url>
+    <loc>https://shrinath-cycle-store-frontend.onrender.com/product/1</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  -->
+
+</urlset>

@@ -1,3 +1,11 @@
+# ShreeNath Cycle Store — robots.txt
 # https://www.robotstxt.org/robotstxt.html
+
+# Allow all search engine crawlers
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /api/
+Allow: /
+
+# Sitemap location (update with your actual domain)
+Sitemap: https://shrinath-cycle-store-frontend.onrender.com/sitemap.xml

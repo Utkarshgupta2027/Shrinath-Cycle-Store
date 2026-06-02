@@ -1,44 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
 
-    <!-- 🔥 Favicon -->
-    <link rel="icon" href="%PUBLIC_URL%/logo123.png" />
+<head>
+  <meta charset="utf-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0a0c14" />
+  <!-- 🔥 Favicon -->
+  <link rel="icon" href="%PUBLIC_URL%/logo123.png" type="image/png" />
+  <link rel="shortcut icon" href="%PUBLIC_URL%/logo123.png" type="image/png" />
 
-    <!-- SEO -->
-    <meta
-      name="description"
-      content="ShreeNath Cycle Store – Your trusted cycle shop in Chitrakoot. Shop cycles, parts, accessories, and more."
-    />
-    <meta name="keywords" content="cycle store, bicycle shop, cycles, bike parts, accessories, Chitrakoot" />
+  <!-- Viewport & Theme -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a3c5e" />
+  <meta name="msapplication-TileColor" content="#1a3c5e" />
+  <meta name="msapplication-TileImage" content="%PUBLIC_URL%/logo123.png" />
 
-    <!-- Apple -->
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo123.png" />
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-
-    <!-- ======================================================
-         🚀 GOOGLE FONTS — loaded via <link> not @import
-         This is non-render-blocking and ~200ms faster.
+  <!-- ======================================================
+         🔍 PRIMARY SEO META TAGS
     ====================================================== -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap"
-    />
+  <title>ShreeNath Cycle Store – Best Cycles &amp; Bicycle Shop in Chitrakoot | Buy Online</title>
+  <meta name="description"
+    content="ShreeNath Cycle Store is Chitrakoot's most trusted bicycle shop. Buy premium cycles, bike parts, accessories &amp; gear at the best prices. Fast delivery, easy returns &amp; expert service." />
+  <meta name="keywords"
+    content="cycle store Chitrakoot, bicycle shop Chitrakoot, buy cycle online, ShreeNath cycles, Gupta cycle store, cycle parts, bicycle accessories, kids cycle, mountain bike, road bike, cycle repair Chitrakoot, two-wheeler shop, bike gear India" />
+  <meta name="author" content="ShreeNath Cycle Store" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
 
-    <!-- 🌟 Website Title -->
-    <title>ShreeNath Cycle Store – Premium Cycles & Accessories</title>
-  </head>
+  <!-- Canonical URL (update with your actual domain) -->
+  <link rel="canonical" href="https://shrinath-cycle-store-frontend.onrender.com" />
 
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+  <!-- ======================================================
+         🌍 OPEN GRAPH (Facebook / WhatsApp / LinkedIn Preview)
+    ====================================================== -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ShreeNath Cycle Store" />
+  <meta property="og:title" content="ShreeNath Cycle Store – Best Cycles &amp; Bicycle Shop in Chitrakoot" />
+  <meta property="og:description"
+    content="Shop premium cycles, parts &amp; accessories at Chitrakoot's most trusted bicycle store. Easy online ordering, fast delivery &amp; expert after-sale service." />
+  <meta property="og:url" content="https://shrinath-cycle-store-frontend.onrender.com" />
+  <meta property="og:image" content="https://shrinath-cycle-store-frontend.onrender.com/logo123.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ShreeNath Cycle Store – Chitrakoot's Premier Bicycle Shop" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- ======================================================
+         🐦 TWITTER / X CARD
+    ====================================================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ShreeNath Cycle Store – Best Cycles in Chitrakoot" />
+  <meta name="twitter:description"
+    content="Buy premium cycles, parts &amp; accessories online. Chitrakoot's most trusted bicycle shop with fast delivery &amp; expert service." />
+  <meta name="twitter:image" content="https://shrinath-cycle-store-frontend.onrender.com/logo123.png" />
+  <meta name="twitter:image:alt" content="ShreeNath Cycle Store" />
+
+  <!-- ======================================================
+         📍 GEO & LOCAL BUSINESS TAGS
+    ====================================================== -->
+  <meta name="geo.region" content="IN-UP" />
+  <meta name="geo.placename" content="Chitrakoot, Uttar Pradesh, India" />
+  <meta name="geo.position" content="25.1897;80.8924" />
+  <meta name="ICBM" content="25.1897, 80.8924" />
+
+  <!-- ======================================================
+         📱 APPLE / PWA
+    ====================================================== -->
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo123.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ShreeNath Cycles" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <!-- ======================================================
+         🏪 JSON-LD STRUCTURED DATA — Local Business + Store
+         (Makes Google show rich snippets: address, hours, rating)
+    ====================================================== -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BicycleStore",
+      "name": "ShreeNath Cycle Store",
+      "alternateName": "Gupta Cycle Store",
+      "url": "https://shrinath-cycle-store-frontend.onrender.com",
+      "logo": "https://shrinath-cycle-store-frontend.onrender.com/logo123.png",
+      "image": "https://shrinath-cycle-store-frontend.onrender.com/logo123.png",
+      "description": "ShreeNath Cycle Store is Chitrakoot's most trusted bicycle shop offering premium cycles, bike parts, accessories and expert repair services.",
+      "telephone": "+91-7052050415",
+      "email": "gutkarsh702@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Chitrakoot",
+        "addressLocality": "Chitrakoot",
+        "addressRegion": "Uttar Pradesh",
+        "postalCode": "210205",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.1897,
+        "longitude": 80.8924
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+          "opens": "09:00",
+          "closes": "20:00"
+        }
+      ],
+      "priceRange": "₹₹",
+      "currenciesAccepted": "INR",
+      "paymentAccepted": "Cash, Credit Card, Debit Card, UPI, Online Banking",
+      "areaServed": {
+        "@type": "City",
+        "name": "Chitrakoot"
+      },
+      "sameAs": [
+        "https://www.shreenathcyclestore.com"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Cycles & Bicycle Accessories",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Premium Bicycles"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Bicycle Parts & Accessories"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Kids Cycles"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+
+  <!-- ======================================================
+         🚀 GOOGLE FONTS — non-render-blocking
+    ====================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" />
+
+  <!-- DNS Prefetch for performance -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+</body>
+
 </html>
