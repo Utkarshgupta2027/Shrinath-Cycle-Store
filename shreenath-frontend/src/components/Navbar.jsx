@@ -28,12 +28,14 @@ const Navbar = () => {
   const [mobileSearchTerm, setMobileSearchTerm] = useState("");
   const [wishlistCount, setWishlistCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showShopMenu, setShowShopMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, cartCount } = useContext(AppContext);
   const userMenuRef = useRef(null);
+  const shopMenuRef = useRef(null);
 
   // Scroll shadow
   useEffect(() => {
@@ -52,11 +54,14 @@ const Navbar = () => {
   // Re-fetch only when user changes; wishlist page will handle its own updates
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setShowUserMenu(false);
+      }
+      if (shopMenuRef.current && !shopMenuRef.current.contains(e.target)) {
+        setShowShopMenu(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -131,19 +136,33 @@ const Navbar = () => {
             Contact
           </a>
 
-          <div className="menu-dropdown">
-            <button type="button" className="menu-dropdown-trigger">
+          <div className="menu-dropdown" ref={shopMenuRef}>
+            <button
+              type="button"
+              className="menu-dropdown-trigger"
+              onClick={() => setShowShopMenu((p) => !p)}
+              onMouseEnter={() => setShowShopMenu(true)}
+              aria-expanded={showShopMenu}
+              aria-haspopup="true"
+            >
               <FaBicycle />
               Shop
-              <FaChevronDown className="menu-dropdown-chevron" />
+              <FaChevronDown className={`menu-dropdown-chevron${showShopMenu ? " open" : ""}`} />
             </button>
-            <div className="menu-dropdown-panel">
-              {categoryLinks.map((item) => (
-                <Link key={item.label} to={item.to} className="menu-dropdown-link">
-                  {item.label}
-                </Link>
-              ))}
-            </div>
+            {showShopMenu && (
+              <div className="menu-dropdown-panel" onMouseLeave={() => setShowShopMenu(false)}>
+                {categoryLinks.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="menu-dropdown-link"
+                    onClick={() => setShowShopMenu(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

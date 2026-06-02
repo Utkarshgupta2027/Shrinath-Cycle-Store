@@ -180,6 +180,12 @@ body.app-theme-light {
 .menu-dropdown-chevron {
   font-size: 0.65rem;
   color: var(--ink-dim);
+  transition: transform 0.3s var(--ease-smooth), color 0.25s ease;
+}
+
+.menu-dropdown-chevron.open {
+  transform: rotate(180deg);
+  color: var(--gold);
 }
 
 .menu-dropdown-panel {

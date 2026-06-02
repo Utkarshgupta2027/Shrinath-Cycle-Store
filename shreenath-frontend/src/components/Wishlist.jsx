@@ -295,7 +295,7 @@ export default function Wishlist() {
                         className="wishlist-img"
                         loading="lazy"
                         onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+                          e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23e8eeff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%234f52c8' font-size='14' font-family='sans-serif'%3ENo Image%3C/text%3E%3C/svg%3E";
                         }}
                       />
                     </Link>
@@ -385,7 +385,7 @@ export default function Wishlist() {
                     src={`${API_BASE}/product/${product.id}/image`}
                     alt={product.name}
                     onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/250x160?text=Product";
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='160' viewBox='0 0 250 160'%3E%3Crect width='250' height='160' fill='%23e8eeff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%234f52c8' font-size='12' font-family='sans-serif'%3EProduct%3C/text%3E%3C/svg%3E";
                     }}
                   />
                   <span>{product.brand || product.category || "Recommended"}</span>

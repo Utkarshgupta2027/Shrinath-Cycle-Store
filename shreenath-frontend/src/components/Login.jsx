@@ -58,9 +58,8 @@ export default function Login() {
       setIdentifier("");
       setPassword("");
       setShowPassword(false);
-      setMsg("");
-      setMsg("Login successful");
-      setTimeout(() => navigate("/"), 500);
+      setMsg("✅ Login successful! Redirecting...");
+      setTimeout(() => navigate("/"), 600);
     } catch (err) {
       console.error(err);
       setMsg("Network error");

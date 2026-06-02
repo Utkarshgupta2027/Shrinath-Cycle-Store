@@ -96,7 +96,9 @@ export default function Orders() {
   const fetchOrders = useCallback(() => {
     if (!userId) return;
     setLoading(true);
-    fetch(`${API_BASE_URL}/api/orders/user/${userId}`)
+    fetch(`${API_BASE_URL}/api/orders/user/${userId}`, {
+      headers: getAuthHeaders(),
+    })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch orders");
         return res.json();
@@ -364,7 +366,7 @@ export default function Orders() {
                               src={`${API_BASE_URL}/api/product/${item.productId || item.id}/image`}
                               alt={item.name}
                               onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/60";
+                                e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Crect width='60' height='60' fill='%23e8eeff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%234f52c8' font-size='8' font-family='sans-serif'%3ENo Image%3C/text%3E%3C/svg%3E";
                               }}
                             />
                           </div>

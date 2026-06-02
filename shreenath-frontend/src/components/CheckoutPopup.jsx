@@ -511,7 +511,7 @@ function CheckoutPopup() {
                   {cartItems.map((item) => (
                     <li key={item.id} className="checkout-item">
                       <div className="checkout-item-img-wrap">
-                        <img src={`${API_BASE}/product/${item.id}/image`} alt={item.name} onError={(e) => { e.target.src = "https://via.placeholder.com/80"; }} />
+                        <img src={`${API_BASE}/product/${item.id}/image`} alt={item.name} onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e8eeff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%234f52c8' font-size='9' font-family='sans-serif'%3ENo Image%3C/text%3E%3C/svg%3E"; }} />
                       </div>
                       <div className="checkout-item-details">
                         <h4>{item.name}</h4>

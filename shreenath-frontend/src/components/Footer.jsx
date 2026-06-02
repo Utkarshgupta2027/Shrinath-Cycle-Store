@@ -13,10 +13,10 @@ const Footer = () => {
         <div className="footer-section">
           <h4>Shop</h4>
           <ul>
-            <li><Link to="/">Mountain Bikes</Link></li>
-            <li><Link to="/">Road Bikes</Link></li>
-            <li><Link to="/">Accessories</Link></li>
-            <li><Link to="/">New Arrivals</Link></li>
+            <li><Link to="/?category=Mountain#products">Mountain Bikes</Link></li>
+            <li><Link to="/?category=City#products">Road Bikes</Link></li>
+            <li><Link to="/?category=Accessories#products">Accessories</Link></li>
+            <li><Link to="/?category=New%20Arrivals#products">New Arrivals</Link></li>
           </ul>
         </div>
         <div className="footer-section">

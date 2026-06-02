@@ -58,5 +58,6 @@ export function clearStoredAuth() {
   localStorage.removeItem("user");
   localStorage.removeItem("userId");
   localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
   sessionStorage.removeItem("authDraft");
 }
