@@ -38,6 +38,29 @@ public class EmailService {
     }
 
     @Async
+    public void sendRegistrationOtpEmail(String toEmail, String otp) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromAddress());
+            message.setTo(toEmail);
+            message.setSubject("Verify Your Email — Shrinath Cycle Store");
+            message.setText(
+                "Hello,\n\n" +
+                "Thank you for signing up at Shrinath Cycle Store!\n\n" +
+                "Your email verification OTP is:\n\n" +
+                "  " + otp + "\n\n" +
+                "This OTP is valid for 5 minutes. Please do not share it with anyone.\n\n" +
+                "If you did not request this, you can safely ignore this email.\n\n" +
+                "Best regards,\n" +
+                "The Shrinath Cycle Store Team"
+            );
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send registration OTP email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    @Async
     public void sendPasswordResetOtpEmail(String toEmail, String otp) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

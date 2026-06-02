@@ -388,3 +388,299 @@ body.app-theme-light .auth-switch a:hover {
     font-size: 0.85rem;
   }
 }
+
+/* ════════════════════════════════════════════════
+   🔢 STEP INDICATOR — Registration
+════════════════════════════════════════════════ */
+.reg-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+}
+
+.reg-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.reg-step span {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(224, 228, 255, 0.45);
+  transition: all 0.3s ease;
+}
+
+.reg-step small {
+  font-size: 0.7rem;
+  color: rgba(224, 228, 255, 0.38);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.reg-step.active span {
+  background: linear-gradient(135deg, #36ADA3, #2a8f87);
+  border-color: #36ADA3;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(54, 173, 163, 0.5);
+}
+
+.reg-step.active small {
+  color: #36ADA3;
+}
+
+.reg-step.done span {
+  background: rgba(54, 173, 163, 0.2);
+  border-color: #36ADA3;
+  color: #36ADA3;
+}
+
+.reg-step-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 10px;
+  margin-bottom: 22px;
+  min-width: 40px;
+}
+
+/* ── Light theme ── */
+body.app-theme-light .reg-step span {
+  border-color: rgba(79, 82, 200, 0.18);
+  background: rgba(238, 240, 255, 0.60);
+  color: rgba(18, 19, 88, 0.35);
+}
+
+body.app-theme-light .reg-step small {
+  color: rgba(18, 19, 88, 0.40);
+}
+
+body.app-theme-light .reg-step.active span {
+  background: linear-gradient(135deg, #4f52c8, #36ADA3);
+  border-color: #4f52c8;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(79, 82, 200, 0.35);
+}
+
+body.app-theme-light .reg-step.active small {
+  color: #4f52c8;
+}
+
+body.app-theme-light .reg-step.done span {
+  background: rgba(79, 82, 200, 0.12);
+  border-color: #4f52c8;
+  color: #4f52c8;
+}
+
+body.app-theme-light .reg-step-line {
+  background: rgba(79, 82, 200, 0.14);
+}
+
+/* ════════════════════════════════════════════════
+   📬 OTP VERIFY SECTION
+════════════════════════════════════════════════ */
+.otp-verify-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.otp-email-label {
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(224, 228, 255, 0.6);
+  line-height: 1.6;
+}
+
+.otp-email-label strong {
+  color: #36ADA3;
+  font-size: 0.95rem;
+  word-break: break-all;
+}
+
+/* 6-box OTP grid */
+.otp-boxes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.otp-box-input {
+  width: 48px;
+  height: 56px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  caret-color: #36ADA3;
+}
+
+.otp-box-input:focus {
+  border-color: #36ADA3;
+  background: rgba(54, 173, 163, 0.08);
+  box-shadow: 0 0 0 3px rgba(54, 173, 163, 0.18);
+}
+
+.otp-box-input.filled {
+  border-color: rgba(54, 173, 163, 0.55);
+  background: rgba(54, 173, 163, 0.06);
+}
+
+.otp-box-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.otp-hint {
+  font-size: 0.8rem;
+  color: rgba(224, 228, 255, 0.42);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Resend + Back row */
+.otp-resend-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.otp-resend-btn {
+  background: transparent;
+  border: 1px solid rgba(54, 173, 163, 0.35);
+  color: #36ADA3;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.otp-resend-btn:hover:not(:disabled) {
+  background: rgba(54, 173, 163, 0.10);
+  border-color: #36ADA3;
+}
+
+.otp-resend-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.otp-back-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(224, 228, 255, 0.50);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.otp-back-btn:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(224, 228, 255, 0.80);
+}
+
+/* ── Light theme OTP ── */
+body.app-theme-light .otp-email-label {
+  color: rgba(18, 19, 88, 0.60);
+}
+
+body.app-theme-light .otp-email-label strong {
+  color: #4f52c8;
+}
+
+body.app-theme-light .otp-box-input {
+  border-color: rgba(79, 82, 200, 0.18);
+  background: rgba(238, 240, 255, 0.80);
+  color: #121358;
+}
+
+body.app-theme-light .otp-box-input:focus {
+  border-color: #4f52c8;
+  background: rgba(159, 161, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(79, 82, 200, 0.14);
+}
+
+body.app-theme-light .otp-box-input.filled {
+  border-color: rgba(79, 82, 200, 0.50);
+  background: rgba(159, 161, 255, 0.10);
+}
+
+body.app-theme-light .otp-hint {
+  color: rgba(18, 19, 88, 0.45);
+}
+
+body.app-theme-light .otp-resend-btn {
+  border-color: rgba(79, 82, 200, 0.30);
+  color: #4f52c8;
+}
+
+body.app-theme-light .otp-resend-btn:hover:not(:disabled) {
+  background: rgba(79, 82, 200, 0.08);
+  border-color: #4f52c8;
+}
+
+body.app-theme-light .otp-back-btn {
+  border-color: rgba(79, 82, 200, 0.14);
+  color: rgba(18, 19, 88, 0.48);
+}
+
+body.app-theme-light .otp-back-btn:hover {
+  border-color: rgba(79, 82, 200, 0.30);
+  color: rgba(18, 19, 88, 0.75);
+}
+
+/* ── Mobile OTP boxes ── */
+@media (max-width: 480px) {
+  .otp-boxes {
+    gap: 7px;
+  }
+
+  .otp-box-input {
+    width: 42px;
+    height: 50px;
+    font-size: 1.3rem;
+    border-radius: 8px;
+  }
+
+  .otp-resend-row {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 390px) {
+  .otp-boxes {
+    gap: 5px;
+  }
+
+  .otp-box-input {
+    width: 38px;
+    height: 46px;
+    font-size: 1.2rem;
+  }
+}

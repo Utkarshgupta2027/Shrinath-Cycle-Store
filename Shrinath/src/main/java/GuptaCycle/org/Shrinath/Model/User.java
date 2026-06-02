@@ -28,4 +28,8 @@ public class User {
 
     @ElementCollection
     private List<String> activities;
-}
+
+    /** Transient — carries the email verification OTP during registration only. Never stored in DB. */
+    @Transient
+    private String otp;
+}

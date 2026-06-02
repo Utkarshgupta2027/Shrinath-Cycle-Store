@@ -112,6 +112,26 @@ public class AuthService {
         }
     }
 
+    /**
+     * Step 1 of registration: send a 6-digit OTP to the given email.
+     * Validates that the email is not already registered before sending.
+     */
+    public void sendRegistrationOtp(String email) {
+        String normalizedEmail = normalize(email).toLowerCase();
+        if (normalizedEmail.isEmpty()) {
+            throw new RuntimeException("Email is required.");
+        }
+        if (userRepository.findByEmail(normalizedEmail).isPresent()) {
+            throw new RuntimeException("Email already registered!");
+        }
+        String otp = otpService.generateOtp(normalizedEmail);
+        emailService.sendRegistrationOtpEmail(normalizedEmail, otp);
+    }
+
+    /**
+     * Step 2 of registration: verify OTP then create the account.
+     * The 'otp' field on the User object carries the verification code.
+     */
     public User registerUser(User user) {
         if (user == null) {
             throw new RuntimeException("User details are required.");
@@ -121,9 +141,18 @@ public class AuthService {
         String email = normalize(user.getEmail()).toLowerCase();
         String phoneNumber = normalize(user.getPhoneNumber());
         String password = user.getPassword() == null ? "" : user.getPassword().trim();
+        String otp = user.getOtp() == null ? "" : user.getOtp().trim();
 
         if (name.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty()) {
             throw new RuntimeException("Name, email, phone number and password are required.");
+        }
+
+        if (otp.isEmpty()) {
+            throw new RuntimeException("Email verification OTP is required.");
+        }
+
+        if (!otpService.verifyOtp(email, otp)) {
+            throw new RuntimeException("Invalid or expired OTP. Please request a new one.");
         }
 
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
@@ -138,6 +167,7 @@ public class AuthService {
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setPassword(passwordEncoder.encode(password));
+        user.setVerified(true);
 
         User savedUser = userRepository.save(user);
         emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName());

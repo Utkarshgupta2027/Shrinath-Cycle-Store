@@ -30,6 +30,27 @@ public class AuthController {
 
     // ─── Register ─────────────────────────────────────────────────────────────
 
+    /**
+     * Step 1: Send a 6-digit OTP to the email to verify it's genuine.
+     * Call this before /register. The OTP expires in 5 minutes.
+     */
+    @PostMapping("/send-registration-otp")
+    public ResponseEntity<?> sendRegistrationOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (isBlank(email)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email is required."));
+        }
+        try {
+            authService.sendRegistrationOtp(email);
+            return ResponseEntity.ok(Map.of("message", "OTP sent to " + email.trim().toLowerCase() + ". Valid for 5 minutes."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Step 2: Complete registration. Include the OTP received via email in the request body.
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
