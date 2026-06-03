@@ -2,7 +2,6 @@ package GuptaCycle.org.Shrinath.Model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -25,9 +24,6 @@ public class User {
     private String password;
 
     private boolean verified = false;
-
-    @ElementCollection
-    private List<String> activities;
 
     /** Transient — carries the email verification OTP during registration only. Never stored in DB. */
     @Transient
