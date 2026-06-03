@@ -140,7 +140,14 @@ public class AuthService {
             throw new RuntimeException("Email already registered!");
         }
         String otp = otpService.generateOtp(normalizedEmail);
-        emailService.sendRegistrationOtpEmail(normalizedEmail, otp);
+        try {
+            emailService.sendRegistrationOtpEmail(normalizedEmail, otp);
+        } catch (Exception e) {
+            // OTP was stored — remove it since we could not deliver it
+            otpService.clearOtp(normalizedEmail);
+            System.err.println("SMTP error sending registration OTP to " + normalizedEmail + ": " + e.getMessage());
+            throw new RuntimeException("Failed to send verification email. Please check that the email address is correct and try again.");
+        }
     }
 
     /**
@@ -347,7 +354,13 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User with this email not found."));
 
         String otp = otpService.generateOtp(normalizedEmail);
-        emailService.sendPasswordResetOtpEmail(normalizedEmail, otp);
+        try {
+            emailService.sendPasswordResetOtpEmail(normalizedEmail, otp);
+        } catch (Exception e) {
+            otpService.clearOtp(normalizedEmail);
+            System.err.println("SMTP error sending password reset OTP to " + normalizedEmail + ": " + e.getMessage());
+            throw new RuntimeException("Failed to send reset email. Please try again later.");
+        }
     }
 
     public void resetPasswordWithOtp(String email, String otp, String newPassword) {

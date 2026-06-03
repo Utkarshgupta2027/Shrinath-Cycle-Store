@@ -37,42 +37,47 @@ public class EmailService {
         }
     }
 
-    @Async
+    /**
+     * Sends registration OTP email — intentionally NOT @Async so that SMTP
+     * failures propagate back to the caller and the API returns a proper error
+     * instead of silently swallowing it and responding 200 OK.
+     */
     public void sendRegistrationOtpEmail(String toEmail, String otp) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Verify Your Email — Shrinath Cycle Store");
-            message.setText(
-                "Hello,\n\n" +
-                "Thank you for signing up at Shrinath Cycle Store!\n\n" +
-                "Your email verification OTP is:\n\n" +
-                "  " + otp + "\n\n" +
-                "This OTP is valid for 5 minutes. Please do not share it with anyone.\n\n" +
-                "If you did not request this, you can safely ignore this email.\n\n" +
-                "Best regards,\n" +
-                "The Shrinath Cycle Store Team"
-            );
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("Failed to send registration OTP email to " + toEmail + ": " + e.getMessage());
-        }
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("Verify Your Email — Shrinath Cycle Store");
+        message.setText(
+            "Hello,\n\n" +
+            "Thank you for signing up at Shrinath Cycle Store!\n\n" +
+            "Your email verification OTP is:\n\n" +
+            "  " + otp + "\n\n" +
+            "This OTP is valid for 5 minutes. Please do not share it with anyone.\n\n" +
+            "If you did not request this, you can safely ignore this email.\n\n" +
+            "Best regards,\n" +
+            fromName
+        );
+        mailSender.send(message);
     }
 
-    @Async
+    /**
+     * Sends password reset OTP — intentionally NOT @Async so SMTP failures
+     * propagate back to the API caller.
+     */
     public void sendPasswordResetOtpEmail(String toEmail, String otp) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Password Reset OTP - Shrinath Cycle Store");
-            message.setText("Hello,\n\nYou have requested to reset your password. Please use the following OTP to reset it:\n\n" + otp + "\n\nThis OTP is valid for 5 minutes.\n\nIf you did not request a password reset, please ignore this email.");
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("Failed to send password reset email to " + toEmail + ": " + e.getMessage());
-        }
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("Password Reset OTP - Shrinath Cycle Store");
+        message.setText(
+            "Hello,\n\nYou have requested to reset your password. " +
+            "Please use the following OTP to reset it:\n\n" + otp +
+            "\n\nThis OTP is valid for 5 minutes.\n\n" +
+            "If you did not request a password reset, please ignore this email."
+        );
+        mailSender.send(message);
     }
+
 
     @Async
     public void sendOrderConfirmationEmail(String toEmail, Order order) {

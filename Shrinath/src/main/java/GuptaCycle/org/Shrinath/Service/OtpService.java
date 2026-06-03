@@ -35,4 +35,9 @@ public class OtpService {
         }
         return false;
     }
+
+    /** Explicitly removes a stored OTP — call this when email delivery fails. */
+    public void clearOtp(String email) {
+        otpStorage.remove(email);
+    }
 }
