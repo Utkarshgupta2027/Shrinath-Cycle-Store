@@ -1,10 +1,12 @@
 package GuptaCycle.org.Shrinath.Repository;
 
 import GuptaCycle.org.Shrinath.Model.Review;
+import GuptaCycle.org.Shrinath.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +40,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // ── Cleanup ───────────────────────────────────────────────────────────────
 
     @Modifying
+    @Transactional
     void deleteByProductId(Integer productId);
+
+    /** Delete all reviews authored by the given user (used before account deletion). */
+    @Modifying
+    @Transactional
+    void deleteByUser(User user);
 
     // ── Bulk stats for N+1 elimination ────────────────────────────────────────
 

@@ -2,7 +2,9 @@ package GuptaCycle.org.Shrinath.Repository;
 
 import GuptaCycle.org.Shrinath.Model.RestockSubscription;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,4 +14,8 @@ public interface RestockSubscriptionRepository extends JpaRepository<RestockSubs
     List<RestockSubscription> findByProductIdAndNotifiedFalse(Integer productId);
 
     boolean existsByProductIdAndUserEmail(Integer productId, String userEmail);
+
+    @Modifying
+    @Transactional
+    void deleteByUserId(Long userId);
 }

@@ -6,9 +6,12 @@ import GuptaCycle.org.Shrinath.DTO.UserAccountResponse;
 import GuptaCycle.org.Shrinath.DTO.UserProfileUpdateRequest;
 import GuptaCycle.org.Shrinath.Model.User;
 import GuptaCycle.org.Shrinath.Repository.CartRepository;
+import GuptaCycle.org.Shrinath.Repository.CouponRepository;
+import GuptaCycle.org.Shrinath.Repository.RestockSubscriptionRepository;
+import GuptaCycle.org.Shrinath.Repository.ReviewRepository;
+import GuptaCycle.org.Shrinath.Repository.UserAddressRepository;
 import GuptaCycle.org.Shrinath.Repository.UserRepository;
 import GuptaCycle.org.Shrinath.Repository.WishlistRepository;
-import GuptaCycle.org.Shrinath.Service.CouponService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,6 +36,18 @@ public class AuthService {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private UserAddressRepository userAddressRepository;
+
+    @Autowired
+    private RestockSubscriptionRepository restockSubscriptionRepository;
+
+    @Autowired
+    private CouponRepository couponRepository;
 
     @Autowired
     private EmailService emailService;
@@ -302,8 +317,27 @@ public class AuthService {
     @Transactional
     public void deleteAccount(String phoneNumber) {
         User user = findByPhoneNumber(phoneNumber);
+
+        // 1. Delete wishlist items (JPA @ManyToOne FK on user)
         wishlistRepository.deleteByUser(user);
+
+        // 2. Delete reviews (JPA @ManyToOne(optional=false) FK on user — the critical blocker)
+        reviewRepository.deleteByUser(user);
+
+        // 3. Delete cart
         cartRepository.deleteByUserId(user.getId());
+
+        // 4. Delete saved addresses
+        userAddressRepository.deleteAll(
+                userAddressRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(user.getId()));
+
+        // 5. Delete restock subscriptions
+        restockSubscriptionRepository.deleteByUserId(user.getId());
+
+        // 6. Delete personal coupons (REFERRAL / FIRST_ORDER) owned by this user
+        couponRepository.deleteByOwnedByUserId(user.getId());
+
+        // 7. Finally delete the user record
         userRepository.delete(user);
     }
 

@@ -47,6 +47,7 @@ public class SecurityConfig {
                         "/api/auth/login",
                         "/api/auth/signin",
                         "/api/auth/register",
+                        "/api/auth/send-registration-otp", // OTP step before registration
                         "/api/auth/forgot-password",
                         "/api/auth/reset-password",
                         "/api/auth/refresh",    // Refresh token endpoint
