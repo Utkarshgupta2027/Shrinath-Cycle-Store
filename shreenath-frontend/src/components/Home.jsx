@@ -146,6 +146,8 @@ function Home() {
   const [notifyProduct, setNotifyProduct] = useState(null); // NotifyMeModal target
   const [searchLoading, setSearchLoading] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
+  const [productFetchError, setProductFetchError] = useState(false);
+  const retryTimeoutRef = useRef(null);
   const sliderRef = useRef(null);
   const autoSlideRef = useRef(null);
   const searchDebounceRef = useRef(null);
@@ -166,7 +168,8 @@ function Home() {
   const categoryQuery = new URLSearchParams(location.search).get("category") || "";
 
   // Feature 9 — fetch products from backend search API
-  const fetchProducts = useCallback((filters = {}) => {
+  // Includes exponential-backoff retry to handle Render free-tier cold starts
+  const fetchProducts = useCallback((filters = {}, retryCount = 0) => {
     const params = new URLSearchParams();
     if (filters.keyword) params.set("q", filters.keyword);
     if (filters.category) params.set("category", filters.category);
@@ -179,11 +182,33 @@ function Home() {
       ? `${API_BASE_URL}/api/products/search?${params.toString()}`
       : `${API_BASE_URL}/api/products`;
     setSearchLoading(true);
+    setProductFetchError(false);
     fetch(url)
-      .then((res) => res.json())
-      .then((data) => setProducts(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Product fetch error:", err))
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        setProducts(Array.isArray(data) ? data : []);
+        setProductFetchError(false);
+      })
+      .catch((err) => {
+        console.error("Product fetch error (attempt", retryCount + 1, "):", err);
+        const MAX_RETRIES = 5;
+        if (retryCount < MAX_RETRIES) {
+          // Exponential backoff: 2s, 4s, 8s, 16s, 32s
+          const delay = Math.min(2000 * Math.pow(2, retryCount), 32000);
+          retryTimeoutRef.current = setTimeout(() => fetchProducts(filters, retryCount + 1), delay);
+        } else {
+          setProductFetchError(true);
+        }
+      })
       .finally(() => setSearchLoading(false));
+  }, []);
+
+  // Cleanup retry timer on unmount
+  useEffect(() => {
+    return () => { if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current); };
   }, []);
 
   // Handle filter bar changes (debounced 350ms)
@@ -663,7 +688,23 @@ function Home() {
 
           {/* Product grid */}
           <div className="product-grid">
-            {productsToRender.length > 0 ? (
+            {searchLoading && products.length === 0 ? (
+              <div className="empty-products" style={{ flexDirection: "column", gap: "1rem" }}>
+                <span className="spinner" style={{ width: "2.5rem", height: "2.5rem", border: "4px solid var(--accent-primary)", borderTopColor: "transparent", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }} />
+                <p style={{ marginTop: "0.75rem", fontWeight: 500 }}>Loading products… the server may be waking up, please wait a moment.</p>
+              </div>
+            ) : productFetchError ? (
+              <div className="empty-products" style={{ flexDirection: "column", gap: "1rem" }}>
+                <FaFilter />
+                <p>Could not load products. The server may be starting up.</p>
+                <button
+                  className="reset-filter-btn"
+                  onClick={() => fetchProducts(activeFilters)}
+                >
+                  🔄 Retry
+                </button>
+              </div>
+            ) : productsToRender.length > 0 ? (
               productsToRender.map((product) => {
                 const { listPrice, savings, savingsPercent } = getDiscountDetails(product);
                 const stock = getStockDetails(product);
@@ -773,7 +814,7 @@ function Home() {
                     </div>
                   </div>
                 </div>
-              )})
+              )}</>))
             ) : (
               <div className="empty-products">
                 <FaFilter />
