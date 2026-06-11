@@ -814,7 +814,8 @@ function Home() {
                     </div>
                   </div>
                 </div>
-              )}</>))
+              );
+              })
             ) : (
               <div className="empty-products">
                 <FaFilter />
