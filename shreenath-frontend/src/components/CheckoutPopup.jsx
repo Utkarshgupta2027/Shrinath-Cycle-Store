@@ -17,6 +17,7 @@ import {
   FaUniversity,
 } from "react-icons/fa";
 import { getStoredUser, readStoredJson } from "../utils/auth";
+import { trackOrderPlaced } from "../utils/analytics";
 import "../styles/components/CheckoutPopup.css";
 
 const API_BASE = `${API_BASE_URL}/api`;
@@ -337,6 +338,7 @@ function CheckoutPopup() {
         const conf = { id: placedOrder?.id || "NEW", total: finalTotal, estimate: deliveryEstimate };
         setConfirmation(conf);
         setCartItems([]);
+        trackOrderPlaced(); // analytics: mark this session as buyer
         setShowAlert(true);    // ← trigger the alert dialog + auto-redirect
       } else {
         const errorMessage = await res.text();

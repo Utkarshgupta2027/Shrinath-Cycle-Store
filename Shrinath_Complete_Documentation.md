@@ -84,6 +84,7 @@ A modern, responsive e-commerce platform with:
 - Email, SMS, WhatsApp notifications
 - PDF invoice download
 - Light/Dark theme persistence
+- **Self-hosted Visitor Intelligence Analytics** (site visitors, guest vs registered, browsers vs buyers, repeat customers, failed searches)
 
 **Out of Scope:**
 - Mobile native apps (iOS/Android)
@@ -104,9 +105,11 @@ A modern, responsive e-commerce platform with:
 3. Multi-vendor support
 4. Barcode/QR inventory scanning
 5. Loyalty points & referral program (partially implemented)
-6. Advanced analytics dashboard with charts
-7. Social login (Google OAuth2)
-8. Live chat support widget
+6. Social login (Google OAuth2)
+7. Live chat support widget
+8. Redis for session caching and visitor analytics hot-path optimization
+9. Geographic heatmap for visitor intelligence (IP ? region mapping)
+10. Export analytics data as CSV/Excel from admin panel
 
 ---
 
@@ -1887,7 +1890,7 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 "Java and Spring Boot provide strong typing, enterprise-grade security through Spring Security, and excellent JPA/Hibernate support for relational data — perfect for an e-commerce application with complex relationships between users, orders, products, and payments. React was chosen for its component reusability and large ecosystem. MySQL fits well because the data is highly relational (users ? orders ? order_items ? products). Razorpay is the best choice for Indian payments — it supports UPI which is the dominant payment method in India."
 
 ## "What was your contribution?"
-"I built this project entirely independently. This includes: designing the full database schema (22 tables), implementing all 60+ REST APIs, building the React frontend with 15+ pages and components, integrating Razorpay, implementing email/SMS/WhatsApp notifications, building the admin dashboard with analytics, and deploying to production on Render with Aiven MySQL."
+"I built this project entirely independently. This includes: designing the full database schema (24 tables), implementing all 65+ REST APIs, building the React frontend with 15+ pages and components, integrating Razorpay, implementing email/SMS/WhatsApp notifications, building the admin dashboard with analytics, and deploying to production on Render with Aiven MySQL."
 
 ## "What would you improve?"
 "1. Move product images from MySQL LONGBLOB to AWS S3 or Cloudinary — DB image storage doesn't scale.
@@ -1949,7 +1952,7 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 
 ## Slide 7: Database Design
 [Insert ER Diagram from Part 2.6]
-- 22 tables, 18 JPA repositories
+- 24 tables, 20 JPA repositories
 - Key relationships: users?orders?order_items, cart?cart_items, products?reviews
 
 ## Slide 8: Security Implementation
@@ -1967,14 +1970,18 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 | Token expiry disrupting UX | Axios interceptor auto-refreshes tokens transparently |
 | FK violations on account delete | @Transactional ordered deletion of dependencies |
 | N+1 query for product stats | Batch-fetch review stats in single query with Map join |
+| Visitor tracking without 3rd-party tools | Self-hosted `analytics_events` + `search_log` MySQL tables with localStorage UUID fingerprinting |
+| Search analytics spam (every keystroke) | 1.5-second debounce + duplicate-suppression ref prevents redundant DB writes |
 
 ## Slide 10: Future Scope
 - React Native mobile app
 - AWS S3 for image storage
-- Redis for caching and token storage
+- Redis for caching and analytics hot-path optimization
 - Google OAuth2 social login
 - AI product recommendations
 - Real-time WebSocket order tracking
+- Geographic heatmap from visitor IP data
+- Export analytics as CSV/Excel
 
 ## Slide 11: Conclusion
 - Successfully digitized a real bicycle retail business
@@ -1987,19 +1994,20 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 # PART 13: RESUME DESCRIPTION
 
 ## 2-Line Summary
-"Developed a full-stack e-commerce platform for a bicycle retail store using Java Spring Boot (REST API, JWT security, Razorpay payments) and React 19. Features include order management, admin dashboard with analytics, PDF invoice generation, and multi-channel notifications."
+"Developed a full-stack e-commerce platform for a bicycle retail store using Java Spring Boot (REST API, JWT security, Razorpay payments) and React 19. Features include order management, self-hosted Visitor Intelligence analytics (visitor tracking, failed search detection, repeat customer insights), PDF invoice generation, and multi-channel notifications."
 
 ## 5-Line Summary
-"Built Shrinath Cycle Store, a production-deployed full-stack e-commerce web application for a bicycle retail business. Designed a 22-table MySQL schema and implemented 60+ REST APIs using Spring Boot 3.5 with JWT authentication, BCrypt password security, and role-based access control. Integrated Razorpay payment gateway with HMAC signature verification supporting UPI, cards, and COD. Developed a React 19 SPA with code splitting, Context API state management, and a guest cart merge flow. Implemented automated email/SMS/WhatsApp notifications, GST-compliant PDF invoice generation using iText 7, and an admin analytics dashboard."
+"Built Shrinath Cycle Store, a production-deployed full-stack e-commerce web application for a bicycle retail business. Designed a 24-table MySQL schema and implemented 65+ REST APIs using Spring Boot 3.5 with JWT authentication, BCrypt password security, and role-based access control. Integrated Razorpay payment gateway with HMAC signature verification supporting UPI, cards, and COD. Developed a React 19 SPA with code splitting, Context API state management, and a guest cart merge flow. Implemented automated email/SMS/WhatsApp notifications, GST-compliant PDF invoice generation using iText 7, and an admin analytics dashboard."
 
 ## ATS-Friendly Resume Description
 **Shrinath Cycle Store — Full Stack E-Commerce Application** | Java, Spring Boot, React, MySQL, JWT
-- Architected RESTful backend with 60+ endpoints using Spring Boot 3.5 and Spring Security with JWT-based stateless authentication and BCrypt password hashing
+- Architected RESTful backend with 65+ endpoints using Spring Boot 3.5 and Spring Security with JWT-based stateless authentication and BCrypt password hashing
 - Integrated Razorpay payment gateway with HMAC-SHA256 signature verification supporting UPI, credit/debit cards, and Cash-on-Delivery
-- Designed normalized MySQL database with 22 tables and optimized JPA queries eliminating N+1 problem with batch statistics fetching
+- Designed normalized MySQL database with 24 tables and optimized JPA queries eliminating N+1 problem with batch statistics fetching
 - Built React 19 SPA with React Router v7, code splitting (lazy loading), Context API global state management, and automatic JWT token refresh via Axios interceptors
 - Implemented cart abandonment recovery scheduler, GST-compliant PDF invoice generation (iText 7), and multi-channel notifications (Gmail SMTP, Fast2SMS, WhatsApp Green API)
 - Developed full admin dashboard with analytics, product/order/user/coupon management, return-exchange workflow, and inventory control
+- Engineered self-hosted Visitor Intelligence analytics system using localStorage/sessionStorage UUIDs to track 8 KPIs (unique visitors, guest count, conversion rate, repeat customers, repeat products, failed searches) stored in 2 new MySQL tables (analytics_events, search_log) without any third-party service
 
 ## LinkedIn Description
 "?? Shrinath Cycle Store | Full-Stack E-Commerce Platform
@@ -2052,12 +2060,15 @@ Stack: Java 17 | Spring Boot 3.5 | React 19 | MySQL 8 | JWT | Razorpay | iText 7
 | POST | /api/payments/verify | Auth | Verify payment |
 | GET | /api/orders/{id}/invoice | Auth | Download PDF |
 | GET | /api/orders/admin/analytics | Admin | Dashboard data |
+| POST | /api/analytics/event | Public | Track visitor page view / order event |
+| POST | /api/analytics/search | Public | Track search query + result count |
+| GET | /api/analytics/visitor-dashboard | Admin | Full visitor intelligence dashboard |
 
 ## Database Tables Summary
-users, products, product_images, orders, order_items, cart, cart_items, reviews, coupons, user_addresses, wishlist, payments, restock_subscriptions, return_exchange_requests, serviceable_pins, feedback, store_settings, brands, categories
+users, products, product_images, orders, order_items, cart, cart_items, reviews, coupons, user_addresses, wishlist, payments, restock_subscriptions, return_exchange_requests, serviceable_pins, feedback, store_settings, brands, categories, **analytics_events** (NEW), **search_log** (NEW)
 
 ## Design Patterns Used
-- Repository Pattern, DTO Pattern, Builder (JWT), Singleton (Spring beans), Strategy (payment methods), Observer (abandonment scheduler), Filter Chain (Security)
+- Repository Pattern, DTO Pattern, Builder (JWT), Singleton (Spring beans), Strategy (payment methods), Observer (abandonment scheduler), Filter Chain (Security), **Fingerprinting Pattern** (localStorage UUID for anonymous visitor tracking)
 
 ## Security Quick Reference
 - Passwords: BCrypt (never stored plain text)
@@ -2075,3 +2086,216 @@ users, products, product_images, orders, order_items, cart, cart_items, reviews,
 - Review visible: only APPROVED status (admin moderates)
 - Order cancellable: only PENDING or PROCESSING status
 - Refund: auto-triggered via Razorpay API on paid order cancellation
+
+
+---
+
+# PART 15: VISITOR INTELLIGENCE ANALYTICS — FEATURE DOCUMENTATION
+
+## 15.1 Overview
+
+The **Visitor Intelligence** system is a **self-hosted, privacy-first analytics engine** built natively into the Shrinath Cycle Store platform. It tracks user behaviour, search intent, and customer loyalty patterns entirely within the application's own MySQL database — no Google Analytics, Mixpanel, or any third-party analytics service is required.
+
+This gives the store owner complete data ownership and answers the critical business questions:
+
+| Business Question | Technical Answer |
+|---|---|
+| Kitne log site par aaye? | COUNT(DISTINCT visitorId) from nalytics_events |
+| Kitne guest the, kitne registered? | COUNT(DISTINCT visitorId WHERE userId IS NULL) |
+| Kitno ne sirf browse kiya? | Sessions without ORDER_PLACED event |
+| Kitno ne order diya? | Sessions WITH ORDER_PLACED event = buyers |
+| Conversion rate kya hai? | (buyerSessions / totalSessions) * 100 |
+| Kon sa product baar baar order ho raha hai? | GROUP BY productId on order_items |
+| Kon sa user repeat customer hai? | GROUP BY userId HAVING COUNT > 1 on orders |
+| User kya dhundh raha tha jo mila nahi? | WHERE resultCount = 0 on search_log |
+
+---
+
+## 15.2 Architecture
+
+`
++----------------------------------------------------------------------+
+¦  FRONTEND (Browser)                                                   ¦
+¦                                                                       ¦
+¦  localStorage._vuid  --? persistent visitorId (survives restarts)    ¦
+¦  sessionStorage._vsid --? per-tab sessionId (resets on tab close)    ¦
+¦                                                                       ¦
+¦  App.js (route change)    --? trackPageView(path)                    ¦
+¦  SearchFilterBar.jsx       --? trackSearch(query, resultCount)        ¦
+¦  CheckoutPopup.jsx         --? trackOrderPlaced()                     ¦
+¦                                                                       ¦
+¦  All calls: fire-and-forget fetch() — failures never block UI        ¦
++----------------------------------------------------------------------+
+                                ¦ HTTPS POST (no auth required)
+                                ?
++----------------------------------------------------------------------+
+¦  BACKEND (Spring Boot)                                                ¦
+¦                                                                       ¦
+¦  VisitorAnalyticsController                                           ¦
+¦    POST /api/analytics/event   --? VisitorAnalyticsService           ¦
+¦    POST /api/analytics/search  --? VisitorAnalyticsService           ¦
+¦    GET  /api/analytics/visitor-dashboard (ADMIN) --? buildDashboard()¦
++----------------------------------------------------------------------+
+                                ¦ JPA/Hibernate
+                                ?
++----------------------------------------------------------------------+
+¦  DATABASE (MySQL)                                                     ¦
+¦                                                                       ¦
+¦  analytics_events: id, visitorId, sessionId, eventType,              ¦
+¦                    pagePath, userId, timestamp, ipAddress             ¦
+¦                                                                       ¦
+¦  search_log:       id, query, resultCount, userId, sessionId,        ¦
+¦                    timestamp                                          ¦
++----------------------------------------------------------------------+
+`
+
+---
+
+## 15.3 Data Models
+
+### nalytics_events Table
+
+| Column | Type | Description |
+|---|---|---|
+| id | BIGINT PK | Auto-increment primary key |
+| isitorId | VARCHAR(64) | Persistent browser UUID from localStorage |
+| sessionId | VARCHAR(64) | Per-tab UUID from sessionStorage |
+| eventType | VARCHAR(32) | PAGE_VIEW or ORDER_PLACED |
+| pagePath | VARCHAR(512) | URL path at time of event e.g. /product/12 |
+| userId | BIGINT (nullable) | Logged-in user ID; NULL for guests |
+| 	imestamp | DATETIME | Server-side event timestamp |
+| ipAddress | VARCHAR(45) | Client IP (respects X-Forwarded-For) |
+
+**Indexes:** isitorId, sessionId, eventType, 	imestamp, userId
+
+### search_log Table
+
+| Column | Type | Description |
+|---|---|---|
+| id | BIGINT PK | Auto-increment primary key |
+| query | VARCHAR(512) | Normalized (lowercase, trimmed) search term |
+| esultCount | INT | How many products matched (0 = failed search) |
+| userId | BIGINT (nullable) | NULL for guests |
+| sessionId | VARCHAR(64) | Links to session in analytics_events |
+| 	imestamp | DATETIME | Server-side timestamp |
+
+**Key insight:** esultCount = 0 identifies **failed searches** — items users want but cannot find. This directly informs inventory decisions.
+
+---
+
+## 15.4 Backend Components
+
+### VisitorAnalyticsService.java
+- ecordEvent(dto, ipAddress) — saves to nalytics_events
+- ecordSearch(dto) — saves to search_log (lowercase normalized query)
+- uildDashboard() — runs 8+ aggregate JPQL queries and returns VisitorDashboardDTO
+
+Key JPQL queries:
+`java
+// Unique visitors
+"SELECT COUNT(DISTINCT a.visitorId) FROM AnalyticsEvent a"
+
+// Buyer sessions
+"SELECT COUNT(DISTINCT a.sessionId) FROM AnalyticsEvent a WHERE a.eventType = 'ORDER_PLACED'"
+
+// Repeat customers
+"SELECT o.userId, COUNT(o), MAX(o.orderDate) FROM Order o GROUP BY o.userId HAVING COUNT(o) > 1 ORDER BY COUNT(o) DESC"
+
+// Repeat products
+"SELECT i.productId, i.name, i.category, COUNT(i), SUM(i.quantity) FROM OrderItem i GROUP BY i.productId, i.name, i.category ORDER BY COUNT(i) DESC"
+
+// Failed searches
+"SELECT s.query, COUNT(s) FROM SearchLog s WHERE s.resultCount = 0 GROUP BY s.query ORDER BY COUNT(s) DESC"
+`
+
+### VisitorAnalyticsController.java
+`
+POST /api/analytics/event    — PUBLIC (no auth) — guests tracked
+POST /api/analytics/search   — PUBLIC (no auth) — all searches logged
+GET  /api/analytics/visitor-dashboard — ADMIN ONLY
+`
+
+---
+
+## 15.5 Frontend Components
+
+### analytics.js (utils)
+`javascript
+getVisitorId()  // reads/creates UUID in localStorage._vuid
+getSessionId()  // reads/creates UUID in sessionStorage._vsid
+trackPageView(path)      // fires on every route change
+trackSearch(query, n)    // fires 1.5s after user stops typing
+trackOrderPlaced()       // fires immediately after successful order
+`
+
+### Tracking Hook Points
+- **App.js** ? useEffect([location.pathname]) ? 	rackPageView()
+- **SearchFilterBar.jsx** ? useEffect([keyword, totalResults]) with 1.5s debounce + duplicate suppression ref
+- **CheckoutPopup.jsx** ? inside handleConfirm() after es.ok
+
+---
+
+## 15.6 Admin Panel — Visitor Intelligence Tab
+
+**Section:** ?? Visitor Intelligence (14th tab in Admin Panel)
+
+**Metric Cards (8 cards):**
+
+| Card | Color | Metric |
+|---|---|---|
+| ?? Unique Visitors | Blue | 	otalUniqueVisitors |
+| ?? Guest Visitors | Purple | guestVisitors |
+| ?? Total Sessions | Teal | 	otalSessions |
+| ?? Browse Only | Amber | rowserOnlySessions |
+| ??? Buyers | Green | uyerSessions |
+| ?? Conversion Rate | Pink | conversionRate (%) |
+| ?? Registered Users | Indigo | 	otalRegisteredUsers |
+| ? New This Month | Orange | 
+ewUsersThisMonth |
+
+**Charts:**
+- 7-day visitor trend bar chart (blue bars, i-visitor-bar CSS class)
+
+**Data Tables (4 tables in 2x2 grid):**
+- ?? Repeat Customers — userId, name, email, phone, order count, last order date
+- ?? Repeat Ordered Products — productId, name, category, times ordered, units sold
+- ?? Failed Searches — query, times searched (with "Consider adding this product" hint)
+- ?? Top Search Terms — query, total searches, avg results (red badge if avg < 1)
+
+---
+
+## 15.7 Technology Decisions (Interview Ready)
+
+**Q: Why not use Google Analytics?**
+> Self-hosted solution gives complete data ownership, no GDPR cookie consent requirements, real-time data in admin panel without leaving the application, and direct business-question queries like "what are users failing to find?" which are impossible with GA4 without custom events.
+
+**Q: How is visitor identification done without login?**
+> localStorage UUID (_vuid) is generated on first visit and persisted across browser sessions. sessionStorage UUID (_vsid) is generated per-tab and resets on close. Both are sent with every tracking event so we can distinguish unique visitors from returning ones.
+
+**Q: How do you prevent spam analytics writes?**
+> Three mechanisms: (1) SearchFilterBar uses a 1.5s debounce, (2) a useRef stores the last logged query+result to suppress duplicate logs, (3) the backend's ecordEvent ignores payloads with empty isitorId or sessionId.
+
+**Q: How does failed search detection work?**
+> SearchFilterBar receives 	otalResults prop from the parent (Home/products page). When a search yields 0 results, 	rackSearch(query, 0) is called. The backend stores esultCount=0. The admin dashboard runs WHERE resultCount = 0 GROUP BY query ORDER BY COUNT DESC to rank failed searches by frequency.
+
+**Q: What happens if the analytics API is down?**
+> All tracking calls are wrapped in 	ry/catch with silent failure — no wait at the call site. Analytics never blocks the user flow or causes UI errors.
+
+---
+
+## 15.8 Database Table Count Update
+
+With this feature, the total table count increases from **22 to 24**:
+
+| # | Table | Category |
+|---|---|---|
+| 1-19 | (existing tables) | Core e-commerce |
+| 20 | categories | Product taxonomy |
+| 21 | rands | Product taxonomy |
+| **22** | **nalytics_events** | **Visitor Intelligence (NEW)** |
+| **23** | **search_log** | **Visitor Intelligence (NEW)** |
+
+Total repositories: **20** (was 18, added AnalyticsEventRepository and SearchLogRepository)
+
+---
+

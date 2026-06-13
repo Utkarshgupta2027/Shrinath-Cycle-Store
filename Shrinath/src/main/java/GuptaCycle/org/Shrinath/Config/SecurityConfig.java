@@ -71,6 +71,9 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/feedback").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
+                // ─── Analytics — open so guests are tracked too ──────────────
+                .requestMatchers(HttpMethod.POST, "/api/analytics/event").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/analytics/search").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/review/*/helpful").authenticated()
 
                 // ─── Admin-only endpoints ─────────────────────────────────────────

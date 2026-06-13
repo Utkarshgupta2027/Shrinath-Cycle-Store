@@ -915,3 +915,205 @@
 .shipping-pin-form-grid input:focus { outline:none; border-color:#3b82f6; }
 .shipping-pin-form-grid input:disabled { opacity:.5; cursor:not-allowed; }
 .shipping-pin-form-actions { display:flex; gap:10px; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   VISITOR INTELLIGENCE SECTION
+───────────────────────────────────────────────────────────────────── */
+.vi-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vi-header {
+  padding: 0 4px;
+}
+
+.vi-title {
+  margin: 0 0 6px;
+  font: 800 1.8rem/1.1 "Sora", sans-serif;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vi-subtitle {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+}
+
+/* ── Metric Cards Grid ── */
+.vi-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.vi-card {
+  border-radius: 20px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+}
+
+.vi-card-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.vi-card-value {
+  font: 800 1.7rem/1.05 "Sora", sans-serif;
+  color: #fff;
+}
+
+.vi-card-label {
+  font: 700 0.72rem/1 "Sora", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.65;
+}
+
+.vi-card--blue   { background: linear-gradient(135deg, rgba(96, 165, 250, 0.18), rgba(96, 165, 250, 0.06)); border-color: rgba(96, 165, 250, 0.22); }
+.vi-card--purple { background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(167, 139, 250, 0.06)); border-color: rgba(167, 139, 250, 0.22); }
+.vi-card--teal   { background: linear-gradient(135deg, rgba(45, 212, 191, 0.18), rgba(45, 212, 191, 0.06)); border-color: rgba(45, 212, 191, 0.22); }
+.vi-card--amber  { background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(251, 191, 36, 0.06)); border-color: rgba(251, 191, 36, 0.22); }
+.vi-card--green  { background: linear-gradient(135deg, rgba(52, 211, 153, 0.18), rgba(52, 211, 153, 0.06)); border-color: rgba(52, 211, 153, 0.22); }
+.vi-card--pink   { background: linear-gradient(135deg, rgba(244, 114, 182, 0.18), rgba(244, 114, 182, 0.06)); border-color: rgba(244, 114, 182, 0.22); }
+.vi-card--indigo { background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(99, 102, 241, 0.06)); border-color: rgba(99, 102, 241, 0.22); }
+.vi-card--orange { background: linear-gradient(135deg, rgba(251, 146, 60, 0.18), rgba(251, 146, 60, 0.06)); border-color: rgba(251, 146, 60, 0.22); }
+
+/* ── Chart ── */
+.vi-trend-card { margin: 0; }
+
+.vi-chart-bars {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.vi-visitor-bar {
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+}
+
+/* ── Two-column grid for tables ── */
+.vi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* ── Table cards ── */
+.vi-table-card {
+  overflow: hidden;
+}
+
+.vi-table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.vi-table th {
+  padding: 12px 14px;
+  text-align: left;
+  color: var(--ink-soft);
+  font: 700 0.72rem/1 "Sora", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vi-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.vi-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vi-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── Badges ── */
+.vi-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font: 700 0.74rem/1 "Sora", sans-serif;
+}
+
+.vi-badge--green  { color: #34d399; background: rgba(52, 211, 153, 0.14); }
+.vi-badge--blue   { color: #60a5fa; background: rgba(96, 165, 250, 0.14); }
+.vi-badge--red    { color: #fb7185; background: rgba(251, 113, 133, 0.14); }
+.vi-badge--amber  { color: #fbbf24; background: rgba(251, 191, 36, 0.14); }
+
+/* ── Rank, query, hint ── */
+.vi-rank {
+  font: 700 0.8rem/1 "Sora", sans-serif;
+  color: var(--ink-soft);
+}
+
+.vi-query {
+  font-style: italic;
+  color: #e2e8f0;
+}
+
+.vi-hint {
+  font-size: 0.78rem;
+  color: var(--gold-light);
+  opacity: 0.75;
+}
+
+.vi-empty-msg {
+  padding: 20px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .vi-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .vi-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .vi-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vi-card-value {
+    font-size: 1.4rem;
+  }
+}

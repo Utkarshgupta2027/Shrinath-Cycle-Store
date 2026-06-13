@@ -189,6 +189,10 @@ function AdminPanel() {
 
   const isAdmin = isAdminUser(user);
 
+  // Feature: Visitor Intelligence Dashboard
+  const [visitorData, setVisitorData] = useState(null);
+  const [visitorLoading, setVisitorLoading] = useState(false);
+
   const loadProducts = useCallback(async () => {
     const productsResponse = await axios.get(`${API_BASE}/api/products`);
     setProducts(productsResponse.data || []);
@@ -335,6 +339,14 @@ function AdminPanel() {
     }
     if (activeSection === "brands") {
       axios.get(`${API_BASE}/api/brands/all`).then(r => setBrands(r.data || [])).catch(() => {});
+    }
+    if (activeSection === "visitor-intelligence") {
+      setVisitorLoading(true);
+      axios
+        .get(`${API_BASE}/api/analytics/visitor-dashboard`, { headers: getAuthHeaders() })
+        .then((r) => setVisitorData(r.data || null))
+        .catch(() => setVisitorData(null))
+        .finally(() => setVisitorLoading(false));
     }
   }, [activeSection, isAdmin, loadAnalytics, loadOrders, loadReturnRequests, loadUsers]);
 
@@ -683,6 +695,7 @@ function AdminPanel() {
             { key: "settings", label: "⚙️ GST/Settings" },
             { key: "categories", label: "🗂️ Categories" },
             { key: "brands", label: "🏷️ Brands" },
+            { key: "visitor-intelligence", label: "📊 Visitor Intelligence" },
           ].map((section) => (
             <button
               key={section.key}
@@ -1859,6 +1872,280 @@ function AdminPanel() {
           </div>
         </div>
       ) : null}
+
+        {/* ─────────────────────────────────────────────────────────────
+            Visitor Intelligence Section
+        ───────────────────────────────────────────────────────────── */}
+        {activeSection === "visitor-intelligence" && (
+          <section className="vi-root">
+            <div className="vi-header">
+              <h2 className="vi-title">📊 Visitor Intelligence</h2>
+              <p className="vi-subtitle">Real-time visitor behaviour, search insights, and customer loyalty data</p>
+            </div>
+
+            {visitorLoading && <div className="admin-loading">Loading visitor intelligence data…</div>}
+            {!visitorLoading && !visitorData && (
+              <div className="admin-empty">
+                <p>No visitor data yet. Once users start visiting the site, data will appear here.</p>
+                <p style={{ fontSize: "0.8rem", opacity: 0.6, marginTop: "0.5rem" }}>
+                  Make sure the backend is running and the analytics endpoints are reachable.
+                </p>
+              </div>
+            )}
+
+            {!visitorLoading && visitorData && (
+              <>
+                {/* ── Metric cards row ── */}
+                <div className="vi-metrics">
+                  <div className="vi-card vi-card--blue">
+                    <span className="vi-card-icon">🌐</span>
+                    <span className="vi-card-value">{visitorData.totalUniqueVisitors?.toLocaleString()}</span>
+                    <span className="vi-card-label">Unique Visitors</span>
+                  </div>
+                  <div className="vi-card vi-card--purple">
+                    <span className="vi-card-icon">👥</span>
+                    <span className="vi-card-value">{visitorData.guestVisitors?.toLocaleString()}</span>
+                    <span className="vi-card-label">Guest Visitors</span>
+                  </div>
+                  <div className="vi-card vi-card--teal">
+                    <span className="vi-card-icon">📋</span>
+                    <span className="vi-card-value">{visitorData.totalSessions?.toLocaleString()}</span>
+                    <span className="vi-card-label">Total Sessions</span>
+                  </div>
+                  <div className="vi-card vi-card--amber">
+                    <span className="vi-card-icon">👀</span>
+                    <span className="vi-card-value">{visitorData.browserOnlySessions?.toLocaleString()}</span>
+                    <span className="vi-card-label">Browse Only</span>
+                  </div>
+                  <div className="vi-card vi-card--green">
+                    <span className="vi-card-icon">🛍️</span>
+                    <span className="vi-card-value">{visitorData.buyerSessions?.toLocaleString()}</span>
+                    <span className="vi-card-label">Buyers</span>
+                  </div>
+                  <div className="vi-card vi-card--pink">
+                    <span className="vi-card-icon">📈</span>
+                    <span className="vi-card-value">{visitorData.conversionRate}</span>
+                    <span className="vi-card-label">Conversion Rate</span>
+                  </div>
+                  <div className="vi-card vi-card--indigo">
+                    <span className="vi-card-icon">🆕</span>
+                    <span className="vi-card-value">{visitorData.totalRegisteredUsers?.toLocaleString()}</span>
+                    <span className="vi-card-label">Registered Users</span>
+                  </div>
+                  <div className="vi-card vi-card--orange">
+                    <span className="vi-card-icon">✨</span>
+                    <span className="vi-card-value">{visitorData.newUsersThisMonth?.toLocaleString()}</span>
+                    <span className="vi-card-label">New This Month</span>
+                  </div>
+                </div>
+
+                {/* ── 7-day Visitor Trend Chart ── */}
+                {visitorData.visitorTrend?.length > 0 && (
+                  <div className="admin-panel-card vi-trend-card">
+                    <div className="card-heading">
+                      <div>
+                        <h2>7-Day Visitor Trend</h2>
+                        <p>Unique visitors per day (last 7 days)</p>
+                      </div>
+                      <span>📅</span>
+                    </div>
+                    <div className="chart-bars vi-chart-bars">
+                      {visitorData.visitorTrend.map((point) => {
+                        const max = Math.max(...visitorData.visitorTrend.map((p) => p.value), 1);
+                        return (
+                          <div className="chart-bar-group" key={`vt-${point.label}`}>
+                            <div
+                              className="chart-bar vi-visitor-bar"
+                              style={{ height: `${Math.max((point.value / max) * 140, 8)}px` }}
+                            />
+                            <span className="chart-label">{point.label}</span>
+                            <span className="chart-value">{point.value}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="vi-grid">
+                  {/* ── Repeat Customers ── */}
+                  <div className="admin-panel-card vi-table-card">
+                    <div className="card-heading">
+                      <div>
+                        <h2>👤 Repeat Customers</h2>
+                        <p>Users who placed more than 1 order</p>
+                      </div>
+                    </div>
+                    {visitorData.repeatCustomers?.length === 0 ? (
+                      <p className="vi-empty-msg">No repeat customers yet.</p>
+                    ) : (
+                      <div className="vi-table-wrap">
+                        <table className="vi-table">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Email</th>
+                              <th>Phone</th>
+                              <th>Orders</th>
+                              <th>Last Order</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visitorData.repeatCustomers?.map((c) => (
+                              <tr key={`rc-${c.userId}`}>
+                                <td><strong>{c.name}</strong></td>
+                                <td>{c.email}</td>
+                                <td>{c.phone}</td>
+                                <td>
+                                  <span className="vi-badge vi-badge--green">{c.orderCount} orders</span>
+                                </td>
+                                <td>{c.lastOrderDate}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Top Ordered Products ── */}
+                  <div className="admin-panel-card vi-table-card">
+                    <div className="card-heading">
+                      <div>
+                        <h2>🔁 Repeat Ordered Products</h2>
+                        <p>Products ordered most frequently</p>
+                      </div>
+                    </div>
+                    {visitorData.topOrderedProducts?.length === 0 ? (
+                      <p className="vi-empty-msg">No order data yet.</p>
+                    ) : (
+                      <div className="vi-table-wrap">
+                        <table className="vi-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Product</th>
+                              <th>Category</th>
+                              <th>Times Ordered</th>
+                              <th>Units Sold</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visitorData.topOrderedProducts?.map((p, idx) => (
+                              <tr key={`rp-${p.productId}`}>
+                                <td><span className="vi-rank">#{idx + 1}</span></td>
+                                <td><strong>{p.productName}</strong></td>
+                                <td>{p.category}</td>
+                                <td>
+                                  <span className="vi-badge vi-badge--blue">{p.orderCount}×</span>
+                                </td>
+                                <td>{p.totalQuantitySold}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="vi-grid">
+                  {/* ── Failed Searches ── */}
+                  <div className="admin-panel-card vi-table-card">
+                    <div className="card-heading">
+                      <div>
+                        <h2>🔍 Failed Searches</h2>
+                        <p>
+                          What users searched but couldn't find
+                          {visitorData.totalFailedSearches > 0 && (
+                            <span className="vi-badge vi-badge--red" style={{ marginLeft: "0.5rem" }}>
+                              {visitorData.totalFailedSearches} total failures
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    {visitorData.failedSearches?.length === 0 ? (
+                      <p className="vi-empty-msg">No failed searches recorded yet. 🎉</p>
+                    ) : (
+                      <div className="vi-table-wrap">
+                        <table className="vi-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Search Query</th>
+                              <th>Times Searched</th>
+                              <th>Suggestion</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visitorData.failedSearches?.map((s, idx) => (
+                              <tr key={`fs-${idx}`}>
+                                <td><span className="vi-rank">#{idx + 1}</span></td>
+                                <td>
+                                  <span className="vi-query">"{s.query}"</span>
+                                </td>
+                                <td>
+                                  <span className="vi-badge vi-badge--red">{s.count} times</span>
+                                </td>
+                                <td>
+                                  <span className="vi-hint">Consider adding this product</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Top Search Terms ── */}
+                  <div className="admin-panel-card vi-table-card">
+                    <div className="card-heading">
+                      <div>
+                        <h2>🔥 Top Search Terms</h2>
+                        <p>Most searched keywords (all searches)</p>
+                      </div>
+                    </div>
+                    {visitorData.topSearchTerms?.length === 0 ? (
+                      <p className="vi-empty-msg">No search data yet.</p>
+                    ) : (
+                      <div className="vi-table-wrap">
+                        <table className="vi-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Keyword</th>
+                              <th>Searches</th>
+                              <th>Avg Results</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visitorData.topSearchTerms?.map((s, idx) => (
+                              <tr key={`ts-${idx}`}>
+                                <td><span className="vi-rank">#{idx + 1}</span></td>
+                                <td><span className="vi-query">"{s.query}"</span></td>
+                                <td>
+                                  <span className="vi-badge vi-badge--blue">{s.count}</span>
+                                </td>
+                                <td>
+                                  <span className={s.avgResults < 1 ? "vi-badge vi-badge--red" : "vi-badge vi-badge--green"}>
+                                    {s.avgResults < 1 ? "0 (not found)" : Math.round(s.avgResults)}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </section>
+        )}
+
     </div>
   );
 }
