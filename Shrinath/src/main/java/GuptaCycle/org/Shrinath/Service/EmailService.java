@@ -3,13 +3,19 @@ package GuptaCycle.org.Shrinath.Service;
 import GuptaCycle.org.Shrinath.Model.Order;
 import GuptaCycle.org.Shrinath.Model.Product;
 import GuptaCycle.org.Shrinath.Model.CartItem;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class EmailService {
@@ -22,6 +28,16 @@ public class EmailService {
 
     @Value("${app.mail.from-name:Shrinath Cycle Store}")
     private String fromName;
+
+    // Brevo HTTP API key — used for critical OTP emails (SMTP is blocked on Render)
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
+
+    // Verified sender email registered in Brevo Senders dashboard
+    @Value("${brevo.sender.email:${spring.mail.username:noreply@shrinathcyclestore.com}}")
+    private String brevoSenderEmail;
+
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
@@ -38,16 +54,13 @@ public class EmailService {
     }
 
     /**
-     * Sends registration OTP email — intentionally NOT @Async so that SMTP
-     * failures propagate back to the caller and the API returns a proper error
-     * instead of silently swallowing it and responding 200 OK.
+     * Sends registration OTP via Brevo HTTP API.
+     * SMTP (port 465/587) is blocked by Render free tier — HTTP API on port 443 is not.
+     * NOT @Async so failures propagate back to the caller.
      */
     public void sendRegistrationOtpEmail(String toEmail, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("Verify Your Email — Shrinath Cycle Store");
-        message.setText(
+        String subject = "Verify Your Email \u2014 Shrinath Cycle Store";
+        String text =
             "Hello,\n\n" +
             "Thank you for signing up at Shrinath Cycle Store!\n\n" +
             "Your email verification OTP is:\n\n" +
@@ -55,27 +68,58 @@ public class EmailService {
             "This OTP is valid for 5 minutes. Please do not share it with anyone.\n\n" +
             "If you did not request this, you can safely ignore this email.\n\n" +
             "Best regards,\n" +
-            fromName
-        );
-        mailSender.send(message);
+            fromName;
+        sendViaBrevoApi(toEmail, subject, text);
     }
 
     /**
-     * Sends password reset OTP — intentionally NOT @Async so SMTP failures
-     * propagate back to the API caller.
+     * Sends password reset OTP via Brevo HTTP API.
+     * NOT @Async so failures propagate back to the API caller.
      */
     public void sendPasswordResetOtpEmail(String toEmail, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("Password Reset OTP - Shrinath Cycle Store");
-        message.setText(
+        String subject = "Password Reset OTP - Shrinath Cycle Store";
+        String text =
             "Hello,\n\nYou have requested to reset your password. " +
             "Please use the following OTP to reset it:\n\n" + otp +
             "\n\nThis OTP is valid for 5 minutes.\n\n" +
-            "If you did not request a password reset, please ignore this email."
-        );
-        mailSender.send(message);
+            "If you did not request a password reset, please ignore this email.";
+        sendViaBrevoApi(toEmail, subject, text);
+    }
+
+    /**
+     * Sends an email via Brevo's transactional HTTP API (port 443).
+     * This bypasses SMTP entirely — works on Render free tier.
+     *
+     * @throws RuntimeException if the API key is missing or the call fails
+     */
+    private void sendViaBrevoApi(String toEmail, String subject, String textContent) {
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
+            throw new RuntimeException(
+                "Brevo API key (BREVO_API_KEY) is not configured. " +
+                "Set it in Render environment variables.");
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", brevoApiKey);
+
+        Map<String, Object> sender = new HashMap<>();
+        sender.put("name", fromName);
+        sender.put("email", brevoSenderEmail);
+
+        Map<String, String> recipient = new HashMap<>();
+        recipient.put("email", toEmail);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("sender", sender);
+        body.put("to", List.of(recipient));
+        body.put("subject", subject);
+        body.put("textContent", textContent);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+        restTemplate.postForObject(BREVO_API_URL, request, String.class);
     }
 
 
