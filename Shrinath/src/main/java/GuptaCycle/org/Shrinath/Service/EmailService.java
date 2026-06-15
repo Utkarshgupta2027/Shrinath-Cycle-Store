@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 public class EmailService {
 
     @Autowired
-    private JavaMailSender mailSender;
+    private InvoiceService invoiceService;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -42,12 +40,9 @@ public class EmailService {
     @Async
     public void sendWelcomeEmail(String toEmail, String name) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Welcome to Shrinath Cycle Store!");
-            message.setText("Hi " + name + ",\n\nWelcome to Shrinath Cycle Store! We're excited to have you on board.\n\nBest regards,\nThe Shrinath Cycle Store Team");
-            mailSender.send(message);
+            String subject = "Welcome to Shrinath Cycle Store!";
+            String text = "Hi " + name + ",\n\nWelcome to Shrinath Cycle Store! We're excited to have you on board.\n\nBest regards,\nThe Shrinath Cycle Store Team";
+            sendViaBrevoApi(toEmail, subject, text, null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send welcome email to " + toEmail + ": " + e.getMessage());
         }
@@ -93,6 +88,10 @@ public class EmailService {
      * @throws RuntimeException if the API key is missing or the call fails
      */
     private void sendViaBrevoApi(String toEmail, String subject, String textContent) {
+        sendViaBrevoApi(toEmail, subject, textContent, null, null, null);
+    }
+
+    private void sendViaBrevoApi(String toEmail, String subject, String textContent, String htmlContent, String replyToEmail, List<Map<String, Object>> attachments) {
         if (brevoApiKey == null || brevoApiKey.isBlank()) {
             throw new RuntimeException(
                 "Brevo API key (BREVO_API_KEY) is not configured. " +
@@ -116,20 +115,34 @@ public class EmailService {
         body.put("sender", sender);
         body.put("to", List.of(recipient));
         body.put("subject", subject);
-        body.put("textContent", textContent);
+        if (textContent != null) {
+            body.put("textContent", textContent);
+        }
+        if (htmlContent != null) {
+            body.put("htmlContent", htmlContent);
+        }
+        if (replyToEmail != null && !replyToEmail.isBlank()) {
+            Map<String, String> replyTo = new HashMap<>();
+            replyTo.put("email", replyToEmail);
+            body.put("replyTo", replyTo);
+        }
+        if (attachments != null && !attachments.isEmpty()) {
+            body.put("attachment", attachments);
+        }
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-        restTemplate.postForObject(BREVO_API_URL, request, String.class);
+        try {
+            restTemplate.postForObject(BREVO_API_URL, request, String.class);
+        } catch (Exception e) {
+            System.err.println("Failed to send Brevo HTTP email to " + toEmail + ": " + e.getMessage());
+            throw new RuntimeException("Brevo API send failed: " + e.getMessage(), e);
+        }
     }
-
 
     @Async
     public void sendOrderConfirmationEmail(String toEmail, Order order) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Order Confirmation - Shrinath Cycle Store");
+            String subject = "Order Confirmation - Shrinath Cycle Store";
             
             StringBuilder text = new StringBuilder();
             text.append("Hello,\n\nThank you for your order! Your order has been placed successfully.\n\n");
@@ -146,10 +159,24 @@ public class EmailService {
                 });
             }
             
-            text.append("\nWe will notify you once your order is shipped.\n\nBest regards,\nThe Shrinath Cycle Store Team");
+            text.append("\nWe have attached your GST Tax Invoice to this email.\n");
+            text.append("We will notify you once your order is shipped.\n\nBest regards,\nThe Shrinath Cycle Store Team");
             
-            message.setText(text.toString());
-            mailSender.send(message);
+            List<Map<String, Object>> attachments = null;
+            try {
+                byte[] pdfBytes = invoiceService.generateInvoice(order);
+                if (pdfBytes != null && pdfBytes.length > 0) {
+                    String base64Content = java.util.Base64.getEncoder().encodeToString(pdfBytes);
+                    Map<String, Object> attachment = new HashMap<>();
+                    attachment.put("name", "invoice-" + order.getId() + ".pdf");
+                    attachment.put("content", base64Content);
+                    attachments = List.of(attachment);
+                }
+            } catch (Exception ex) {
+                System.err.println("Could not generate invoice attachment for order " + order.getId() + ": " + ex.getMessage());
+            }
+
+            sendViaBrevoApi(toEmail, subject, text.toString(), null, null, attachments);
         } catch (Exception e) {
             System.err.println("Failed to send order confirmation email to " + toEmail + ": " + e.getMessage());
         }
@@ -158,10 +185,7 @@ public class EmailService {
     @Async
     public void sendShippingUpdateEmail(String toEmail, Order order, String status) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Order Update - Shrinath Cycle Store");
+            String subject = "Order Update - Shrinath Cycle Store";
             
             String productNames = order.getItems() != null && !order.getItems().isEmpty() 
                 ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
@@ -192,8 +216,7 @@ public class EmailService {
 
             text.append("\nThank you for shopping with us!\n\nBest regards,\nThe Shrinath Cycle Store Team");
             
-            message.setText(text.toString());
-            mailSender.send(message);
+            sendViaBrevoApi(toEmail, subject, text.toString(), null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send shipping update email to " + toEmail + ": " + e.getMessage());
         }
@@ -206,14 +229,11 @@ public class EmailService {
                 ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
                 : "items";
                 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Cancellation Update - Shrinath Cycle Store");
-            message.setText("Hello,\n\nYour cancellation request for " + productNames
+            String subject = "Cancellation Update - Shrinath Cycle Store";
+            String text = "Hello,\n\nYour cancellation request for " + productNames
                     + " has been received. Refund status: " + safe(order.getRefundStatus())
-                    + ".\n\nBest regards,\nThe Shrinath Cycle Store Team");
-            mailSender.send(message);
+                    + ".\n\nBest regards,\nThe Shrinath Cycle Store Team";
+            sendViaBrevoApi(toEmail, subject, text, null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send cancellation email to " + toEmail + ": " + e.getMessage());
         }
@@ -226,15 +246,12 @@ public class EmailService {
                 ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
                 : "items";
                 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Refund Processed - Shrinath Cycle Store");
-            message.setText("Hello,\n\nYour refund for " + productNames
+            String subject = "Refund Processed - Shrinath Cycle Store";
+            String text = "Hello,\n\nYour refund for " + productNames
                     + " has been processed. Refund ID: " + safe(order.getRefundId())
                     + "\nRefund Amount: Rs. " + order.getRefundAmount()
-                    + "\n\nBest regards,\nThe Shrinath Cycle Store Team");
-            mailSender.send(message);
+                    + "\n\nBest regards,\nThe Shrinath Cycle Store Team";
+            sendViaBrevoApi(toEmail, subject, text, null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send refund email to " + toEmail + ": " + e.getMessage());
         }
@@ -247,13 +264,10 @@ public class EmailService {
                 ? order.getItems().stream().map(item -> item.getName()).collect(java.util.stream.Collectors.joining(", ")) 
                 : "items";
                 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("Return/Exchange Update - Shrinath Cycle Store");
-            message.setText("Hello,\n\nYour " + requestType + " request for " + productNames
-                    + " is now: " + status + ".\n\nBest regards,\nThe Shrinath Cycle Store Team");
-            mailSender.send(message);
+            String subject = "Return/Exchange Update - Shrinath Cycle Store";
+            String text = "Hello,\n\nYour " + requestType + " request for " + productNames
+                    + " is now: " + status + ".\n\nBest regards,\nThe Shrinath Cycle Store Team";
+            sendViaBrevoApi(toEmail, subject, text, null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send return/exchange email to " + toEmail + ": " + e.getMessage());
         }
@@ -262,10 +276,7 @@ public class EmailService {
     @Async
     public void sendNewOrderAdminNotification(String adminEmail, Order order) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(adminEmail);
-            message.setSubject("New Order Received - Order #" + order.getId());
+            String subject = "New Order Received - Order #" + order.getId();
             
             StringBuilder text = new StringBuilder();
             text.append("Hello Admin,\n\nA new order has been placed on the store.\n\n");
@@ -286,8 +297,7 @@ public class EmailService {
             
             text.append("\nPlease review the order in the admin panel.\n\nBest regards,\nThe System");
             
-            message.setText(text.toString());
-            mailSender.send(message);
+            sendViaBrevoApi(adminEmail, subject, text.toString(), null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send new order admin notification to " + adminEmail + ": " + e.getMessage());
         }
@@ -296,11 +306,8 @@ public class EmailService {
     @Async
     public void sendLowStockAdminAlert(String adminEmail, Product product) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(adminEmail);
-            message.setSubject("⚠️ Low Stock Alert — " + product.getName());
-            message.setText(
+            String subject = "⚠️ Low Stock Alert — " + product.getName();
+            String text =
                     "Hello Admin,\n\n" +
                     "Stock is running low for the following product:\n\n" +
                     "Product: " + product.getName() + "\n" +
@@ -308,9 +315,8 @@ public class EmailService {
                     "Category: " + (product.getCategory() != null ? product.getCategory() : "N/A") + "\n" +
                     "Remaining stock: " + product.getQuantity() + " units\n\n" +
                     "Please restock soon to avoid disruption.\n\n" +
-                    "Best regards,\nShrinath Cycle Store System"
-            );
-            mailSender.send(message);
+                    "Best regards,\nShrinath Cycle Store System";
+            sendViaBrevoApi(adminEmail, subject, text, null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send low-stock alert for product " + product.getId() + ": " + e.getMessage());
         }
@@ -319,20 +325,16 @@ public class EmailService {
     @Async
     public void sendRestockNotification(String toEmail, Product product) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("✅ Back in Stock — " + product.getName());
-            message.setText(
+            String subject = "✅ Back in Stock — " + product.getName();
+            String text =
                     "Good news! The product you wanted is back in stock.\n\n" +
                     "Product: " + product.getName() + "\n" +
                     (product.getBrand() != null ? "Brand: " + product.getBrand() + "\n" : "") +
                     "Price: ₹" + (product.getPrice() != null ? product.getPrice().toPlainString() : "N/A") + "\n" +
                     "Available units: " + product.getQuantity() + "\n\n" +
                     "Hurry — limited stock! Visit us at shrinathcyclestore.com\n\n" +
-                    "Best regards,\nThe Shrinath Cycle Store Team"
-            );
-            mailSender.send(message);
+                    "Best regards,\nThe Shrinath Cycle Store Team";
+            sendViaBrevoApi(toEmail, subject, text, null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send restock notification to " + toEmail + ": " + e.getMessage());
         }
@@ -341,10 +343,7 @@ public class EmailService {
     @Async
     public void sendAbandonedCartEmail(String toEmail, String name, List<CartItem> items) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress());
-            message.setTo(toEmail);
-            message.setSubject("🛒 You left items in your cart! - Shrinath Cycle Store");
+            String subject = "🛒 You left items in your cart! - Shrinath Cycle Store";
             
             StringBuilder text = new StringBuilder();
             text.append("Hi ").append(name).append(",\n\n");
@@ -361,19 +360,28 @@ public class EmailService {
             text.append("Visit us at: http://localhost:3000/cart\n\n");
             text.append("Best regards,\nThe Shrinath Cycle Store Team");
             
-            message.setText(text.toString());
-            mailSender.send(message);
+            sendViaBrevoApi(toEmail, subject, text.toString(), null, null, null);
         } catch (Exception e) {
             System.err.println("Failed to send abandoned cart email to " + toEmail + ": " + e.getMessage());
         }
     }
 
-    /**
-     * Returns \"Shrinath Cycle Store <gutkarsh702@gmail.com>\" format.
-     * Gmail will display the name instead of the raw email address.
-     */
-    private String fromAddress() {
-        return fromName + " <" + fromEmail + ">";
+    @Async
+    public void sendFeedbackAdminNotification(String adminEmail, String replyToEmail, String subject, String body) {
+        try {
+            sendViaBrevoApi(adminEmail, subject, body, null, replyToEmail, null);
+        } catch (Exception e) {
+            System.err.println("Failed to send feedback admin notification: " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendFeedbackUserConfirmation(String toEmail, String adminEmail, String subject, String body) {
+        try {
+            sendViaBrevoApi(toEmail, subject, body, null, adminEmail, null);
+        } catch (Exception e) {
+            System.err.println("Failed to send feedback user confirmation: " + e.getMessage());
+        }
     }
 
     private String safe(String value) {

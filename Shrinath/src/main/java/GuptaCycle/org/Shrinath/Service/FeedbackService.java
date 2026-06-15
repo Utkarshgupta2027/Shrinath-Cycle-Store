@@ -5,8 +5,6 @@ import GuptaCycle.org.Shrinath.Model.Feedback;
 import GuptaCycle.org.Shrinath.Repository.FeedbackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,8 +13,8 @@ public class FeedbackService {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    @Autowired
+    private EmailService emailService;
 
     @Value("${app.admin.email}")
     private String adminEmail;
@@ -59,7 +57,7 @@ public class FeedbackService {
     }
 
     private void sendAdminNotification(Feedback fb) {
-        if (mailSender == null || adminEmail == null || adminEmail.isBlank()) {
+        if (adminEmail == null || adminEmail.isBlank()) {
             return;
         }
 
@@ -83,17 +81,12 @@ public class FeedbackService {
                 "Feedback ID: #" + fb.getId() + "\n" +
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(adminEmail);
-        msg.setFrom(adminEmail);
-        msg.setReplyTo(fb.getEmail());
-        msg.setSubject("[ShreeNath Feedback] " + fb.getCategory() + " — " + fb.getSubject());
-        msg.setText(body);
-        mailSender.send(msg);
+        String subject = "[ShreeNath Feedback] " + fb.getCategory() + " — " + fb.getSubject();
+        emailService.sendFeedbackAdminNotification(adminEmail, fb.getEmail(), subject, body);
     }
 
     private void sendUserConfirmation(Feedback fb) {
-        if (mailSender == null || adminEmail == null || adminEmail.isBlank()) {
+        if (adminEmail == null || adminEmail.isBlank()) {
             return;
         }
 
@@ -109,11 +102,7 @@ public class FeedbackService {
                 "ShreeNath Cycle Store Team\n" +
                 "📧 gutkarsh702@gmail.com";
 
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(fb.getEmail());
-        msg.setFrom(adminEmail);
-        msg.setSubject("We received your feedback — ShreeNath Cycle Store");
-        msg.setText(body);
-        mailSender.send(msg);
+        String subject = "We received your feedback — ShreeNath Cycle Store";
+        emailService.sendFeedbackUserConfirmation(fb.getEmail(), adminEmail, subject, body);
     }
 }
