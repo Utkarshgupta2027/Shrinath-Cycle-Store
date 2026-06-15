@@ -60,6 +60,8 @@ function AppLayout() {
     || location.pathname.startsWith("/updateproduct/");
 
   useEffect(() => {
+    // Reset scroll to top on page navigation
+    window.scrollTo(0, 0);
     syncThemeFromStorage();
     // Track every page view — works for guests and logged-in users
     trackPageView(location.pathname);
