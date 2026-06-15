@@ -12,6 +12,7 @@ import {
   FaSquare,
 } from "react-icons/fa";
 import { trackSearch } from "../utils/analytics";
+import { gaTrackSearch } from "../utils/googleAnalytics";
 import "./SearchFilterBar.css";
 
 const SORT_OPTIONS = [
@@ -57,6 +58,7 @@ export default function SearchFilterBar({ onFilterChange, totalResults }) {
     if (lastLoggedRef.current.query === keyword && lastLoggedRef.current.results === totalResults) return;
     const timer = setTimeout(() => {
       trackSearch(keyword, totalResults);
+      gaTrackSearch(keyword, totalResults);
       lastLoggedRef.current = { query: keyword, results: totalResults };
     }, 1500); // wait 1.5s after user stops typing before logging
     return () => clearTimeout(timer);

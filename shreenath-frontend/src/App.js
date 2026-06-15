@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import AppProvider from "./Context/AppProvider";
 import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
 import { trackPageView } from "./utils/analytics";
+import { gaTrackPageView } from "./utils/googleAnalytics";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -62,6 +63,8 @@ function AppLayout() {
     syncThemeFromStorage();
     // Track every page view — works for guests and logged-in users
     trackPageView(location.pathname);
+    // GA4 page view
+    gaTrackPageView(location.pathname);
   }, [location.pathname]);
 
   useEffect(() => {

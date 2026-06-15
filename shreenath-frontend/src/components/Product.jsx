@@ -7,6 +7,7 @@ import "../styles/components/product.css";
 import axios from "axios";
 import { getAuthHeaders, getStoredUser, isAdminUser } from "../utils/auth";
 import { confirmAction, copyTextToClipboard } from "../utils/browser";
+import { gaTrackProductView, gaTrackAddToCart } from "../utils/googleAnalytics";
 import {
   FaArrowLeft,
   FaBicycle,
@@ -109,6 +110,8 @@ const Product = () => {
         const data = await fetchProductById(productId);
         setProduct(data);
         setActiveImage(getImageUrl(data.id));
+        // GA4: track product view after data loads
+        gaTrackProductView(data);
 
         const reviewResponse = await fetch(
           `${API_BASE_URL}/api/product/${productId}/reviews?sortBy=${reviewSortBy}`
@@ -183,6 +186,8 @@ const Product = () => {
     try {
       const success = await addToCart(selectedProduct, 1);
       if (success) {
+        // GA4: add to cart event
+        gaTrackAddToCart(selectedProduct, 1);
         if (shouldCheckout) {
           navigate("/checkout");
         } else {

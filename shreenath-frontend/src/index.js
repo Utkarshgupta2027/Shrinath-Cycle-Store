@@ -5,10 +5,15 @@ import './utils/apiClient';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { syncThemeFromStorage } from './utils/theme';
+import { initGA } from './utils/googleAnalytics';
 
 // Apply the saved theme immediately — before React mounts —
 // so there's no flash of wrong theme on page load / refresh.
 syncThemeFromStorage();
+
+// Initialize Google Analytics 4 before React renders.
+// Reads REACT_APP_GA_MEASUREMENT_ID from .env
+initGA();
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

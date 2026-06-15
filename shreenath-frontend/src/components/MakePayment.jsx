@@ -24,6 +24,7 @@ import {
 } from "react-icons/fa";
 import { getStoredUser, readStoredJson } from "../utils/auth";
 import { copyTextToClipboard, downloadBlob } from "../utils/browser";
+import { gaTrackPurchase } from "../utils/googleAnalytics";
 import "../styles/components/MakePayment.css";
 
 const API_BASE = `${API_BASE_URL}/api`;
@@ -448,10 +449,18 @@ function MakePayment() {
         })
         .then((confirmedOrder) => {
           persistSavedMethod();
-          setResult({
+          const finalResult = {
             ...paymentStatus,
             amount: confirmedOrder.totalAmount || totalPayable,
             receiptId: `INV-${confirmedOrder.id || Date.now()}`,
+          };
+          setResult(finalResult);
+          // GA4: purchase event for online payments
+          gaTrackPurchase({
+            orderId: confirmedOrder.id || finalResult.receiptId,
+            total: finalResult.amount,
+            items: cartItems,
+            coupon: appliedCoupon || "",
           });
           setPaymentState("success");
           setOtpRequired(false);

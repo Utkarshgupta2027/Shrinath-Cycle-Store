@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { getStoredUser, readStoredJson } from "../utils/auth";
 import { trackOrderPlaced } from "../utils/analytics";
+import { gaTrackCheckoutStart, gaTrackPurchase } from "../utils/googleAnalytics";
 import "../styles/components/CheckoutPopup.css";
 
 const API_BASE = `${API_BASE_URL}/api`;
@@ -193,7 +194,14 @@ function CheckoutPopup() {
     if (!userId) { setLoadingCart(false); return; }
     fetch(`${API_BASE}/cart/users/${userId}`)
       .then((res) => { if (!res.ok) throw new Error("Failed to fetch cart"); return res.json(); })
-      .then((data) => { const items = normalizeCartItems(data); setCartItems(items); fetchCartSummary("", items); })
+      .then((data) => {
+        const items = normalizeCartItems(data);
+        setCartItems(items);
+        fetchCartSummary("", items);
+        // GA4: begin_checkout event after cart loads
+        const localSubtotalGA = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+        gaTrackCheckoutStart(items, localSubtotalGA);
+      })
       .catch(() => setPageMessage("Could not load your cart. Please go back and try again."))
       .finally(() => setLoadingCart(false));
     loadSavedAddresses();
@@ -339,6 +347,13 @@ function CheckoutPopup() {
         setConfirmation(conf);
         setCartItems([]);
         trackOrderPlaced(); // analytics: mark this session as buyer
+        // GA4: purchase event
+        gaTrackPurchase({
+          orderId: placedOrder?.id || "NEW",
+          total: finalTotal,
+          items: cartItems,
+          coupon: appliedCoupon || "",
+        });
         setShowAlert(true);    // ← trigger the alert dialog + auto-redirect
       } else {
         const errorMessage = await res.text();
