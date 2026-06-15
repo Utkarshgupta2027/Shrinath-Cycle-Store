@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { API_BASE_URL } from "../config";
 import {
   FaSearch,
@@ -11,7 +11,6 @@ import {
   FaCheckSquare,
   FaSquare,
 } from "react-icons/fa";
-import { trackSearch } from "../utils/analytics";
 import { gaTrackSearch } from "../utils/googleAnalytics";
 import "./SearchFilterBar.css";
 
@@ -40,8 +39,6 @@ export default function SearchFilterBar({ onFilterChange, totalResults }) {
   const [sortBy, setSortBy] = useState("");
   // Dynamic brand list from API (Feature 14)
   const [brandOptions, setBrandOptions] = useState([]);
-  // Track last logged search to avoid duplicate logs
-  const lastLoggedRef = useRef({ query: "", results: -1 });
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/brands`)
@@ -50,17 +47,13 @@ export default function SearchFilterBar({ onFilterChange, totalResults }) {
       .catch(() => setBrandOptions(["Hero", "Atlas", "Hercules", "Firefox", "Montra", "Avon"]));
   }, []);
 
-  // Track search with debounce when keyword + totalResults both settle
+  // GA4 search tracking — fires when keyword settles
   useEffect(() => {
     if (!keyword || keyword.trim().length < 2) return;
     if (totalResults === undefined) return;
-    // Avoid re-logging the exact same query+result pair
-    if (lastLoggedRef.current.query === keyword && lastLoggedRef.current.results === totalResults) return;
     const timer = setTimeout(() => {
-      trackSearch(keyword, totalResults);
       gaTrackSearch(keyword, totalResults);
-      lastLoggedRef.current = { query: keyword, results: totalResults };
-    }, 1500); // wait 1.5s after user stops typing before logging
+    }, 1500);
     return () => clearTimeout(timer);
   }, [keyword, totalResults]);
 

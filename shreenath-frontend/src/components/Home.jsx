@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppContext from "../Context/Context";
 import "../styles/components/home.css";
 import SearchFilterBar from "./SearchFilterBar";
+import { trackPageView, trackSearch } from "../utils/analytics";
 import NotifyMeModal from "./NotifyMeModal";
 
 import {
@@ -189,14 +190,18 @@ function Home() {
         return res.json();
       })
       .then((data) => {
-        setProducts(Array.isArray(data) ? data : []);
+        const results = Array.isArray(data) ? data : [];
+        setProducts(results);
         setProductFetchError(false);
+        // Track search analytics — only when a keyword was actually typed
+        if (filters.keyword && filters.keyword.trim().length >= 2) {
+          trackSearch(filters.keyword.trim(), results.length);
+        }
       })
       .catch((err) => {
         console.error("Product fetch error (attempt", retryCount + 1, "):", err);
         const MAX_RETRIES = 5;
         if (retryCount < MAX_RETRIES) {
-          // Exponential backoff: 2s, 4s, 8s, 16s, 32s
           const delay = Math.min(2000 * Math.pow(2, retryCount), 32000);
           retryTimeoutRef.current = setTimeout(() => fetchProducts(filters, retryCount + 1), delay);
         } else {
