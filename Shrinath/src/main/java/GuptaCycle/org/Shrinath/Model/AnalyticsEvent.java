@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @Table(name = "analytics_events", indexes = {
-        @Index(name = "idx_ae_visitor", columnList = "visitorId"),
-        @Index(name = "idx_ae_session", columnList = "sessionId"),
-        @Index(name = "idx_ae_event_type", columnList = "eventType"),
-        @Index(name = "idx_ae_timestamp", columnList = "timestamp"),
-        @Index(name = "idx_ae_user_id", columnList = "userId")
+        @Index(name = "idx_ae_visitor",    columnList = "visitor_id"),
+        @Index(name = "idx_ae_session",    columnList = "session_id"),
+        @Index(name = "idx_ae_event_type", columnList = "event_type"),
+        @Index(name = "idx_ae_timestamp",  columnList = "timestamp"),
+        @Index(name = "idx_ae_user_id",    columnList = "user_id")
 })
 public class AnalyticsEvent {
 

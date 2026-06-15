@@ -7,6 +7,8 @@ import GuptaCycle.org.Shrinath.Security.JwtUtils;
 import GuptaCycle.org.Shrinath.Service.AuthService;
 import GuptaCycle.org.Shrinath.Service.VisitorAnalyticsService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/analytics")
 public class VisitorAnalyticsController {
+
+    private static final Logger log = LoggerFactory.getLogger(VisitorAnalyticsController.class);
 
     @Autowired
     private VisitorAnalyticsService visitorAnalyticsService;
@@ -60,6 +64,10 @@ public class VisitorAnalyticsController {
             visitorAnalyticsService.recordSearch(dto);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
+            log.error("[Analytics] Failed to save search log. query='{}' resultCount={} error={}",
+                    dto != null ? dto.getQuery() : "null",
+                    dto != null ? dto.getResultCount() : -1,
+                    e.getMessage(), e);
             return ResponseEntity.ok().build();
         }
     }

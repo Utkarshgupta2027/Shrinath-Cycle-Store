@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @Table(name = "search_log", indexes = {
-        @Index(name = "idx_sl_query", columnList = "query"),
-        @Index(name = "idx_sl_result_count", columnList = "resultCount"),
-        @Index(name = "idx_sl_timestamp", columnList = "timestamp")
+        @Index(name = "idx_sl_query",        columnList = "query"),
+        @Index(name = "idx_sl_result_count",  columnList = "result_count"),
+        @Index(name = "idx_sl_timestamp",     columnList = "timestamp")
 })
 public class SearchLog {
 
