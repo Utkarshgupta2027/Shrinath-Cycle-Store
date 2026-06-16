@@ -114,6 +114,24 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{orderId}/payment-status")
+    public ResponseEntity<?> updateOrderPaymentStatus(@PathVariable Long orderId,
+                                                      @RequestBody Map<String, String> request,
+                                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        ResponseEntity<?> authFailure = authorizeAdmin(authorizationHeader);
+        if (authFailure != null) {
+            return authFailure;
+        }
+
+        try {
+            String paymentStatus = request.get("paymentStatus");
+            return ResponseEntity.ok(orderService.updateOrderPaymentStatus(orderId, paymentStatus));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+
     @PutMapping("/{orderId}/refund")
     public ResponseEntity<?> processRefund(@PathVariable Long orderId,
                                            @RequestBody(required = false) RefundRequest request,

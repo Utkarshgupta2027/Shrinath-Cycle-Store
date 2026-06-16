@@ -141,10 +141,15 @@ public class OrderService {
         order.setCouponCode(coupon.appliedCode());
         order.setDeliveryOption(normalizeDeliveryOption(req.getDeliveryOption()));
         order.setPaymentMethod(defaultString(req.getPaymentMethod()).isBlank() ? "COD" : req.getPaymentMethod().trim().toUpperCase(Locale.ROOT));
-        order.setPaymentStatus(markPaid ? "PAID" : "PENDING");
-        order.setStatus(markPaid ? "PENDING" : "PENDING_PAYMENT");
-        if (markPaid) {
-            order.setPaidAt(LocalDateTime.now());
+        if ("COD".equalsIgnoreCase(order.getPaymentMethod())) {
+            order.setPaymentStatus("PENDING");
+            order.setStatus("PENDING");
+        } else {
+            order.setPaymentStatus(markPaid ? "PAID" : "PENDING");
+            order.setStatus(markPaid ? "PENDING" : "PENDING_PAYMENT");
+            if (markPaid) {
+                order.setPaidAt(LocalDateTime.now());
+            }
         }
         order.setTotalAmount(totalAmount.doubleValue());
         order.setAddress(req.getAddress());
@@ -190,10 +195,47 @@ public class OrderService {
             order.setTrackingUrl(awbData.get("trackingUrl"));
         }
 
+        boolean codPaymentCompleted = false;
+        if ("DELIVERED".equals(normalizedStatus) && "COD".equalsIgnoreCase(order.getPaymentMethod())) {
+            if (!"PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+                order.setPaymentStatus("PAID");
+                order.setPaidAt(LocalDateTime.now());
+                codPaymentCompleted = true;
+            }
+        }
+
         Order savedOrder = orderRepo.save(order);
+
+        if (codPaymentCompleted) {
+            userRepository.findById(savedOrder.getUserId())
+                    .ifPresent(user -> emailService.sendPaymentUpdateEmail(user.getEmail(), savedOrder));
+        }
+
         userRepository.findById(savedOrder.getUserId())
                 .ifPresent(user -> notifyStatusUpdate(user, savedOrder, normalizedStatus));
         return savedOrder;
+    }
+
+    @Transactional
+    public Order updateOrderPaymentStatus(Long orderId, String paymentStatus) {
+        Order order = getOrderById(orderId);
+        String normalizedPaymentStatus = paymentStatus.trim().toUpperCase(Locale.ROOT);
+
+        if ("PAID".equals(normalizedPaymentStatus) && !"PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+            order.setPaymentStatus("PAID");
+            order.setPaidAt(LocalDateTime.now());
+            Order savedOrder = orderRepo.save(order);
+            userRepository.findById(savedOrder.getUserId())
+                    .ifPresent(user -> emailService.sendPaymentUpdateEmail(user.getEmail(), savedOrder));
+            return savedOrder;
+        } else {
+            order.setPaymentStatus(normalizedPaymentStatus);
+            if (!"PAID".equals(normalizedPaymentStatus)) {
+                order.setPaidAt(null);
+            }
+            order.setUpdatedAt(LocalDateTime.now());
+            return orderRepo.save(order);
+        }
     }
 
     public void deleteOrder(Long orderId) {

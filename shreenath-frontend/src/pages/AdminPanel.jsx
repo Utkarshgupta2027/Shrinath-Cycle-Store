@@ -592,6 +592,23 @@ function AdminPanel() {
     }
   };
 
+  const handleUpdatePaymentStatus = async (orderId, paymentStatus) => {
+    try {
+      setUpdatingOrderId(orderId);
+      await axios.put(
+        `${API_BASE}/api/orders/${orderId}/payment-status`,
+        { paymentStatus },
+        { headers: getAuthHeaders() }
+      );
+      await loadDashboard();
+    } catch (statusError) {
+      console.error(statusError);
+      setError(getErrorMessage(statusError, "Unable to update payment status."));
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
   const handleDeleteOrder = async (orderId) => {
     if (!confirmAction(`Delete order #${orderId}?`)) {
       return;
@@ -989,7 +1006,19 @@ function AdminPanel() {
                       <div className="order-admin-meta">
                         <span>{formatCurrency(order.totalAmount)}</span>
                         <span>{order.items?.length || 0} items</span>
-                        <span>{order.paymentStatus || "PENDING"}</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                          Payment: {order.paymentStatus || "PENDING"}
+                          {order.paymentStatus !== "PAID" && (
+                            <button
+                              className="secondary-inline-btn"
+                              style={{ padding: "2px 6px", fontSize: "0.72rem", margin: 0, height: "auto", lineHeight: "1" }}
+                              onClick={() => handleUpdatePaymentStatus(order.id, "PAID")}
+                              disabled={updatingOrderId === order.id}
+                            >
+                              Mark Paid
+                            </button>
+                          )}
+                        </span>
                         <span>
                           {order.orderDate
                             ? new Date(order.orderDate).toLocaleString("en-IN", {

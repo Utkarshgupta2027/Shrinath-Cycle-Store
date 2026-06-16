@@ -367,6 +367,39 @@ public class EmailService {
     }
 
     @Async
+    public void sendPaymentUpdateEmail(String toEmail, Order order) {
+        try {
+            String subject = "Payment Confirmation - Order #" + order.getId() + " - Shrinath Cycle Store";
+
+            StringBuilder text = new StringBuilder();
+            text.append("Hello,\n\nWe have received your payment for order #").append(order.getId()).append("!\n\n");
+            text.append("Payment Status: ").append(order.getPaymentStatus()).append("\n");
+            text.append("Total Paid: ₹").append(order.getTotalAmount()).append("\n");
+            text.append("Payment Method: ").append(order.getPaymentMethod()).append("\n\n");
+            text.append("We have attached your updated GST Tax Invoice to this email.\n\n");
+            text.append("Best regards,\nThe Shrinath Cycle Store Team");
+
+            List<Map<String, Object>> attachments = null;
+            try {
+                byte[] pdfBytes = invoiceService.generateInvoice(order);
+                if (pdfBytes != null && pdfBytes.length > 0) {
+                    String base64Content = java.util.Base64.getEncoder().encodeToString(pdfBytes);
+                    Map<String, Object> attachment = new HashMap<>();
+                    attachment.put("name", "invoice-" + order.getId() + ".pdf");
+                    attachment.put("content", base64Content);
+                    attachments = List.of(attachment);
+                }
+            } catch (Exception ex) {
+                System.err.println("Could not generate invoice attachment for order " + order.getId() + ": " + ex.getMessage());
+            }
+
+            sendViaBrevoApi(toEmail, subject, text.toString(), null, null, attachments);
+        } catch (Exception e) {
+            System.err.println("Failed to send payment confirmation email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    @Async
     public void sendFeedbackAdminNotification(String adminEmail, String replyToEmail, String subject, String body) {
         try {
             sendViaBrevoApi(adminEmail, subject, body, null, replyToEmail, null);
