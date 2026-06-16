@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { API_BASE_URL } from "../config";
 import { useNavigate, useLocation } from "react-router-dom";
+import AppContext from "../Context/Context";
 import {
   FaArrowLeft,
   FaBolt,
@@ -117,6 +118,7 @@ function MakePayment() {
   const location = useLocation();
   const orderFromState = location.state?.order;
   const userId = user?.id;
+  const { fetchCart } = useContext(AppContext);
 
   const [cartItems, setCartItems] = useState([]);
   const [loadingCart, setLoadingCart] = useState(true);
@@ -449,6 +451,7 @@ function MakePayment() {
         })
         .then((confirmedOrder) => {
           persistSavedMethod();
+          fetchCart();
           const finalResult = {
             ...paymentStatus,
             amount: confirmedOrder.totalAmount || totalPayable,
@@ -474,6 +477,7 @@ function MakePayment() {
       } else {
         // Fallback for unexpected cases
         persistSavedMethod();
+        fetchCart();
         setResult(paymentStatus);
         setPaymentState("success");
         setOtpRequired(false);

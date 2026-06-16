@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useContext } from "react";
 import { API_BASE_URL } from "../config";
 import { useNavigate } from "react-router-dom";
+import AppContext from "../Context/Context";
 import {
   FaArrowLeft,
   FaCheckCircle,
@@ -40,6 +41,7 @@ function CheckoutPopup() {
   const navigate = useNavigate();
   const user = getStoredUser();
   const userId = user?.id;
+  const { fetchCart } = useContext(AppContext);
 
   const [checkoutMode, setCheckoutMode] = useState(userId ? "login" : "guest");
   const [cartItems, setCartItems] = useState([]);
@@ -340,7 +342,7 @@ function CheckoutPopup() {
       const res = await fetch(`${API_BASE}/orders`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(order) });
       if (res.ok) {
         const placedOrder = await res.json().catch(() => null);
-        await fetch(`${API_BASE}/cart/clear?userId=${userId}`, { method: "DELETE" }).catch(() => {});
+        await fetchCart();
         handleSaveAddress();
         handleSavePaymentMethod();
         const conf = { id: placedOrder?.id || "NEW", total: finalTotal, estimate: deliveryEstimate };
