@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState, useContext } from "react";
 import { API_BASE_URL } from "../config";
 import { useNavigate, useLocation } from "react-router-dom";
-import AppContext from "../Context/Context";
 import {
   FaArrowLeft,
   FaBolt,
@@ -24,6 +23,7 @@ import {
   FaWallet,
 } from "react-icons/fa";
 import { getStoredUser, readStoredJson } from "../utils/auth";
+import AppContext from "../Context/Context";
 import { copyTextToClipboard, downloadBlob } from "../utils/browser";
 import { gaTrackPurchase } from "../utils/googleAnalytics";
 import "../styles/components/MakePayment.css";
@@ -118,7 +118,7 @@ function MakePayment() {
   const location = useLocation();
   const orderFromState = location.state?.order;
   const userId = user?.id;
-  const { fetchCart } = useContext(AppContext);
+  const { clearCart } = useContext(AppContext);
 
   const [cartItems, setCartItems] = useState([]);
   const [loadingCart, setLoadingCart] = useState(true);
@@ -451,7 +451,7 @@ function MakePayment() {
         })
         .then((confirmedOrder) => {
           persistSavedMethod();
-          fetchCart();
+          clearCart().catch(() => {});
           const finalResult = {
             ...paymentStatus,
             amount: confirmedOrder.totalAmount || totalPayable,
@@ -477,7 +477,7 @@ function MakePayment() {
       } else {
         // Fallback for unexpected cases
         persistSavedMethod();
-        fetchCart();
+        clearCart().catch(() => {});
         setResult(paymentStatus);
         setPaymentState("success");
         setOtpRequired(false);
