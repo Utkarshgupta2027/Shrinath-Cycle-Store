@@ -118,12 +118,49 @@ const AppProvider = ({ children }) => {
     await mergeCart(userData.id, token);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     clearStoredAuth();
     setUser(null);
     setCart([]);
     setCartCount(0);
-  };
+  }, []);
+
+  // Verify user token and role with backend on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const verifyUser = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const normalized = {
+            id: data.id,
+            name: data.name,
+            username: data.name,
+            phoneNo: data.phoneNumber,
+            phoneNumber: data.phoneNumber,
+            email: data.email,
+            role: data.role,
+            verified: data.verified,
+          };
+          setUser(normalized);
+          setStoredUser(normalized);
+        } else if (response.status === 401 || response.status === 403) {
+          logout();
+        }
+      } catch (err) {
+        console.error("Failed to verify user token", err);
+      }
+    };
+
+    verifyUser();
+  }, [logout]);
 
   const addToCart = async (product, quantity = 1) => {
     if (user?.id) {

@@ -1,10 +1,11 @@
 import React, { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import AppProvider from "./Context/AppProvider";
 import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
 import { trackPageView } from "./utils/analytics";
 import { gaTrackPageView } from "./utils/googleAnalytics";
+import { getStoredUser, isAdminUser } from "./utils/auth";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -54,6 +55,21 @@ function PageLoader() {
   );
 }
 
+function AdminRoute({ children }) {
+  const user = getStoredUser();
+  const isAdmin = isAdminUser(user);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
 function AppLayout() {
   const location = useLocation();
   const hideNavbar = ["/login", "/register", "/addproduct"].includes(location.pathname)
@@ -95,18 +111,18 @@ function AppLayout() {
             <Route path="/register"  element={<Register />} />
 
             {/* ── Lazy-loaded routes ── */}
-            <Route path="/addproduct"             element={<AddProduct />} />
+            <Route path="/addproduct"             element={<AdminRoute><AddProduct /></AdminRoute>} />
             <Route path="/cart"                   element={<Cart />} />
             <Route path="/product/:productId"     element={<Product />} />
-            <Route path="/updateproduct/:id"      element={<UpdateProduct />} />
+            <Route path="/updateproduct/:id"      element={<AdminRoute><UpdateProduct /></AdminRoute>} />
             <Route path="/checkout"               element={<CheckoutPopup />} />
             <Route path="/makepayment"            element={<MakePayment />} />
             <Route path="/useraccount"            element={<UserAccount />} />
             <Route path="/orders"                 element={<Orders />} />
             <Route path="/wishlist"               element={<Wishlist />} />
             <Route path="/settings"              element={<Settings />} />
-            <Route path="/dashboard"              element={<Dashboard />} />
-            <Route path="/admin"                  element={<AdminPanel />} />
+            <Route path="/dashboard"              element={<AdminRoute><Dashboard /></AdminRoute>} />
+            <Route path="/admin"                  element={<AdminRoute><AdminPanel /></AdminRoute>} />
             <Route path="/track/:orderId"         element={<TrackOrder />} />
             <Route path="/feedback"              element={<Feedback />} />
             <Route path="/addresses"             element={<AddressBook />} />
