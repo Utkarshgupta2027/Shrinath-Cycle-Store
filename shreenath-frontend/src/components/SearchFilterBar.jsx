@@ -28,8 +28,12 @@ const CATEGORY_OPTIONS = [
   "Parts", "Accessories", "Tools",
 ];
 
-export default function SearchFilterBar({ onFilterChange, totalResults }) {
-  const [keyword, setKeyword] = useState("");
+export default function SearchFilterBar({ onFilterChange, totalResults, initialKeyword = "" }) {
+  const [keyword, setKeyword] = useState(initialKeyword);
+
+  useEffect(() => {
+    setKeyword(initialKeyword);
+  }, [initialKeyword]);
   const [expanded, setExpanded] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");

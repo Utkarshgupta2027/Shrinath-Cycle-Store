@@ -223,8 +223,13 @@ function Home() {
     searchDebounceRef.current = setTimeout(() => fetchProducts(filters), 350);
   }, [fetchProducts]);
 
-  // Initial product load
-  useEffect(() => { fetchProducts({}); }, [fetchProducts]);
+  // Initial product load (handles URL search/category query params)
+  useEffect(() => {
+    const initFilters = {};
+    if (searchQuery) initFilters.keyword = searchQuery;
+    if (categoryQuery) initFilters.category = categoryQuery;
+    fetchProducts(initFilters);
+  }, [fetchProducts, searchQuery, categoryQuery]);
 
   // Fetch featured brands for homepage (Feature 14)
   useEffect(() => {
@@ -395,24 +400,9 @@ function Home() {
     return productCategory === selectedCategory.toLowerCase();
   };
 
-  // Filter products
+  // Filter products (locally only by category, keyword is filtered by backend)
   const filteredProducts = products.filter((p) => {
-    const normalizedSearch = searchQuery.trim().toLowerCase();
-    const searchableText = [
-      p.name,
-      p.brand,
-      p.category,
-      p.desc,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    const matchSearch = normalizedSearch
-      ? searchableText.includes(normalizedSearch)
-      : true;
-    const matchCat = matchesCategory(p, activeCategory);
-    return matchSearch && matchCat;
+    return matchesCategory(p, activeCategory);
   });
 
   const featuredProducts = [...filteredProducts]
@@ -432,7 +422,7 @@ function Home() {
     })
     .slice(0, 8);
 
-  const isFilteredView = activeCategory !== "All" || Boolean(searchQuery);
+  const isFilteredView = activeCategory !== "All" || Boolean(searchQuery) || Boolean(activeFilters.keyword);
   const productsToRender = isFilteredView ? filteredProducts : featuredProducts;
   const sectionTitle = isFilteredView ? "Product Results" : "Featured Products";
   const sectionSubtitle = isFilteredView
@@ -660,10 +650,10 @@ function Home() {
             )}
           </div>
 
-          {/* Feature 9 — SearchFilterBar */}
           <SearchFilterBar
             onFilterChange={handleFilterChange}
             totalResults={searchLoading ? undefined : productsToRender.length}
+            initialKeyword={searchQuery}
           />
 
           {/* Category filter pills */}
