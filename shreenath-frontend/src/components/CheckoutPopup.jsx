@@ -137,7 +137,7 @@ function CheckoutPopup() {
   const selectedDeliveryCharge = useMemo(() => {
     if (deliveryOption === "express") return DELIVERY_OPTIONS.express.charge;
     if (dynamicShippingCharge !== null && deliveryOption === "standard") return dynamicShippingCharge;
-    return localSubtotal === 0 || localSubtotal >= 2000 ? 0 : 99;
+    return localSubtotal === 0 ? 0 : 99;
   }, [deliveryOption, dynamicShippingCharge, localSubtotal]);
 
   const finalTotal = useMemo(
@@ -174,17 +174,17 @@ function CheckoutPopup() {
             body: JSON.stringify({ code, userId, subtotal }),
           });
           const v = valRes.ok ? await valRes.json() : { valid: false, discountAmount: 0, appliedCode: "", message: "Coupon validation failed." };
-          const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
+          const deliveryCharges = subtotal === 0 ? 0 : 99;
           setSummary({ subtotal, discountAmount: v.discountAmount || 0, deliveryCharges, finalTotal: Math.max(subtotal - (v.discountAmount || 0) + deliveryCharges, 0) });
           setAppliedCoupon(v.appliedCode || "");
           setCouponMessage(v.message || "");
         } else {
-          const deliveryCharges = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
+          const deliveryCharges = subtotal === 0 ? 0 : 99;
           setSummary({ subtotal, discountAmount: 0, deliveryCharges, finalTotal: subtotal + deliveryCharges });
           setAppliedCoupon("");
         }
       } catch {
-        const deliveryCharges = subtotal >= 2000 ? 0 : 99;
+        const deliveryCharges = subtotal === 0 ? 0 : 99;
         setSummary({ subtotal, discountAmount: 0, deliveryCharges, finalTotal: subtotal + deliveryCharges });
         setAppliedCoupon("");
         setCouponMessage(code ? "Coupon validation failed." : "");

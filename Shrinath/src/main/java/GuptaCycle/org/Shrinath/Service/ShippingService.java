@@ -40,22 +40,18 @@ public class ShippingService {
     // ─── Shipping Charge Calculation ──────────────────────────────────────────
 
     /**
-     * Calculate shipping charge based on the PIN's configured rates and item weight.
+     * Calculate shipping charge based on the PIN's configured rates.
+     * Weight is ignored as the charge is fixed by admin according to location.
      *
      * @param pincode  destination PIN code
-     * @param weightKg total weight of items in kg (default 1 if 0/null)
+     * @param weightKg total weight of items in kg (ignored)
      * @return shipping charge in Rs, or -1 if PIN is not serviceable
      */
     public double calculateShippingCharge(String pincode, double weightKg) {
         ServiceablePin pin = getPinDetails(pincode);
         if (pin == null) return -1.0;
 
-        double weight = Math.max(weightKg, 0.5);
-        double base = pin.getBaseCharge() > 0 ? pin.getBaseCharge() : DEFAULT_BASE_CHARGE;
-        double perKg = pin.getPerKgCharge() > 0 ? pin.getPerKgCharge() : DEFAULT_PER_KG_CHARGE;
-
-        if (weight <= 1.0) return base;
-        return base + (weight - 1.0) * perKg;
+        return pin.getBaseCharge();
     }
 
     // ─── Mock AWB Generation ──────────────────────────────────────────────────

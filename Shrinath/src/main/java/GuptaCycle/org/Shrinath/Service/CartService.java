@@ -4,9 +4,11 @@ import GuptaCycle.org.Shrinath.DTO.CartSummaryResponse;
 import GuptaCycle.org.Shrinath.Model.Cart;
 import GuptaCycle.org.Shrinath.Model.CartItem;
 import GuptaCycle.org.Shrinath.Model.Product;
+import GuptaCycle.org.Shrinath.Model.UserAddress;
 import GuptaCycle.org.Shrinath.Repository.CartItemRepository;
 import GuptaCycle.org.Shrinath.Repository.CartRepository;
 import GuptaCycle.org.Shrinath.Repository.ProductRepo;
+import GuptaCycle.org.Shrinath.Repository.UserAddressRepository;
 import GuptaCycle.org.Shrinath.Service.CouponService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -36,6 +40,12 @@ public class CartService {
 
     @Autowired
     private CouponService couponService;
+
+    @Autowired
+    private UserAddressRepository userAddressRepository;
+
+    @Autowired
+    private ShippingService shippingService;
 
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
@@ -169,10 +179,29 @@ public class CartService {
                 .setScale(2, RoundingMode.HALF_UP);
 
         CouponService.CouponValidationResult coupon = couponService.validateCoupon(couponCode, userId, subtotal);
-        BigDecimal deliveryCharges = subtotal.compareTo(BigDecimal.ZERO) == 0 ||
-                subtotal.compareTo(FREE_DELIVERY_THRESHOLD) >= 0
-                ? BigDecimal.ZERO
-                : DELIVERY_CHARGE;
+        BigDecimal deliveryCharges = DELIVERY_CHARGE;
+        
+        if (subtotal.compareTo(BigDecimal.ZERO) == 0) {
+            deliveryCharges = BigDecimal.ZERO;
+        } else {
+            String pincode = null;
+            Optional<UserAddress> defaultAddressOpt = userAddressRepository.findByUserIdAndIsDefaultTrue(userId);
+            if (defaultAddressOpt.isPresent()) {
+                pincode = defaultAddressOpt.get().getPincode();
+            } else {
+                List<UserAddress> addresses = userAddressRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId);
+                if (!addresses.isEmpty()) {
+                    pincode = addresses.get(0).getPincode();
+                }
+            }
+
+            if (pincode != null) {
+                double charge = shippingService.calculateShippingCharge(pincode, 1.0);
+                if (charge >= 0) {
+                    deliveryCharges = BigDecimal.valueOf(charge);
+                }
+            }
+        }
 
         BigDecimal finalTotal = subtotal
                 .subtract(coupon.discountAmount())

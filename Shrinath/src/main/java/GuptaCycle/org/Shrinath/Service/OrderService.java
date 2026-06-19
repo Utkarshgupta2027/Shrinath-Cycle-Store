@@ -128,7 +128,7 @@ public class OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
         CouponService.CouponValidationResult coupon = couponService.validateCoupon(req.getCouponCode(), req.getUserId(), subtotal);
-        BigDecimal deliveryCharges = calculateDeliveryCharges(subtotal, req.getDeliveryOption());
+        BigDecimal deliveryCharges = calculateDeliveryCharges(subtotal, req.getDeliveryOption(), req.getAddress());
         BigDecimal totalAmount = subtotal
                 .subtract(coupon.discountAmount())
                 .add(deliveryCharges)
@@ -510,12 +510,29 @@ public class OrderService {
         return normalized;
     }
 
-    private BigDecimal calculateDeliveryCharges(BigDecimal subtotal, String deliveryOption) {
+    private String extractPincode(String address) {
+        if (address == null) return null;
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\b\\d{6}\\b").matcher(address);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
+    }
+
+    private BigDecimal calculateDeliveryCharges(BigDecimal subtotal, String deliveryOption, String address) {
         if ("express".equalsIgnoreCase(defaultString(deliveryOption))) {
             return EXPRESS_DELIVERY_CHARGE;
         }
-        if (subtotal.compareTo(BigDecimal.ZERO) == 0 || subtotal.compareTo(FREE_DELIVERY_THRESHOLD) >= 0) {
+        if (subtotal.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
+        }
+
+        String pincode = extractPincode(address);
+        if (pincode != null) {
+            double charge = shippingService.calculateShippingCharge(pincode, 1.0);
+            if (charge >= 0) {
+                return BigDecimal.valueOf(charge);
+            }
         }
         return STANDARD_DELIVERY_CHARGE;
     }
