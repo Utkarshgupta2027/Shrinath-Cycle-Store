@@ -48,8 +48,9 @@ public class ShippingController {
     @GetMapping("/shipping-charge")
     public ResponseEntity<?> getShippingCharge(
             @RequestParam String pincode,
+            @RequestParam(defaultValue = "standard") String deliveryOption,
             @RequestParam(defaultValue = "1.0") double weight) {
-        double charge = shippingService.calculateShippingCharge(pincode, weight);
+        double charge = shippingService.calculateShippingCharge(pincode, deliveryOption);
         if (charge < 0) {
             return ResponseEntity.ok(Map.of(
                     "serviceable", false,
@@ -60,7 +61,7 @@ public class ShippingController {
         return ResponseEntity.ok(Map.of(
                 "serviceable", true,
                 "pincode", pincode,
-                "weight", weight,
+                "deliveryOption", deliveryOption,
                 "charge", charge
         ));
     }

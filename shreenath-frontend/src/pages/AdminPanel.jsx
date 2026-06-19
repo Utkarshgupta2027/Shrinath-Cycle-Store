@@ -150,7 +150,7 @@ function AdminPanel() {
   const [savingProduct, setSavingProduct] = useState(false);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [serviceablePins, setServiceablePins] = useState([]);
-  const [pinForm, setPinForm] = useState({ pincode: "", city: "", state: "", baseCharge: 40, perKgCharge: 0, active: true });
+  const [pinForm, setPinForm] = useState({ pincode: "", city: "", state: "", baseCharge: 40, perKgCharge: 199, active: true });
   const [pinFormError, setPinFormError] = useState("");
   const [editingPinId, setEditingPinId] = useState(null);
   const [savingPin, setSavingPin] = useState(false);
@@ -1276,9 +1276,15 @@ function AdminPanel() {
                     />
                     <input
                       type="number"
-                      placeholder="Fixed Delivery Charge (Rs)"
+                      placeholder="Standard Delivery Charge (Rs)"
                       value={pinForm.baseCharge}
                       onChange={(e) => setPinForm((p) => ({ ...p, baseCharge: parseFloat(e.target.value) || 0 }))}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Express Delivery Charge (Rs)"
+                      value={pinForm.perKgCharge}
+                      onChange={(e) => setPinForm((p) => ({ ...p, perKgCharge: parseFloat(e.target.value) || 0 }))}
                     />
                   </div>
                   <div className="shipping-pin-form-actions">
@@ -1291,11 +1297,11 @@ function AdminPanel() {
                         setSavingPin(true);
                         try {
                           if (editingPinId) {
-                            await axios.put(`${API_BASE}/api/shipping/admin/pins/${editingPinId}`, { ...pinForm, perKgCharge: 0 }, { headers: getAuthHeaders() });
+                            await axios.put(`${API_BASE}/api/shipping/admin/pins/${editingPinId}`, pinForm, { headers: getAuthHeaders() });
                           } else {
-                            await axios.post(`${API_BASE}/api/shipping/admin/pins`, { ...pinForm, perKgCharge: 0 }, { headers: getAuthHeaders() });
+                            await axios.post(`${API_BASE}/api/shipping/admin/pins`, pinForm, { headers: getAuthHeaders() });
                           }
-                          setPinForm({ pincode: "", city: "", state: "", baseCharge: 40, perKgCharge: 0, active: true });
+                          setPinForm({ pincode: "", city: "", state: "", baseCharge: 40, perKgCharge: 199, active: true });
                           setEditingPinId(null);
                           await loadServiceablePins();
                         } catch (err) {
@@ -1306,7 +1312,7 @@ function AdminPanel() {
                       {savingPin ? "Saving..." : editingPinId ? "Update PIN" : "Add PIN"}
                     </button>
                     {editingPinId && (
-                      <button className="secondary-btn" onClick={() => { setEditingPinId(null); setPinForm({ pincode: "", city: "", state: "", baseCharge: 40, perKgCharge: 0, active: true }); }}>
+                      <button className="secondary-btn" onClick={() => { setEditingPinId(null); setPinForm({ pincode: "", city: "", state: "", baseCharge: 40, perKgCharge: 199, active: true }); }}>
                         Cancel
                       </button>
                     )}
@@ -1321,7 +1327,8 @@ function AdminPanel() {
                         <th>Pincode</th>
                         <th>City</th>
                         <th>State</th>
-                        <th>Delivery Charge (Rs)</th>
+                        <th>Standard (Rs)</th>
+                        <th>Express (Rs)</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>
@@ -1335,6 +1342,7 @@ function AdminPanel() {
                           <td>{pin.city || "�"}</td>
                           <td>{pin.state || "�"}</td>
                           <td>Rs. {pin.baseCharge}</td>
+                          <td>Rs. {pin.perKgCharge}</td>
                           <td>
                             <span className={`stock-pill ${pin.active ? "in-stock" : "out-of-stock"}`}>
                               {pin.active ? "Active" : "Inactive"}
@@ -1344,7 +1352,7 @@ function AdminPanel() {
                             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                               <button
                                 className="action-btn edit-btn"
-                                onClick={() => { setEditingPinId(pin.id); setPinForm({ pincode: pin.pincode, city: pin.city || "", state: pin.state || "", baseCharge: pin.baseCharge, perKgCharge: 0, active: pin.active }); }}
+                                onClick={() => { setEditingPinId(pin.id); setPinForm({ pincode: pin.pincode, city: pin.city || "", state: pin.state || "", baseCharge: pin.baseCharge, perKgCharge: pin.perKgCharge, active: pin.active }); }}
                               >
                                 <FaEdit />
                               </button>

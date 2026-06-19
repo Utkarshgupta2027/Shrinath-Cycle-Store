@@ -60,7 +60,7 @@ function CheckoutPopup() {
   const [locationError, setLocationError] = useState("");
   const [pinStatus, setPinStatus] = useState(null);
   const [pinLoading, setPinLoading] = useState(false);
-  const [dynamicShippingCharge, setDynamicShippingCharge] = useState(null);
+  const [dynamicCharges, setDynamicCharges] = useState({ standard: null, express: null });
   const [deliveryOption, setDeliveryOption] = useState("standard");
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
@@ -135,10 +135,11 @@ function CheckoutPopup() {
   );
 
   const selectedDeliveryCharge = useMemo(() => {
-    if (deliveryOption === "express") return DELIVERY_OPTIONS.express.charge;
-    if (dynamicShippingCharge !== null && deliveryOption === "standard") return dynamicShippingCharge;
-    return localSubtotal === 0 ? 0 : 99;
-  }, [deliveryOption, dynamicShippingCharge, localSubtotal]);
+    if (deliveryOption === "express") {
+      return dynamicCharges.express !== null ? dynamicCharges.express : DELIVERY_OPTIONS.express.charge;
+    }
+    return dynamicCharges.standard !== null ? dynamicCharges.standard : (localSubtotal === 0 ? 0 : 99);
+  }, [deliveryOption, dynamicCharges, localSubtotal]);
 
   const finalTotal = useMemo(
     () => Math.max(localSubtotal - Number(summary.discountAmount || 0) + selectedDeliveryCharge, 0),
@@ -212,22 +213,28 @@ function CheckoutPopup() {
   // PIN auto-fill + serviceability check + dynamic shipping charge
   useEffect(() => {
     const pin = addressForm.pincode.trim();
-    if (pin.length !== 6) { setPinStatus(null); setDynamicShippingCharge(null); return; }
+    if (pin.length !== 6) { setPinStatus(null); setDynamicCharges({ standard: null, express: null }); return; }
     const timer = setTimeout(async () => {
       setPinLoading(true);
       try {
-        const totalWeight = Math.max(cartItems.reduce((s, item) => s + (item.quantity || 1), 0), 1);
         const svcRes = await fetch(`${API_BASE}/shipping/check-pincode?pincode=${pin}`);
         const svcData = svcRes.ok ? await svcRes.json() : null;
         if (svcData?.serviceable) {
           setPinStatus({ serviceable: true, city: svcData.city, state: svcData.state });
           if (svcData.city) setAddressForm((prev) => ({ ...prev, city: prev.city || svcData.city, state: prev.state || svcData.state }));
-          const chargeRes = await fetch(`${API_BASE}/shipping/shipping-charge?pincode=${pin}&weight=${totalWeight}`);
-          const chargeData = chargeRes.ok ? await chargeRes.json() : null;
-          if (chargeData?.charge !== undefined) setDynamicShippingCharge(chargeData.charge);
+          
+          const stdRes = await fetch(`${API_BASE}/shipping/shipping-charge?pincode=${pin}&deliveryOption=standard`);
+          const stdData = stdRes.ok ? await stdRes.json() : null;
+          const expRes = await fetch(`${API_BASE}/shipping/shipping-charge?pincode=${pin}&deliveryOption=express`);
+          const expData = expRes.ok ? await expRes.json() : null;
+          
+          setDynamicCharges({
+            standard: stdData?.charge !== undefined ? stdData.charge : null,
+            express: expData?.charge !== undefined ? expData.charge : null
+          });
         } else {
           setPinStatus({ serviceable: false });
-          setDynamicShippingCharge(null);
+          setDynamicCharges({ standard: null, express: null });
           // Still try India Post for city/state autofill
           const ipRes = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
           const ipData = ipRes.ok ? await ipRes.json() : null;
@@ -237,7 +244,7 @@ function CheckoutPopup() {
       } catch { setPinStatus(null); } finally { setPinLoading(false); }
     }, 600);
     return () => clearTimeout(timer);
-  }, [addressForm.pincode, cartItems]);
+  }, [addressForm.pincode]);
 
   const getFullAddress = () =>
     [addressForm.name, addressForm.phone, addressForm.line1, addressForm.city, addressForm.state, addressForm.pincode]
@@ -553,15 +560,19 @@ function CheckoutPopup() {
                     <span>{option.detail}</span>
                     <small>
                       {key === "standard"
-                        ? selectedDeliveryCharge === 0 ? "Free" : formatMoney(selectedDeliveryCharge)
-                        : formatMoney(option.charge)}
+                        ? (dynamicCharges.standard !== null
+                            ? (dynamicCharges.standard === 0 ? "Free" : formatMoney(dynamicCharges.standard))
+                            : (localSubtotal === 0 ? "Free" : formatMoney(99)))
+                        : (dynamicCharges.express !== null
+                            ? formatMoney(dynamicCharges.express)
+                            : formatMoney(DELIVERY_OPTIONS.express.charge))}
                     </small>
                   </button>
                 ))}
               </div>
               <p className="delivery-estimate">Real-time delivery estimate: {deliveryEstimate}</p>
-              {dynamicShippingCharge !== null && deliveryOption === "standard" && (
-                <p className="shipping-charge-note">📦 Shipping charge for PIN {addressForm.pincode}: {formatMoney(dynamicShippingCharge)}</p>
+              {selectedDeliveryCharge !== null && addressForm.pincode.trim().length === 6 && (
+                <p className="shipping-charge-note">📦 Shipping charge for PIN {addressForm.pincode}: {formatMoney(selectedDeliveryCharge)}</p>
               )}
             </section>
 

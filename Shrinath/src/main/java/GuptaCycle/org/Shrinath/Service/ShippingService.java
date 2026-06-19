@@ -48,9 +48,24 @@ public class ShippingService {
      * @return shipping charge in Rs, or -1 if PIN is not serviceable
      */
     public double calculateShippingCharge(String pincode, double weightKg) {
+        return calculateShippingCharge(pincode, "standard");
+    }
+
+    /**
+     * Calculate shipping charge based on PIN and delivery option.
+     *
+     * @param pincode        destination PIN code
+     * @param deliveryOption "standard" or "express"
+     * @return shipping charge in Rs, or -1 if PIN is not serviceable
+     */
+    public double calculateShippingCharge(String pincode, String deliveryOption) {
         ServiceablePin pin = getPinDetails(pincode);
         if (pin == null) return -1.0;
 
+        if ("express".equalsIgnoreCase(deliveryOption)) {
+            double expressCharge = pin.getPerKgCharge();
+            return expressCharge > 10.0 ? expressCharge : 199.0;
+        }
         return pin.getBaseCharge();
     }
 

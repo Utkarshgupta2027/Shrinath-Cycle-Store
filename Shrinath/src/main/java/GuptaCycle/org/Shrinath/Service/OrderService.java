@@ -520,19 +520,20 @@ public class OrderService {
     }
 
     private BigDecimal calculateDeliveryCharges(BigDecimal subtotal, String deliveryOption, String address) {
-        if ("express".equalsIgnoreCase(defaultString(deliveryOption))) {
-            return EXPRESS_DELIVERY_CHARGE;
-        }
         if (subtotal.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
 
         String pincode = extractPincode(address);
         if (pincode != null) {
-            double charge = shippingService.calculateShippingCharge(pincode, 1.0);
+            double charge = shippingService.calculateShippingCharge(pincode, deliveryOption);
             if (charge >= 0) {
                 return BigDecimal.valueOf(charge);
             }
+        }
+
+        if ("express".equalsIgnoreCase(defaultString(deliveryOption))) {
+            return EXPRESS_DELIVERY_CHARGE;
         }
         return STANDARD_DELIVERY_CHARGE;
     }
