@@ -14,10 +14,17 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.HexFormat;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -49,7 +56,16 @@ public class PaymentService {
         }
 
         Order order = orderService.saveOrder(request.getOrder(), false);
-        String gatewayOrderId = "order_" + UUID.randomUUID().toString().replace("-", "");
+        
+        String gatewayOrderId;
+        boolean isDemo = isBlank(keyId) || keyId.startsWith("change_this") || isBlank(gatewaySecret) || gatewaySecret.startsWith("change_this");
+        
+        if (isDemo) {
+            gatewayOrderId = "order_demo_" + UUID.randomUUID().toString().replace("-", "");
+        } else {
+            gatewayOrderId = createRealRazorpayOrder("receipt_" + order.getId(), order.getTotalAmount());
+        }
+        
         orderService.markPaymentInitiated(order.getId(), gatewayOrderId);
 
         Payment payment = new Payment();
@@ -61,8 +77,8 @@ public class PaymentService {
         payment.setStatus("CREATED");
         Payment savedPayment = paymentRepository.save(payment);
 
-        String demoPaymentId = "pay_demo_" + UUID.randomUUID().toString().replace("-", "");
-        String demoSignature = sign(gatewayOrderId + "|" + demoPaymentId);
+        String demoPaymentId = isDemo ? "pay_demo_" + UUID.randomUUID().toString().replace("-", "") : null;
+        String demoSignature = isDemo ? sign(gatewayOrderId + "|" + demoPaymentId) : null;
 
         return new PaymentCreateResponse(
                 order.getId(),
@@ -76,6 +92,38 @@ public class PaymentService {
                 demoPaymentId,
                 demoSignature
         );
+    }
+
+    private String createRealRazorpayOrder(String receipt, double amountInRupees) {
+        try {
+            long amountInPaise = Math.round(amountInRupees * 100);
+            Map<String, Object> bodyMap = new HashMap<>();
+            bodyMap.put("amount", amountInPaise);
+            bodyMap.put("currency", "INR");
+            bodyMap.put("receipt", receipt);
+
+            String requestBody = objectMapper.writeValueAsString(bodyMap);
+            HttpClient client = HttpClient.newHttpClient();
+            String auth = Base64.getEncoder().encodeToString((keyId + ":" + gatewaySecret).getBytes(StandardCharsets.UTF_8));
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.razorpay.com/v1/orders"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Basic " + auth)
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200 && response.statusCode() != 201) {
+                throw new IllegalStateException("Razorpay order creation failed: Status " + response.statusCode() + " - " + response.body());
+            }
+
+            JsonNode root = objectMapper.readTree(response.body());
+            return root.path("id").asText();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to contact Razorpay API: " + e.getMessage(), e);
+        }
     }
 
     public Order verifyPayment(PaymentVerifyRequest request) {

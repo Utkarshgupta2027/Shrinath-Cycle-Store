@@ -432,22 +432,97 @@ function MakePayment() {
           }
           return res.json();
         })
-        .then((paymentOrder) => fetch(`${API_BASE}/payments/verify`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: paymentOrder.orderId,
-            gatewayOrderId: paymentOrder.gatewayOrderId,
-            paymentId: paymentOrder.demoPaymentId,
-            signature: paymentOrder.demoSignature,
-          }),
-        }))
-        .then(async (res) => {
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(text || "Payment verification failed");
+        .then((paymentOrder) => {
+          const isDemo = !paymentOrder.keyId || paymentOrder.keyId.trim() === "" || paymentOrder.gatewayOrderId.startsWith("order_demo_");
+
+          if (!isDemo) {
+            const loadScript = (src) => {
+              return new Promise((resolve) => {
+                if (document.querySelector(`script[src="${src}"]`)) {
+                  resolve(true);
+                  return;
+                }
+                const script = document.createElement("script");
+                script.src = src;
+                script.onload = () => resolve(true);
+                script.onerror = () => resolve(false);
+                document.body.appendChild(script);
+              });
+            };
+
+            return loadScript("https://checkout.razorpay.com/v1/checkout.js").then((loaded) => {
+              if (!loaded) {
+                throw new Error("Could not load Razorpay Checkout SDK.");
+              }
+
+              return new Promise((resolve, reject) => {
+                const options = {
+                  key: paymentOrder.keyId,
+                  amount: Math.round(paymentOrder.amount * 100),
+                  currency: paymentOrder.currency || "INR",
+                  name: "Shrinath Cycle Store",
+                  description: "Purchase of cycles & accessories",
+                  order_id: paymentOrder.gatewayOrderId,
+                  prefill: {
+                    name: user?.name || user?.username || "",
+                    email: user?.email || "",
+                    contact: user?.phoneNo || user?.phoneNumber || "",
+                  },
+                  theme: {
+                    color: "#0f172a",
+                  },
+                  handler: function (response) {
+                    setLoadingMessage("Verifying secure payment transaction...");
+                    fetch(`${API_BASE}/payments/verify`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        orderId: paymentOrder.orderId,
+                        gatewayOrderId: response.razorpay_order_id,
+                        paymentId: response.razorpay_payment_id,
+                        signature: response.razorpay_signature,
+                      }),
+                    })
+                    .then(async (res) => {
+                      if (!res.ok) {
+                        const text = await res.text();
+                        reject(new Error(text || "Payment verification failed"));
+                      } else {
+                        resolve(res.json());
+                      }
+                    })
+                    .catch(reject);
+                  },
+                  modal: {
+                    ondismiss: function () {
+                      reject(new Error("Payment cancelled by customer"));
+                    }
+                  }
+                };
+
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+              });
+            });
+          } else {
+            return fetch(`${API_BASE}/payments/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                orderId: paymentOrder.orderId,
+                gatewayOrderId: paymentOrder.gatewayOrderId,
+                paymentId: paymentOrder.demoPaymentId,
+                signature: paymentOrder.demoSignature,
+              }),
+            })
+            .then(async (res) => {
+              if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || "Payment verification failed");
+              }
+              return res.json();
+            });
           }
-          return res.json();
         })
         .then((confirmedOrder) => {
           persistSavedMethod();
@@ -471,7 +546,7 @@ function MakePayment() {
         })
         .catch(err => {
           setPaymentState("failed");
-          setMessage(`Payment could not be verified: ${err.message}`);
+          setMessage(`Payment could not be completed: ${err.message}`);
           setLoadingMessage("");
         });
       } else {
