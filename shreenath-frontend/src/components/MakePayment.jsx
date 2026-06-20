@@ -161,6 +161,25 @@ function MakePayment() {
     emiPlan: EMI_OPTIONS[1],
   });
   const [selectedUpiApp, setSelectedUpiApp] = useState("gpay");
+  const [dynamicDeliveryFee, setDynamicDeliveryFee] = useState(null);
+
+  useEffect(() => {
+    if (orderFromState?.address) {
+      const match = orderFromState.address.match(/\b\d{6}\b/);
+      const pincode = match ? match[0] : "";
+      const deliveryOption = orderFromState.deliveryOption || "standard";
+      if (pincode && pincode.length === 6) {
+        fetch(`${API_BASE}/shipping/shipping-charge?pincode=${pincode}&deliveryOption=${deliveryOption}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data && data.charge !== undefined) {
+              setDynamicDeliveryFee(data.charge);
+            }
+          })
+          .catch(() => {});
+      }
+    }
+  }, [orderFromState]);
 
   useEffect(() => {
     if (!userId) {
@@ -233,7 +252,7 @@ function MakePayment() {
   }, [couponDiscount, subtotal, useWallet]);
 
   const convenienceFee = selectedMethod === "card" ? 49 : 0;
-  const deliveryFee = subtotal === 0 || subtotal >= 2000 ? 0 : 99;
+  const deliveryFee = dynamicDeliveryFee !== null ? dynamicDeliveryFee : (subtotal === 0 ? 0 : 99);
   
   // Use amount from order state if available to ensure consistency
   const totalPayable = orderFromState?.totalAmount || Math.max(subtotal - couponDiscount - walletApplied + convenienceFee + deliveryFee, 0);
