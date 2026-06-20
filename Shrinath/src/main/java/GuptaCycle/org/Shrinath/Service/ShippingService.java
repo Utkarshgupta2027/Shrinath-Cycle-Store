@@ -66,7 +66,7 @@ public class ShippingService {
             double expressCharge = pin.getPerKgCharge();
             return expressCharge > 10.0 ? expressCharge : 199.0;
         }
-        return pin.getBaseCharge();
+        return 0.0;
     }
 
     // ─── Mock AWB Generation ──────────────────────────────────────────────────

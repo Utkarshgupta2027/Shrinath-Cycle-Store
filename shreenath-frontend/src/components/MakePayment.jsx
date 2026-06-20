@@ -254,7 +254,7 @@ function MakePayment() {
   const convenienceFee = selectedMethod === "card" ? 49 : 0;
   const deliveryFee = orderFromState?.deliveryCharges !== undefined
     ? orderFromState.deliveryCharges
-    : (dynamicDeliveryFee !== null ? dynamicDeliveryFee : (subtotal === 0 ? 0 : 99));
+    : (dynamicDeliveryFee !== null ? dynamicDeliveryFee : 0);
   
   // Use amount from order state if available to ensure consistency
   const totalPayable = orderFromState?.totalAmount !== undefined

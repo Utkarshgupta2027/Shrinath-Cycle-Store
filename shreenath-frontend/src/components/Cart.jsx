@@ -52,7 +52,7 @@ const Cart = () => {
 
   const calculateLocalSummary = useCallback((items, code = "") => {
     const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
-    const deliveryCharges = subtotal === 0 ? 0 : 99;
+    const deliveryCharges = 0;
     return {
       subtotal,
       discountAmount: 0,
@@ -93,7 +93,7 @@ const Cart = () => {
             }
           });
           const v = valRes.data;
-          const deliveryCharges = subtotal === 0 ? 0 : 99;
+          const deliveryCharges = 0;
           setSummary({
             subtotal,
             discountAmount: v.discountAmount || 0,

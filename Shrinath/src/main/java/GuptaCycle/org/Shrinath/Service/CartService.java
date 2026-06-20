@@ -24,7 +24,7 @@ import java.util.Optional;
 public class CartService {
 
     private static final BigDecimal FREE_DELIVERY_THRESHOLD = BigDecimal.valueOf(2000);
-    private static final BigDecimal DELIVERY_CHARGE = BigDecimal.valueOf(99);
+    private static final BigDecimal DELIVERY_CHARGE = BigDecimal.ZERO;
 
     @Autowired
     private CartRepository cartRepository;

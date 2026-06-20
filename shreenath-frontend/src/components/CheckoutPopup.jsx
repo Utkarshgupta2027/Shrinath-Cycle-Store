@@ -138,7 +138,7 @@ function CheckoutPopup() {
     if (deliveryOption === "express") {
       return dynamicCharges.express !== null ? dynamicCharges.express : DELIVERY_OPTIONS.express.charge;
     }
-    return dynamicCharges.standard !== null ? dynamicCharges.standard : (localSubtotal === 0 ? 0 : 99);
+    return dynamicCharges.standard !== null ? dynamicCharges.standard : 0;
   }, [deliveryOption, dynamicCharges, localSubtotal]);
 
   const finalTotal = useMemo(
@@ -175,17 +175,17 @@ function CheckoutPopup() {
             body: JSON.stringify({ code, userId, subtotal }),
           });
           const v = valRes.ok ? await valRes.json() : { valid: false, discountAmount: 0, appliedCode: "", message: "Coupon validation failed." };
-          const deliveryCharges = subtotal === 0 ? 0 : 99;
+          const deliveryCharges = 0;
           setSummary({ subtotal, discountAmount: v.discountAmount || 0, deliveryCharges, finalTotal: Math.max(subtotal - (v.discountAmount || 0) + deliveryCharges, 0) });
           setAppliedCoupon(v.appliedCode || "");
           setCouponMessage(v.message || "");
         } else {
-          const deliveryCharges = subtotal === 0 ? 0 : 99;
+          const deliveryCharges = 0;
           setSummary({ subtotal, discountAmount: 0, deliveryCharges, finalTotal: subtotal + deliveryCharges });
           setAppliedCoupon("");
         }
       } catch {
-        const deliveryCharges = subtotal === 0 ? 0 : 99;
+        const deliveryCharges = 0;
         setSummary({ subtotal, discountAmount: 0, deliveryCharges, finalTotal: subtotal + deliveryCharges });
         setAppliedCoupon("");
         setCouponMessage(code ? "Coupon validation failed." : "");
@@ -564,7 +564,7 @@ function CheckoutPopup() {
                       {key === "standard"
                         ? (dynamicCharges.standard !== null
                             ? (dynamicCharges.standard === 0 ? "Free" : formatMoney(dynamicCharges.standard))
-                            : (localSubtotal === 0 ? "Free" : formatMoney(99)))
+                            : "Free")
                         : (dynamicCharges.express !== null
                             ? formatMoney(dynamicCharges.express)
                             : formatMoney(DELIVERY_OPTIONS.express.charge))}

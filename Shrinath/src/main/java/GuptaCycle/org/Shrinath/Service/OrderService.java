@@ -34,7 +34,7 @@ public class OrderService {
     private static final int LOW_STOCK_THRESHOLD = 5;
 
     private static final BigDecimal FREE_DELIVERY_THRESHOLD = BigDecimal.valueOf(2000);
-    private static final BigDecimal STANDARD_DELIVERY_CHARGE = BigDecimal.valueOf(99);
+    private static final BigDecimal STANDARD_DELIVERY_CHARGE = BigDecimal.ZERO;
     private static final BigDecimal EXPRESS_DELIVERY_CHARGE = BigDecimal.valueOf(199);
 
     @Autowired
