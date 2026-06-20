@@ -252,10 +252,14 @@ function MakePayment() {
   }, [couponDiscount, subtotal, useWallet]);
 
   const convenienceFee = selectedMethod === "card" ? 49 : 0;
-  const deliveryFee = dynamicDeliveryFee !== null ? dynamicDeliveryFee : (subtotal === 0 ? 0 : 99);
+  const deliveryFee = orderFromState?.deliveryCharges !== undefined
+    ? orderFromState.deliveryCharges
+    : (dynamicDeliveryFee !== null ? dynamicDeliveryFee : (subtotal === 0 ? 0 : 99));
   
   // Use amount from order state if available to ensure consistency
-  const totalPayable = orderFromState?.totalAmount || Math.max(subtotal - couponDiscount - walletApplied + convenienceFee + deliveryFee, 0);
+  const totalPayable = orderFromState?.totalAmount !== undefined
+    ? orderFromState.totalAmount
+    : Math.max(subtotal - couponDiscount - walletApplied + convenienceFee + deliveryFee, 0);
   const codAllowed = totalPayable > 0 && totalPayable <= COD_LIMIT;
   const emiAllowed = totalPayable >= HIGH_VALUE_EMI_THRESHOLD;
   const fraudRisk = totalPayable >= 20000 || selectedMethod === "card";

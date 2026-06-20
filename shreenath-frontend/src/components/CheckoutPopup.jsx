@@ -340,6 +340,8 @@ function CheckoutPopup() {
       deliveryOption,
       paymentMethod,
       address: `${finalAddress} | Delivery: ${DELIVERY_OPTIONS[deliveryOption].label} | Payment: ${PAYMENT_METHODS.find((m) => m.key === paymentMethod)?.label}`,
+      totalAmount: finalTotal,
+      deliveryCharges: selectedDeliveryCharge,
     };
 
     if (paymentMethod !== "cod") { navigate("/makepayment", { state: { order } }); return; }
