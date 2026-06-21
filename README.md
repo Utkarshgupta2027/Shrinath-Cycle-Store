@@ -62,7 +62,7 @@ Shrinath-Cycle-Store/
 | Spring Data JPA | 3.x | ORM / database layer (Hibernate) |
 | JJWT | 0.11.5 | JWT access & refresh token generation |
 | iText 7 | 7.2.5 | GST-compliant PDF invoice generation |
-| Spring Mail | — | Email notifications via Gmail SMTP |
+| Spring Mail & Brevo | — | Email notifications via Brevo HTTP API & Brevo SMTP Relay |
 | Twilio SDK | 9.x | SMS / WhatsApp alert fallback |
 | Lombok | — | Boilerplate reduction |
 | MySQL Connector | — | Database driver |
@@ -96,7 +96,7 @@ Shrinath-Cycle-Store/
 
 ### 📝 Register (`/register`)
 - **2-step OTP email verification** flow:
-  1. Fill name, email, phone, password → "Send Verification OTP"
+  1. Fill name, email, phone, password → "Send Verification OTP" (via Brevo HTTP API to bypass port-blocking on Render)
   2. Enter 6-digit code from email (valid 5 min) → "Verify & Create Account"
 - 6-box OTP input with auto-focus, backspace navigation & paste support
 - Resend OTP with 60-second cooldown timer
@@ -109,6 +109,7 @@ Shrinath-Cycle-Store/
 - Clear entire cart
 - Real-time cart total and item count in Navbar badge
 - Coupon code field for applying discounts
+- Standard Shipping is **FREE** across the application (delivery charge = ₹0)
 
 ### 📦 Product Detail (`/product/:productId`)
 - Full product info: name, brand, category, price, stock, description
@@ -131,11 +132,12 @@ Shrinath-Cycle-Store/
 ### 💳 Checkout (`/checkout`)
 - Multi-step checkout popup
 - Address selection from saved addresses or new entry
-- Pincode delivery check
+- Pincode delivery check with dynamic shipping fee calculations
 - Coupon code application with live discount calculation
 - Order summary with itemized list, subtotal, discount, shipping, and grand total
 - Payment method selection: **Razorpay (Online)** or **Cash on Delivery (COD)**
-- **COD orders fire `trackOrderPlaced()`** for self-hosted visitor analytics
+- Standard Shipping is **FREE** (₹0), and Express Shipping is calculated dynamically (default ₹199 or based on per-kg pincode rates from database)
+- **COD orders fire `trackOrderPlaced()`** for self-hosted visitor analytics and default to **PENDING** payment status
 
 ### 💰 Make Payment (`/makepayment`)
 - Razorpay hosted checkout integration (create → open → verify signature flow)
@@ -181,7 +183,7 @@ Shrinath-Cycle-Store/
 |---|---|
 | **Dashboard** | Total revenue, orders, users, low-stock alerts, analytics charts |
 | **Products** | Add/edit/delete products; upload primary + gallery images |
-| **Orders** | View all orders; update status; process Razorpay refunds; delete |
+| **Orders** | View all orders; update status; update payment status (e.g. mark COD orders as **PAID**, triggering customer email confirmation & invoice); process Razorpay refunds; delete |
 | **Users** | View all registered users |
 | **Returns** | View and process return/exchange requests |
 | **Analytics** | Revenue trend, order lifecycle metrics, traffic breakdown |
@@ -259,7 +261,8 @@ All endpoints are prefixed with `/api`. Authentication uses **Bearer JWT tokens*
 | `GET` | `/{orderId}` | Auth (own) or Admin | Get single order |
 | `GET` | `/admin` | Admin | Get all orders |
 | `GET` | `/admin/analytics` | Admin | Revenue, order counts, trend metrics |
-| `PUT` | `/{orderId}/status` | Admin | Update order status |
+| `PUT` | `/{orderId}/status` | Admin | Update order status (automatically generates AWB and tracking details when status changes to SHIPPED) |
+| `PUT` | `/{orderId}/payment-status` | Admin | Update order payment status (e.g., set to PAID for manual/COD payments; triggers customer payment confirmation email) |
 | `PUT` | `/{orderId}/refund` | Admin | Process Razorpay refund |
 | `PUT` | `/{orderId}/cancel` | Auth (own) | Cancel order with reason |
 | `GET` | `/{orderId}/invoice` | Auth (own) or Admin | Download GST PDF invoice |
@@ -490,9 +493,9 @@ npm start
 
 | Variable | Description |
 |---|---|
-| `DB_URL` | JDBC connection string for MySQL |
-| `DB_USERNAME` | Database username |
-| `DB_PASSWORD` | Database password |
+| `SPRING_DATASOURCE_URL` / `DB_URL` | JDBC connection string for TiDB Cloud / MySQL |
+| `SPRING_DATASOURCE_USERNAME` / `DB_USERNAME` | Database username |
+| `SPRING_DATASOURCE_PASSWORD` / `DB_PASSWORD` | Database password |
 | `JWT_SECRET` | 64+ character random secret for JWT signing |
 | `JWT_EXPIRATION_MS` | Access token expiry in ms (default: 86400000 = 24h) |
 | `JWT_REFRESH_EXPIRATION_MS` | Refresh token expiry in ms (default: 604800000 = 7d) |
@@ -512,6 +515,8 @@ npm start
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token |
 | `TELEGRAM_ADMIN_CHAT_ID` | Telegram chat ID for admin alerts |
 | `CART_ABANDON_THRESHOLD` | Minutes before cart is considered abandoned (default: 30) |
+| `BREVO_API_KEY` | API key for Brevo transactional HTTP API (for OTPs/notifications) |
+| `BREVO_SENDER_EMAIL` | Verified sender email in Brevo dashboard |
 
 ### 4. Environment Variables (Frontend)
 

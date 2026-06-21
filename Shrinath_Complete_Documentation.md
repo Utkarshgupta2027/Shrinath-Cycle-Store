@@ -5,8 +5,8 @@
 
 **Project Name:** Shrinath Cycle Store — E-Commerce Platform  
 **Developer:** Utkarsh Gupta  
-**Stack:** Java 17 · Spring Boot 3.5 · React 19 · MySQL 8 · JWT · Razorpay  
-**Deployment:** Render (Backend) · Aiven MySQL Cloud · React Build (Static Host)  
+**Stack:** Java 17 · Spring Boot 3.5 · React 19 · TiDB Cloud / MySQL 8 · JWT · Razorpay  
+**Deployment:** Render (Backend) · TiDB Cloud / Aiven MySQL · React Build (Static Host)  
 **GitHub:** Utkarshgupta2027/Shrinath-Cycle-Store
 
 ---
@@ -78,7 +78,7 @@ A modern, responsive e-commerce platform with:
 - Cart management (guest & authenticated), wishlist
 - Checkout with address book, coupon application, delivery options
 - Online payment (Razorpay) and COD support
-- Order lifecycle management (PENDING → PROCESSING → SHIPPED → DELIVERED)
+- Order lifecycle management (PENDING â†’ PROCESSING â†’ SHIPPED â†’ DELIVERED)
 - Return/exchange request workflow
 - Admin panel: products, orders, users, coupons, inventory, analytics
 - Email, SMS, WhatsApp notifications
@@ -118,25 +118,25 @@ A modern, responsive e-commerce platform with:
 ## 2.1 System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     CLIENT LAYER                            │
-│   React 19 SPA (Served via Static Hosting / CDN)           │
-│   Browser: Chrome / Firefox / Safari                        │
-└────────────────────────┬────────────────────────────────────┘
-                         │ HTTPS + JWT Bearer Token
-                         ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    API GATEWAY (Spring Boot)                 │
-│   Rate Limiting Filter → Input Sanitization → JWT Filter    │
-│   Spring Security → Controllers → Services → Repositories  │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-         ┌───────────────┼───────────────────┐
-         ▼               ▼                   ▼
-   ┌──────────┐   ┌─────────────┐   ┌──────────────┐
-   │ MySQL DB │   │  Razorpay   │   │  Notif Layer │
-   │ (Aiven)  │   │  Payment    │   │ Email/SMS/WA │
-   └──────────┘   └─────────────┘   └──────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”�
+â”‚                     CLIENT LAYER                            â”‚
+â”‚   React 19 SPA (Served via Static Hosting / CDN)           â”‚
+â”‚   Browser: Chrome / Firefox / Safari                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                         â”‚ HTTPS + JWT Bearer Token
+                         â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”�
+â”‚                    API GATEWAY (Spring Boot)                 â”‚
+â”‚   Rate Limiting Filter â†’ Input Sanitization â†’ JWT Filter    â”‚
+â”‚   Spring Security â†’ Controllers â†’ Services â†’ Repositories  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                         â”‚
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”�
+         â–¼               â–¼                   â–¼
+   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”�   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”�   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”�
+   â”‚ MySQL DB â”‚   â”‚  Razorpay   â”‚   â”‚  Notif Layer â”‚
+   â”‚ (Aiven)  â”‚   â”‚  Payment    â”‚   â”‚ Email/SMS/WA â”‚
+   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ## 2.2 High-Level Design (HLD)
@@ -147,7 +147,7 @@ graph TD
     B -->|Axios + JWT| C[Spring Boot REST API]
     C -->|JPA/Hibernate| D[(MySQL - Aiven Cloud)]
     C -->|Razorpay SDK| E[Razorpay Payment Gateway]
-    C -->|JavaMail| F[Gmail SMTP]
+    C -->|Brevo HTTP API / SMTP Relay| F[Brevo Email Service]
     C -->|HTTP REST| G[Fast2SMS API]
     C -->|HTTP REST| H[Green API WhatsApp]
     C -->|HTTP REST| I[Telegram Bot API]
@@ -224,7 +224,7 @@ flowchart TD
     B --> C[Guest Cart - localStorage]
     B --> D[Authenticated Cart - DB]
     C --> E[Login / Register]
-    E --> F[Merge Guest Cart → DB]
+    E --> F[Merge Guest Cart â†’ DB]
     D --> G[Proceed to Checkout]
     F --> G
     G --> H[Select Address & Delivery Option]
@@ -252,9 +252,9 @@ flowchart TD
 
 **Level 0 — Context Diagram:**
 ```
-[Customer] ──── Orders, Payments, Reviews ────→ [Shrinath Store System] ──── Notifications ───→ [Customer]
-[Admin]    ──── Product/Order Management ────→ [Shrinath Store System] ──── Analytics      ───→ [Admin]
-                                               [Shrinath Store System] ──── Payment Data   ───→ [Razorpay]
+[Customer] â”€â”€â”€â”€ Orders, Payments, Reviews â”€â”€â”€â”€â†’ [Shrinath Store System] â”€â”€â”€â”€ Notifications â”€â”€â”€â†’ [Customer]
+[Admin]    â”€â”€â”€â”€ Product/Order Management â”€â”€â”€â”€â†’ [Shrinath Store System] â”€â”€â”€â”€ Analytics      â”€â”€â”€â†’ [Admin]
+                                               [Shrinath Store System] â”€â”€â”€â”€ Payment Data   â”€â”€â”€â†’ [Razorpay]
 ```
 
 **Level 1 — Main Processes:**
@@ -458,34 +458,34 @@ RESTful API following standard HTTP conventions:
 
 ```
 React 19 SPA
-├── AppProvider (React Context — global state)
-│   ├── user, cart, cartCount
-│   ├── login(), logout(), addToCart(), removeFromCart()
-│   └── Guest cart → localStorage; Auth cart → Backend API
-├── React Router v7 (Client-side routing)
-│   ├── Eager: Home, Login, Register
-│   └── Lazy (code-split): Cart, Product, Orders, Admin, etc.
-├── Axios Instance (axiosInstance.js)
-│   ├── Automatic JWT attachment on every request
-│   └── Auto-refresh on 401 with queue management
-└── Theme System (utils/theme.js)
-    ├── Light/Dark via CSS custom properties
-    └── Persisted in localStorage, synced across tabs
+â”œâ”€â”€ AppProvider (React Context — global state)
+â”‚   â”œâ”€â”€ user, cart, cartCount
+â”‚   â”œâ”€â”€ login(), logout(), addToCart(), removeFromCart()
+â”‚   â””â”€â”€ Guest cart â†’ localStorage; Auth cart â†’ Backend API
+â”œâ”€â”€ React Router v7 (Client-side routing)
+â”‚   â”œâ”€â”€ Eager: Home, Login, Register
+â”‚   â””â”€â”€ Lazy (code-split): Cart, Product, Orders, Admin, etc.
+â”œâ”€â”€ Axios Instance (axiosInstance.js)
+â”‚   â”œâ”€â”€ Automatic JWT attachment on every request
+â”‚   â””â”€â”€ Auto-refresh on 401 with queue management
+â””â”€â”€ Theme System (utils/theme.js)
+    â”œâ”€â”€ Light/Dark via CSS custom properties
+    â””â”€â”€ Persisted in localStorage, synced across tabs
 ```
 
 ## 2.10 Backend Architecture
 
 ```
 Spring Boot 3.5 (Java 17)
-├── Security Layer
-│   ├── RateLimitingFilter     → Blocks brute-force (5 req/60s)
-│   ├── InputSanitizationFilter → XSS prevention
-│   └── JwtAuthenticationFilter → Token validation per request
-├── Controller Layer           → HTTP request/response mapping
-├── Service Layer              → Business logic
-├── Repository Layer           → JPA data access (Spring Data)
-├── Model Layer                → JPA entities (Lombok @Data)
-└── DTO Layer                  → Request/Response data contracts
+â”œâ”€â”€ Security Layer
+â”‚   â”œâ”€â”€ RateLimitingFilter     â†’ Blocks brute-force (5 req/60s)
+â”‚   â”œâ”€â”€ InputSanitizationFilter â†’ XSS prevention
+â”‚   â””â”€â”€ JwtAuthenticationFilter â†’ Token validation per request
+â”œâ”€â”€ Controller Layer           â†’ HTTP request/response mapping
+â”œâ”€â”€ Service Layer              â†’ Business logic
+â”œâ”€â”€ Repository Layer           â†’ JPA data access (Spring Data)
+â”œâ”€â”€ Model Layer                â†’ JPA entities (Lombok @Data)
+â””â”€â”€ DTO Layer                  â†’ Request/Response data contracts
 ```
 ---
 
@@ -652,10 +652,10 @@ Spring Boot 3.5 (Java 17)
 **Why Used:** Best-in-class Indian payment gateway; free test mode; supports automatic refunds via API; webhook support for async payment confirmation.
 
 **Flow in Project:**
-1. `POST /api/payments/create` → calls Razorpay API to create an order → returns `razorpay_order_id`
+1. `POST /api/payments/create` â†’ calls Razorpay API to create an order â†’ returns `razorpay_order_id`
 2. Frontend opens Razorpay checkout modal
-3. Customer pays → Razorpay calls webhook or frontend receives `razorpay_payment_id` + `razorpay_signature`
-4. `POST /api/payments/verify` → backend verifies HMAC-SHA256 signature
+3. Customer pays â†’ Razorpay calls webhook or frontend receives `razorpay_payment_id` + `razorpay_signature`
+4. `POST /api/payments/verify` â†’ backend verifies HMAC-SHA256 signature
 5. Order status updated to PAID; email/SMS sent to customer
 
 **Interview Questions:**
@@ -691,7 +691,7 @@ Spring Boot 3.5 (Java 17)
 
 **Definition:** Maven is a Java build automation and dependency management tool using a `pom.xml` descriptor.
 
-**Why Used:** Manages all dependencies (Spring Boot, JWT, Razorpay SDK, iText); standardizes build lifecycle (compile → test → package → deploy).
+**Why Used:** Manages all dependencies (Spring Boot, JWT, Razorpay SDK, iText); standardizes build lifecycle (compile â†’ test â†’ package â†’ deploy).
 
 **Key Maven Commands:**
 ```bash
@@ -708,137 +708,137 @@ mvn package -DskipTests # Package without running tests
 
 ```
 Shrinath/
-├── src/main/java/GuptaCycle/org/Shrinath/
-│   ├── ShrinathApplication.java     ← @SpringBootApplication entry point
-│   ├── Config/
-│   │   ├── SecurityConfig.java      ← Spring Security filter chain, CORS config
-│   │   └── PasswordConfig.java      ← BCryptPasswordEncoder @Bean
-│   ├── Controller/                  ← HTTP request handlers (REST endpoints)
-│   │   ├── AuthController.java      ← Register, Login, Refresh, Logout, Profile
-│   │   ├── ProductController.java   ← CRUD products, image serving
-│   │   ├── OrderController.java     ← Place, track, cancel, invoice download
-│   │   ├── PaymentController.java   ← Razorpay create/verify/webhook
-│   │   ├── CartController.java      ← Add/remove/clear cart items
-│   │   ├── WishlistController.java  ← Add/remove wishlist items
-│   │   ├── ReviewController.java    ← Submit/moderate reviews
-│   │   ├── CouponController.java    ← Create/apply/list coupons
-│   │   ├── AddressController.java   ← CRUD saved addresses
-│   │   ├── ShippingController.java  ← Serviceable PIN check, AWB assignment
-│   │   ├── InventoryController.java ← Low stock alerts, restock subscriptions
-│   │   ├── FeedbackController.java  ← Contact form submissions
-│   │   ├── CategoryController.java  ← Product categories
-│   │   ├── BrandController.java     ← Product brands
-│   │   ├── StoreSettingsController.java ← Store info (name, address, hours)
-│   │   └── HomeController.java      ← Basic health/ping endpoint
-│   ├── Service/                     ← Business logic layer
-│   │   ├── AuthService.java         ← Login, registration, OTP, account CRUD
-│   │   ├── ProductService.java      ← Product CRUD, search, filter, sort
-│   │   ├── OrderService.java        ← Order lifecycle, pricing, refunds
-│   │   ├── PaymentService.java      ← Razorpay integration, signature verify
-│   │   ├── CartService.java         ← Cart state management
-│   │   ├── CouponService.java       ← Coupon validation & application
-│   │   ├── ReviewService.java       ← Review CRUD, helpful votes
-│   │   ├── EmailService.java        ← All transactional email templates
-│   │   ├── SmsService.java          ← Fast2SMS integration
-│   │   ├── WhatsAppService.java     ← Green API, CallMeBot, Telegram
-│   │   ├── InvoiceService.java      ← iText 7 PDF invoice generation
-│   │   ├── OtpService.java          ← In-memory OTP store with expiry
-│   │   ├── ShippingService.java     ← PIN serviceability, AWB tracking
-│   │   ├── RazorpayRefundService.java ← Refund API calls
-│   │   ├── FeedbackService.java     ← Store customer feedback
-│   │   ├── WishlistService.java     ← Wishlist operations
-│   │   ├── AddressService.java      ← Address book CRUD
-│   │   ├── BrandService.java        ← Brand management
-│   │   ├── CategoryService.java     ← Category management
-│   │   └── StoreSettingsService.java ← Store settings CRUD
-│   ├── Repository/                  ← Spring Data JPA interfaces
-│   │   ├── UserRepository.java
-│   │   ├── ProductRepo.java         ← Custom @Query for search/filter
-│   │   ├── OrderRepository.java     ← Custom queries for analytics
-│   │   ├── ReviewRepository.java    ← Avg rating, review stats
-│   │   └── ...16 total repositories
-│   ├── Model/                       ← JPA @Entity classes (DB tables)
-│   │   ├── User.java                → users table
-│   │   ├── Product.java             → products table
-│   │   ├── Order.java               → orders table
-│   │   ├── OrderItem.java           → order_items table
-│   │   ├── Cart.java                → cart table
-│   │   ├── CartItem.java            → cart_items table
-│   │   ├── Review.java              → reviews table
-│   │   ├── Coupon.java              → coupons table
-│   │   ├── UserAddress.java         → user_addresses table
-│   │   ├── Wishlist.java            → wishlist table
-│   │   ├── Payment.java             → payments table
-│   │   ├── ProductImage.java        → product_images table
-│   │   ├── RestockSubscription.java → restock_subscriptions table
-│   │   ├── ReturnExchangeRequest.java → return_exchange_requests table
-│   │   ├── ServiceablePin.java      → serviceable_pins table
-│   │   ├── Feedback.java            → feedback table
-│   │   ├── StoreSettings.java       → store_settings table
-│   │   ├── Brand.java               → brands table
-│   │   ├── Category.java            → categories table
-│   │   └── UserDetailsImpl.java     ← Spring Security UserDetails adapter
-│   ├── DTO/                         ← Data Transfer Objects
-│   │   ├── ProductResponse.java     ← Product + review stats (no image bytes)
-│   │   ├── UserAccountResponse.java ← Safe user info (no password)
-│   │   ├── AdminAnalyticsResponse.java ← Dashboard metrics
-│   │   ├── PaymentCreateRequest/Response.java ← Razorpay order creation
-│   │   └── ...18 total DTOs
-│   ├── Security/                    ← Security components
-│   │   ├── JwtUtils.java            ← Token generation, validation, parsing
-│   │   ├── JwtAuthenticationFilter.java ← Per-request JWT validation filter
-│   │   ├── RateLimitingFilter.java  ← IP-based brute force protection
-│   │   ├── InputSanitizationFilter.java ← XSS prevention
-│   │   └── RefreshTokenStore.java   ← In-memory refresh token validity store
-│   └── Scheduler/
-│       └── CartAbandonmentScheduler.java ← Scheduled task: detect & email abandoned carts
-├── src/main/resources/
-│   └── application.properties       ← All config (DB, JWT, Mail, Razorpay, Twilio)
-└── pom.xml                          ← Maven dependencies
+â”œâ”€â”€ src/main/java/GuptaCycle/org/Shrinath/
+â”‚   â”œâ”€â”€ ShrinathApplication.java     â†� @SpringBootApplication entry point
+â”‚   â”œâ”€â”€ Config/
+â”‚   â”‚   â”œâ”€â”€ SecurityConfig.java      â†� Spring Security filter chain, CORS config
+â”‚   â”‚   â””â”€â”€ PasswordConfig.java      â†� BCryptPasswordEncoder @Bean
+â”‚   â”œâ”€â”€ Controller/                  â†� HTTP request handlers (REST endpoints)
+â”‚   â”‚   â”œâ”€â”€ AuthController.java      â†� Register, Login, Refresh, Logout, Profile
+â”‚   â”‚   â”œâ”€â”€ ProductController.java   â†� CRUD products, image serving
+â”‚   â”‚   â”œâ”€â”€ OrderController.java     â†� Place, track, cancel, invoice download
+â”‚   â”‚   â”œâ”€â”€ PaymentController.java   â†� Razorpay create/verify/webhook
+â”‚   â”‚   â”œâ”€â”€ CartController.java      â†� Add/remove/clear cart items
+â”‚   â”‚   â”œâ”€â”€ WishlistController.java  â†� Add/remove wishlist items
+â”‚   â”‚   â”œâ”€â”€ ReviewController.java    â†� Submit/moderate reviews
+â”‚   â”‚   â”œâ”€â”€ CouponController.java    â†� Create/apply/list coupons
+â”‚   â”‚   â”œâ”€â”€ AddressController.java   â†� CRUD saved addresses
+â”‚   â”‚   â”œâ”€â”€ ShippingController.java  â†� Serviceable PIN check, AWB assignment
+â”‚   â”‚   â”œâ”€â”€ InventoryController.java â†� Low stock alerts, restock subscriptions
+â”‚   â”‚   â”œâ”€â”€ FeedbackController.java  â†� Contact form submissions
+â”‚   â”‚   â”œâ”€â”€ CategoryController.java  â†� Product categories
+â”‚   â”‚   â”œâ”€â”€ BrandController.java     â†� Product brands
+â”‚   â”‚   â”œâ”€â”€ StoreSettingsController.java â†� Store info (name, address, hours)
+â”‚   â”‚   â””â”€â”€ HomeController.java      â†� Basic health/ping endpoint
+â”‚   â”œâ”€â”€ Service/                     â†� Business logic layer
+â”‚   â”‚   â”œâ”€â”€ AuthService.java         â†� Login, registration, OTP, account CRUD
+â”‚   â”‚   â”œâ”€â”€ ProductService.java      â†� Product CRUD, search, filter, sort
+â”‚   â”‚   â”œâ”€â”€ OrderService.java        â†� Order lifecycle, pricing, refunds
+â”‚   â”‚   â”œâ”€â”€ PaymentService.java      â†� Razorpay integration, signature verify
+â”‚   â”‚   â”œâ”€â”€ CartService.java         â†� Cart state management
+â”‚   â”‚   â”œâ”€â”€ CouponService.java       â†� Coupon validation & application
+â”‚   â”‚   â”œâ”€â”€ ReviewService.java       â†� Review CRUD, helpful votes
+â”‚   â”‚   â”œâ”€â”€ EmailService.java        â†� All transactional email templates
+â”‚   â”‚   â”œâ”€â”€ SmsService.java          â†� Fast2SMS integration
+â”‚   â”‚   â”œâ”€â”€ WhatsAppService.java     â†� Green API, CallMeBot, Telegram
+â”‚   â”‚   â”œâ”€â”€ InvoiceService.java      â†� iText 7 PDF invoice generation
+â”‚   â”‚   â”œâ”€â”€ OtpService.java          â†� In-memory OTP store with expiry
+â”‚   â”‚   â”œâ”€â”€ ShippingService.java     â†� PIN serviceability, AWB tracking
+â”‚   â”‚   â”œâ”€â”€ RazorpayRefundService.java â†� Refund API calls
+â”‚   â”‚   â”œâ”€â”€ FeedbackService.java     â†� Store customer feedback
+â”‚   â”‚   â”œâ”€â”€ WishlistService.java     â†� Wishlist operations
+â”‚   â”‚   â”œâ”€â”€ AddressService.java      â†� Address book CRUD
+â”‚   â”‚   â”œâ”€â”€ BrandService.java        â†� Brand management
+â”‚   â”‚   â”œâ”€â”€ CategoryService.java     â†� Category management
+â”‚   â”‚   â””â”€â”€ StoreSettingsService.java â†� Store settings CRUD
+â”‚   â”œâ”€â”€ Repository/                  â†� Spring Data JPA interfaces
+â”‚   â”‚   â”œâ”€â”€ UserRepository.java
+â”‚   â”‚   â”œâ”€â”€ ProductRepo.java         â†� Custom @Query for search/filter
+â”‚   â”‚   â”œâ”€â”€ OrderRepository.java     â†� Custom queries for analytics
+â”‚   â”‚   â”œâ”€â”€ ReviewRepository.java    â†� Avg rating, review stats
+â”‚   â”‚   â””â”€â”€ ...16 total repositories
+â”‚   â”œâ”€â”€ Model/                       â†� JPA @Entity classes (DB tables)
+â”‚   â”‚   â”œâ”€â”€ User.java                â†’ users table
+â”‚   â”‚   â”œâ”€â”€ Product.java             â†’ products table
+â”‚   â”‚   â”œâ”€â”€ Order.java               â†’ orders table
+â”‚   â”‚   â”œâ”€â”€ OrderItem.java           â†’ order_items table
+â”‚   â”‚   â”œâ”€â”€ Cart.java                â†’ cart table
+â”‚   â”‚   â”œâ”€â”€ CartItem.java            â†’ cart_items table
+â”‚   â”‚   â”œâ”€â”€ Review.java              â†’ reviews table
+â”‚   â”‚   â”œâ”€â”€ Coupon.java              â†’ coupons table
+â”‚   â”‚   â”œâ”€â”€ UserAddress.java         â†’ user_addresses table
+â”‚   â”‚   â”œâ”€â”€ Wishlist.java            â†’ wishlist table
+â”‚   â”‚   â”œâ”€â”€ Payment.java             â†’ payments table
+â”‚   â”‚   â”œâ”€â”€ ProductImage.java        â†’ product_images table
+â”‚   â”‚   â”œâ”€â”€ RestockSubscription.java â†’ restock_subscriptions table
+â”‚   â”‚   â”œâ”€â”€ ReturnExchangeRequest.java â†’ return_exchange_requests table
+â”‚   â”‚   â”œâ”€â”€ ServiceablePin.java      â†’ serviceable_pins table
+â”‚   â”‚   â”œâ”€â”€ Feedback.java            â†’ feedback table
+â”‚   â”‚   â”œâ”€â”€ StoreSettings.java       â†’ store_settings table
+â”‚   â”‚   â”œâ”€â”€ Brand.java               â†’ brands table
+â”‚   â”‚   â”œâ”€â”€ Category.java            â†’ categories table
+â”‚   â”‚   â””â”€â”€ UserDetailsImpl.java     â†� Spring Security UserDetails adapter
+â”‚   â”œâ”€â”€ DTO/                         â†� Data Transfer Objects
+â”‚   â”‚   â”œâ”€â”€ ProductResponse.java     â†� Product + review stats (no image bytes)
+â”‚   â”‚   â”œâ”€â”€ UserAccountResponse.java â†� Safe user info (no password)
+â”‚   â”‚   â”œâ”€â”€ AdminAnalyticsResponse.java â†� Dashboard metrics
+â”‚   â”‚   â”œâ”€â”€ PaymentCreateRequest/Response.java â†� Razorpay order creation
+â”‚   â”‚   â””â”€â”€ ...18 total DTOs
+â”‚   â”œâ”€â”€ Security/                    â†� Security components
+â”‚   â”‚   â”œâ”€â”€ JwtUtils.java            â†� Token generation, validation, parsing
+â”‚   â”‚   â”œâ”€â”€ JwtAuthenticationFilter.java â†� Per-request JWT validation filter
+â”‚   â”‚   â”œâ”€â”€ RateLimitingFilter.java  â†� IP-based brute force protection
+â”‚   â”‚   â”œâ”€â”€ InputSanitizationFilter.java â†� XSS prevention
+â”‚   â”‚   â””â”€â”€ RefreshTokenStore.java   â†� In-memory refresh token validity store
+â”‚   â””â”€â”€ Scheduler/
+â”‚       â””â”€â”€ CartAbandonmentScheduler.java â†� Scheduled task: detect & email abandoned carts
+â”œâ”€â”€ src/main/resources/
+â”‚   â””â”€â”€ application.properties       â†� All config (DB, JWT, Mail, Razorpay, Twilio)
+â””â”€â”€ pom.xml                          â†� Maven dependencies
 ```
 
 ## 4.2 Frontend (React)
 
 ```
 shreenath-frontend/src/
-├── App.js                    ← Root: Router, Suspense, AppLayout, theme sync
-├── index.js                  ← ReactDOM.render entry, theme pre-init
-├── index.css                 ← Global CSS reset, fonts
-├── config.js                 ← API_BASE_URL (env var driven)
-├── Context/
-│   ├── Context.jsx           ← createContext() definition
-│   └── AppProvider.jsx       ← Global state: user, cart, auth functions
-├── api/
-│   ├── axiosInstance.js      ← Axios with JWT interceptor & refresh logic
-│   └── products.js           ← Simple product fetch helper
-├── components/               ← Reusable React components
-│   ├── Navbar.jsx            ← Top navigation, search, cart icon, theme toggle
-│   ├── Home.jsx              ← Landing page (hero, featured products, categories)
-│   ├── Product.jsx           ← Product detail page (images, reviews, add to cart)
-│   ├── Cart.jsx              ← Shopping cart with quantity controls
-│   ├── Login.jsx             ← Login form with JWT response handling
-│   ├── Register.jsx          ← Multi-step registration with email OTP
-│   ├── CheckoutPopup.jsx     ← Address selection, coupon, delivery options
-│   ├── MakePayment.jsx       ← Razorpay integration, COD flow
-│   ├── orders.jsx            ← Order history, cancel, return, invoice download
-│   ├── UserAccount.jsx       ← Profile view, order summary
-│   ├── Settings.jsx          ← Edit profile, change password, delete account
-│   ├── Wishlist.jsx          ← Wishlist management
-│   ├── AddressBook.jsx       ← Saved addresses CRUD
-│   ├── Feedback.jsx          ← Contact/feedback form
-│   ├── AddProduct.jsx        ← Admin: add new product with images
-│   ├── UpdateProduct.jsx     ← Admin: edit existing product
-│   ├── SearchFilterBar.jsx   ← Product filter/sort controls
-│   ├── Footer.jsx            ← Site footer
-│   └── NotifyMeModal.jsx     ← Out-of-stock restock notification signup
-├── pages/
-│   ├── AdminPanel.jsx        ← Full admin dashboard (tabs: products, orders, users)
-│   ├── Dashboard.jsx         ← Admin redirect wrapper
-│   └── TrackOrder.jsx        ← Order tracking with AWB status
-├── utils/
-│   ├── theme.js              ← syncThemeFromStorage, THEME_EVENT constant
-│   └── auth.js               ← getStoredUser, setStoredUser, clearStoredAuth
-└── styles/                   ← Component-specific CSS files
+â”œâ”€â”€ App.js                    â†� Root: Router, Suspense, AppLayout, theme sync
+â”œâ”€â”€ index.js                  â†� ReactDOM.render entry, theme pre-init
+â”œâ”€â”€ index.css                 â†� Global CSS reset, fonts
+â”œâ”€â”€ config.js                 â†� API_BASE_URL (env var driven)
+â”œâ”€â”€ Context/
+â”‚   â”œâ”€â”€ Context.jsx           â†� createContext() definition
+â”‚   â””â”€â”€ AppProvider.jsx       â†� Global state: user, cart, auth functions
+â”œâ”€â”€ api/
+â”‚   â”œâ”€â”€ axiosInstance.js      â†� Axios with JWT interceptor & refresh logic
+â”‚   â””â”€â”€ products.js           â†� Simple product fetch helper
+â”œâ”€â”€ components/               â†� Reusable React components
+â”‚   â”œâ”€â”€ Navbar.jsx            â†� Top navigation, search, cart icon, theme toggle
+â”‚   â”œâ”€â”€ Home.jsx              â†� Landing page (hero, featured products, categories)
+â”‚   â”œâ”€â”€ Product.jsx           â†� Product detail page (images, reviews, add to cart)
+â”‚   â”œâ”€â”€ Cart.jsx              â†� Shopping cart with quantity controls
+â”‚   â”œâ”€â”€ Login.jsx             â†� Login form with JWT response handling
+â”‚   â”œâ”€â”€ Register.jsx          â†� Multi-step registration with email OTP
+â”‚   â”œâ”€â”€ CheckoutPopup.jsx     â†� Address selection, coupon, delivery options
+â”‚   â”œâ”€â”€ MakePayment.jsx       â†� Razorpay integration, COD flow
+â”‚   â”œâ”€â”€ orders.jsx            â†� Order history, cancel, return, invoice download
+â”‚   â”œâ”€â”€ UserAccount.jsx       â†� Profile view, order summary
+â”‚   â”œâ”€â”€ Settings.jsx          â†� Edit profile, change password, delete account
+â”‚   â”œâ”€â”€ Wishlist.jsx          â†� Wishlist management
+â”‚   â”œâ”€â”€ AddressBook.jsx       â†� Saved addresses CRUD
+â”‚   â”œâ”€â”€ Feedback.jsx          â†� Contact/feedback form
+â”‚   â”œâ”€â”€ AddProduct.jsx        â†� Admin: add new product with images
+â”‚   â”œâ”€â”€ UpdateProduct.jsx     â†� Admin: edit existing product
+â”‚   â”œâ”€â”€ SearchFilterBar.jsx   â†� Product filter/sort controls
+â”‚   â”œâ”€â”€ Footer.jsx            â†� Site footer
+â”‚   â””â”€â”€ NotifyMeModal.jsx     â†� Out-of-stock restock notification signup
+â”œâ”€â”€ pages/
+â”‚   â”œâ”€â”€ AdminPanel.jsx        â†� Full admin dashboard (tabs: products, orders, users)
+â”‚   â”œâ”€â”€ Dashboard.jsx         â†� Admin redirect wrapper
+â”‚   â””â”€â”€ TrackOrder.jsx        â†� Order tracking with AWB status
+â”œâ”€â”€ utils/
+â”‚   â”œâ”€â”€ theme.js              â†� syncThemeFromStorage, THEME_EVENT constant
+â”‚   â””â”€â”€ auth.js               â†� getStoredUser, setStoredUser, clearStoredAuth
+â””â”€â”€ styles/                   â†� Component-specific CSS files
 ```
 ---
 
@@ -866,7 +866,7 @@ shreenath-frontend/src/
 **Space Complexity:** O(1)
 
 **Edge Cases:**
-- Empty/null identifier or password → returns null
+- Empty/null identifier or password â†’ returns null
 - Admin can log in with either phone or email
 - BCrypt hash comparison is timing-safe (prevents timing attacks)
 
@@ -888,11 +888,11 @@ shreenath-frontend/src/
 
 **Business Logic:**
 1. Normalize email to lowercase, trim all fields
-2. Check for duplicate email in `userRepository.findByEmail(email)` → throw if exists
-3. Check for duplicate phone → throw if exists
+2. Check for duplicate email in `userRepository.findByEmail(email)` â†’ throw if exists
+3. Check for duplicate phone â†’ throw if exists
 4. Hash password: `passwordEncoder.encode(user.getPassword())`
 5. Set `verified = true` (OTP already verified before this call)
-6. `userRepository.save(user)` → returns saved entity with generated ID
+6. `userRepository.save(user)` â†’ returns saved entity with generated ID
 
 **Time Complexity:** O(1)  
 **Edge Cases:** Duplicate email/phone throws `RuntimeException` with user-friendly message
@@ -905,7 +905,7 @@ shreenath-frontend/src/
 **Parameters:** `phoneNumber` — identifies the user to delete
 
 **Business Logic (Transactional — all-or-nothing):**
-1. Find user by phone → throw if not found
+1. Find user by phone â†’ throw if not found
 2. `wishlistRepository.deleteByUser(user)` — removes wishlist entries
 3. `reviewRepository.deleteByUser(user)` — removes reviews (critical FK blocker)
 4. `cartRepository.deleteByUserId(user.getId())` — removes cart
@@ -927,10 +927,10 @@ shreenath-frontend/src/
 **Purpose:** Sends a 6-digit OTP to the user's email for password reset.
 
 **Business Logic:**
-1. Find user by email → throw if not found
+1. Find user by email â†’ throw if not found
 2. `otpService.generateOtp(email)` — generates & stores OTP with 10-min expiry
 3. `emailService.sendPasswordResetOtpEmail(email, otp)` — sends HTML email
-4. On SMTP failure: clear the OTP (no dangling unusable OTPs) and throw user-friendly error
+4. On Brevo email delivery failure: clear the OTP (no dangling unusable OTPs) and throw user-friendly error
 
 ---
 
@@ -976,9 +976,9 @@ shreenath-frontend/src/
 6. If product previously out-of-stock and now available: query `restockSubscriptionRepository` and send email alerts
 
 **Edge Cases:**
-- `imgFile` null → throw validation error
-- `extraImages` null or empty → skip gallery step
-- IOException on `getBytes()` → propagate wrapped exception
+- `imgFile` null â†’ throw validation error
+- `extraImages` null or empty â†’ skip gallery step
+- IOException on `getBytes()` â†’ propagate wrapped exception
 
 ---
 
@@ -994,9 +994,9 @@ shreenath-frontend/src/
 **Business Logic:**
 1. Validate `req` and `req.getUserId()` not null
 2. For each order item: load product, verify `available = true`, check `quantity >= requested`
-3. Calculate subtotal from product prices × quantities
-4. Apply coupon via `couponService.applyCoupon(couponCode, subtotal, userId)` → discount amount
-5. Calculate delivery: FREE if subtotal ≥ ₹2,000; STANDARD = ₹99; EXPRESS = ₹199
+3. Calculate subtotal from product prices Ã— quantities
+4. Apply coupon via `couponService.applyCoupon(couponCode, subtotal, userId)` â†’ discount amount
+5. Calculate delivery: Standard shipping is FREE (delivery charges = ₹0); Express shipping is ₹199 or dynamically calculated based on pincode weight
 6. Deduct stock: `product.setQuantity(current - ordered)` for each item
 7. Create `Order` entity, set all financial fields, save via `orderRepo.save(order)`
 8. Send order confirmation email, SMS, WhatsApp notifications asynchronously
@@ -1006,9 +1006,9 @@ shreenath-frontend/src/
 **Transactional:** Yes — stock deduction + order save in one transaction
 
 **Edge Cases:**
-- Item out of stock mid-checkout → throw `IllegalArgumentException` before stock deduction
-- Invalid coupon → coupon service throws, order not created
-- Delivery option not provided → default to STANDARD
+- Item out of stock mid-checkout â†’ throw `IllegalArgumentException` before stock deduction
+- Invalid coupon â†’ coupon service throws, order not created
+- Delivery option not provided â†’ default to STANDARD
 
 ---
 
@@ -1047,7 +1047,7 @@ shreenath-frontend/src/
 
 **Business Logic:**
 1. `Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token)`
-2. Any exception (expired, malformed, invalid signature) → catch all and return false
+2. Any exception (expired, malformed, invalid signature) â†’ catch all and return false
 
 **Time Complexity:** O(1) — HMAC verification is constant time
 
@@ -1060,7 +1060,7 @@ shreenath-frontend/src/
 
 **Business Logic (Authenticated):**
 1. POST `/api/cart/add?userId=...&productId=...&quantity=...`
-2. On success → `fetchCart(user.id)` to refresh cart state from DB
+2. On success â†’ `fetchCart(user.id)` to refresh cart state from DB
 
 **Business Logic (Guest):**
 1. Read current `guest_cart` from localStorage
@@ -1068,7 +1068,7 @@ shreenath-frontend/src/
 3. Save to localStorage, update `cart` and `cartCount` state
 
 **Edge Cases:**
-- API returns non-ok → throw error (shown in UI toast/alert)
+- API returns non-ok â†’ throw error (shown in UI toast/alert)
 - Guest cart limit: no hard limit (client-enforced UX)
 
 ---
@@ -1099,7 +1099,7 @@ shreenath-frontend/src/
    b. If yes: queue this request in `failedQueue`
    c. If no: POST `/api/auth/refresh` with stored `refreshToken`
    d. On success: store new token, flush `failedQueue` with new token, retry original request
-   e. On failure: call `clearAuthAndRedirect()` → clear storage, redirect to `/login`
+   e. On failure: call `clearAuthAndRedirect()` â†’ clear storage, redirect to `/login`
 2. If `_retry` already set: reject (prevents infinite loops)
 
 **Interview Questions:**
@@ -1122,7 +1122,7 @@ shreenath-frontend/src/
 | password | VARCHAR(255) | NOT NULL | BCrypt hash (60 chars) |
 | verified | BOOLEAN | DEFAULT false | True after email OTP |
 
-**Relationships:** One user → many orders, many cart items, many reviews, many addresses.
+**Relationships:** One user â†’ many orders, many cart items, many reviews, many addresses.
 
 ---
 
@@ -1152,11 +1152,11 @@ shreenath-frontend/src/
 | Column | Type | Description |
 |--------|------|-------------|
 | id | BIGINT PK | Order ID |
-| user_id | BIGINT FK → users.id | Buyer |
+| user_id | BIGINT FK â†’ users.id | Buyer |
 | total_amount | DOUBLE | Final charged amount |
 | subtotal | DOUBLE | Pre-discount cart total |
 | discount_amount | DOUBLE | Coupon savings |
-| delivery_charges | DOUBLE | Delivery fee (0/99/199) |
+| delivery_charges | DOUBLE | Delivery fee (0 / 199 or dynamic based on pincode) |
 | coupon_code | VARCHAR | Applied coupon |
 | delivery_option | VARCHAR | STANDARD / EXPRESS / FREE |
 | payment_method | VARCHAR | RAZORPAY / COD |
@@ -1184,8 +1184,8 @@ shreenath-frontend/src/
 | Column | Type | Description |
 |--------|------|-------------|
 | id | BIGINT PK | Line item ID |
-| order_id | BIGINT FK → orders.id | Parent order |
-| product_id | INT FK → products.id | Product ordered |
+| order_id | BIGINT FK â†’ orders.id | Parent order |
+| product_id | INT FK â†’ products.id | Product ordered |
 | quantity | INT | Units ordered |
 | price | DOUBLE | Price per unit at time of order |
 
@@ -1207,8 +1207,8 @@ shreenath-frontend/src/
 | Column | Type | Description |
 |--------|------|-------------|
 | id | BIGINT PK | |
-| cart_id | BIGINT FK → cart.id | Parent cart |
-| product_id | INT FK → products.id | Product in cart |
+| cart_id | BIGINT FK â†’ cart.id | Parent cart |
+| product_id | INT FK â†’ products.id | Product in cart |
 | quantity | INT | Units in cart |
 
 ---
@@ -1219,8 +1219,8 @@ shreenath-frontend/src/
 | Column | Type | Description |
 |--------|------|-------------|
 | id | BIGINT PK | Review ID |
-| product_id | INT FK → products.id | Reviewed product |
-| user_id | BIGINT FK → users.id | Reviewer |
+| product_id | INT FK â†’ products.id | Reviewed product |
+| user_id | BIGINT FK â†’ users.id | Reviewer |
 | rating | INT | 1–5 stars |
 | comment | VARCHAR(1000) | Review text |
 | status | VARCHAR | PENDING / APPROVED / REJECTED |
@@ -1272,8 +1272,8 @@ shreenath-frontend/src/
 | Column | Type | Description |
 |--------|------|-------------|
 | id | BIGINT PK | |
-| order_id | BIGINT FK → orders.id | Associated order |
-| user_id | BIGINT FK → users.id | Payer |
+| order_id | BIGINT FK â†’ orders.id | Associated order |
+| user_id | BIGINT FK â†’ users.id | Payer |
 | gateway | VARCHAR | RAZORPAY |
 | gateway_order_id | VARCHAR | Razorpay order_id |
 | payment_id | VARCHAR | Razorpay payment_id |
@@ -1301,7 +1301,7 @@ shreenath-frontend/src/
 ```json
 { "message": "OTP sent to your email." }
 ```
-**Status Codes:** 200 OK | 400 Email already registered | 500 SMTP failure
+**Status Codes:** 200 OK | 400 Email already registered | 500 Email delivery failure
 
 ---
 
@@ -1591,7 +1591,7 @@ Public: product browsing, login, register.
 # PART 9: FEATURE-WISE EXPLANATION
 ## Feature 1: Email OTP Registration
 Purpose: Verify real email before account creation.
-Flow: User enters email -> OTP sent via Gmail SMTP -> User enters OTP -> Account created.
+Flow: User enters email -> OTP sent via Brevo HTTP API -> User enters OTP -> Account created.
 Files: Register.jsx, AuthController.java, AuthService.java, OtpService.java, EmailService.java
 API: POST /api/auth/send-registration-otp, POST /api/auth/register
 DB: users (verified flag)
@@ -1661,7 +1661,7 @@ A full-stack e-commerce web application for a bicycle retail shop. Built with Re
 REST (Representational State Transfer) is an architectural style for web services. It uses HTTP methods: GET (read), POST (create), PUT (update), DELETE (remove). Resources are identified by URLs. Responses are typically JSON. This project has 60+ REST endpoints.
 
 **Q3. What is JWT?**
-JSON Web Token � a compact, self-contained token for authentication. It has three parts: Header (algorithm), Payload (claims like user identity, expiry), Signature (HMAC verification). The server issues JWTs on login; the client sends them in Authorization headers.
+JSON Web Token — a compact, self-contained token for authentication. It has three parts: Header (algorithm), Payload (claims like user identity, expiry), Signature (HMAC verification). The server issues JWTs on login; the client sends them in Authorization headers.
 
 **Q4. What is Spring Boot?**
 A Java framework that simplifies application development by providing auto-configuration, embedded Tomcat server, and production-ready features. Eliminates XML configuration. Uses annotations like @RestController, @Service, @Autowired.
@@ -1670,13 +1670,13 @@ A Java framework that simplifies application development by providing auto-confi
 A password hashing function designed to be computationally expensive (slow) to resist brute-force attacks. It automatically includes a salt. In Spring: passwordEncoder.encode(rawPassword) to hash, passwordEncoder.matches(raw, hash) to verify.
 
 **Q6. What is CORS?**
-Cross-Origin Resource Sharing � a browser security mechanism that blocks requests from different origins (domain/port/protocol). This project configures CORS to only allow the frontend origin (FRONTEND_ORIGIN env var).
+Cross-Origin Resource Sharing — a browser security mechanism that blocks requests from different origins (domain/port/protocol). This project configures CORS to only allow the frontend origin (FRONTEND_ORIGIN env var).
 
 **Q7. What is Razorpay?**
 India's leading payment gateway supporting UPI, credit/debit cards, net banking, and wallets. This project uses Razorpay to create payment orders and verify payments using HMAC-SHA256 signature verification.
 
 **Q8. What is JPA?**
-Jakarta Persistence API � a specification for Object-Relational Mapping (ORM). It lets you work with database tables as Java objects. Hibernate is the JPA implementation used here. @Entity maps class to table, @Id marks primary key.
+Jakarta Persistence API — a specification for Object-Relational Mapping (ORM). It lets you work with database tables as Java objects. Hibernate is the JPA implementation used here. @Entity maps class to table, @Id marks primary key.
 
 **Q9. What database does this project use?**
 MySQL 8 hosted on Aiven Cloud (managed MySQL service). Connection is SSL-required. Spring Data JPA with Hibernate handles all database interactions.
@@ -1703,7 +1703,7 @@ Marks a method or class to run within a database transaction. If any exception i
 GET retrieves data (idempotent, cacheable, params in URL). POST creates/sends data (non-idempotent, body in request). This project uses GET for product listing, POST for creating orders/payments.
 
 **Q17. What is a DTO?**
-Data Transfer Object � a plain object used to transfer data between layers. ProductResponse DTO excludes raw image bytes (LONGBLOB) for efficiency. UserAccountResponse excludes the password hash.
+Data Transfer Object — a plain object used to transfer data between layers. ProductResponse DTO excludes raw image bytes (LONGBLOB) for efficiency. UserAccountResponse excludes the password hash.
 
 **Q18. What is Lombok?**
 A Java annotation processor that generates boilerplate code at compile time. @Data generates getters, setters, toString, equals, hashCode. @AllArgsConstructor and @NoArgsConstructor generate constructors.
@@ -1715,10 +1715,10 @@ Unauthenticated users can add items to cart stored in localStorage. On login, th
 Code that runs before every HTTP request or after every response. The axiosInstance request interceptor adds the JWT Bearer token. The response interceptor catches 401 errors and attempts token refresh.
 
 **Q21. What is OTP?**
-One-Time Password � a temporary, single-use code. Used in this project for: email verification during registration, and password reset. Generated by OtpService.java, stored in-memory with 10-minute expiry.
+One-Time Password — a temporary, single-use code. Used in this project for: email verification during registration, and password reset. Generated by OtpService.java, stored in-memory with 10-minute expiry.
 
 **Q22. What is Multipart/form-data?**
-An HTTP content type for uploading files. Used when adding/updating products � the request contains both JSON product data and binary image files. Spring handles it with @RequestPart and MultipartFile.
+An HTTP content type for uploading files. Used when adding/updating products — the request contains both JSON product data and binary image files. Spring handles it with @RequestPart and MultipartFile.
 
 **Q23. What is code splitting in React?**
 Technique of splitting the JavaScript bundle into smaller chunks loaded on demand. This project uses React.lazy() with Suspense for all non-critical routes (Cart, Orders, Admin, etc.), reducing initial load time.
@@ -1768,9 +1768,9 @@ N+1 problem: fetching 50 products then making 50 separate queries for each produ
 CartAbandonmentScheduler runs every 60 seconds (configurable). For each Cart record: if updatedAt is more than 30 minutes ago AND emailSent = false AND cart has items ? send abandonment email via EmailService ? set emailSent = true. Prevents duplicate emails.
 
 **Q31. How is order pricing calculated?**
-1. subtotal = S (product.price � quantity) for each item
+1. subtotal = S (product.price × quantity) for each item
 2. discount = couponService.applyCoupon() result
-3. deliveryCharges: 0 if subtotal = ?2000, ?99 STANDARD, ?199 EXPRESS
+3. deliveryCharges: 0 for Standard Shipping, or ₹199 (or dynamic per-kg charge) for Express Shipping
 4. totalAmount = subtotal - discount + deliveryCharges
 5. All amounts persisted on Order entity for audit trail
 
@@ -1780,13 +1780,13 @@ On review submission, ReviewService checks: does this user have any Order with s
 **Q33. How is account deletion handled safely?**
 @Transactional deleteAccount() deletes in FK-safe order:
 1. wishlist ? 2. reviews ? 3. cart ? 4. addresses ? 5. restock subs ? 6. personal coupons ? 7. user
-All in one transaction � if any fails, all roll back. RefreshToken also invalidated so existing tokens cannot be used.
+All in one transaction — if any fails, all roll back. RefreshToken also invalidated so existing tokens cannot be used.
 
 **Q34. What is the RefreshTokenStore?**
 An in-memory ConcurrentHashMap<phoneNumber, refreshToken> that tracks valid refresh tokens server-side. When logout() is called, the entry is removed. When /api/auth/refresh is called, it checks this store. This enables server-side token invalidation despite JWT being stateless.
 
 **Q35. How does address book work at checkout?**
-Users save addresses (label, name, phone, line1, city, state, pincode, isDefault). At checkout, CheckoutPopup.jsx loads addresses from /api/addresses/{userId}. User selects one. The full address is serialized as a text snapshot onto the Order.address field � so order history always shows the address as it was at time of order, even if address is later deleted.
+Users save addresses (label, name, phone, line1, city, state, pincode, isDefault). At checkout, CheckoutPopup.jsx loads addresses from /api/addresses/{userId}. User selects one. The full address is serialized as a text snapshot onto the Order.address field — so order history always shows the address as it was at time of order, even if address is later deleted.
 
 **Q36. How does the theme system work?**
 CSS custom properties (variables) on :root control colors. A data-theme="light" attribute on document.body switches the variable set. syncThemeFromStorage() reads from localStorage. Applied on every route change via useEffect in AppLayout. THEME_EVENT custom event syncs across browser tabs via window.addEventListener("storage").
@@ -1831,10 +1831,9 @@ ProductRepo.findFiltered() uses a custom JPQL @Query with conditional WHERE clau
 SmsService.send(): HTTP POST to https://www.fast2sms.com/dev/bulkV2 with API key header, message body, and recipient phone number. Free tier allows ~100 SMS/day. Used for order confirmations, status updates, OTP delivery (fallback).
 
 **Q46. What are the delivery charge rules?**
-- subtotal >= ?2,000 ? FREE delivery
-- deliveryOption = STANDARD ? ?99
-- deliveryOption = EXPRESS ? ?199
-Set in OrderService constants: FREE_DELIVERY_THRESHOLD, STANDARD_DELIVERY_CHARGE, EXPRESS_DELIVERY_CHARGE.
+- Standard Shipping: FREE (delivery fee = ₹0).
+- Express Shipping: ₹199 or dynamically calculated based on pincode (per-kg charge) from the `serviceable_pins` database table.
+Set in `OrderService` constants: `STANDARD_DELIVERY_CHARGE` (now set to `BigDecimal.ZERO`) and `EXPRESS_DELIVERY_CHARGE` (set to `BigDecimal.valueOf(199)`).
 
 **Q47. How does the admin-only authorization work beyond Spring Security config?**
 Double-layered: SecurityConfig declares hasRole("ADMIN") for /api/admin/** routes (enforced by Spring Security). Individual controllers also call private authorizeAdmin() which re-validates the JWT and checks isAdminPhoneNumber(). Defense in depth.
@@ -1851,11 +1850,11 @@ Images are stored as LONGBLOB binary data directly in the MySQL database (produc
 ## ADVANCED QUESTIONS (51-75)
 
 **Q51. What are the scalability limitations of this architecture?**
-1. Images stored in DB (LONGBLOB) � doesn't scale; should use S3/Cloudinary
-2. RefreshTokenStore in-memory � dies on restart, doesn't work across multiple instances
-3. OtpService in-memory � same issue
+1. Images stored in DB (LONGBLOB) — doesn't scale; should use S3/Cloudinary
+2. RefreshTokenStore in-memory — dies on restart, doesn't work across multiple instances
+3. OtpService in-memory — same issue
 4. No caching layer (Redis) for product listings
-5. Single DB instance � no read replica used despite Aiven providing one
+5. Single DB instance — no read replica used despite Aiven providing one
 Solutions: S3 for images, Redis for tokens/OTP/cache, horizontal scaling with load balancer.
 
 **Q52. How would you implement Redis for token storage?**
@@ -1882,19 +1881,19 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 
 ## "What challenges did you face?"
 "Three main challenges:
-1. **Cart merge on login** � Guest users shopping without an account would lose their cart on login. I solved this with a mergeCart() function that reads localStorage guest_cart items and syncs them to the DB cart before clearing localStorage.
-2. **JWT token refresh** � When access tokens expired mid-session, API calls would fail and log users out unexpectedly. I implemented a response interceptor in Axios that queues concurrent 401 requests, refreshes the token once, then retries all queued requests with the new token.
-3. **Account deletion FK violations** � Deleting a user failed due to foreign key constraints from reviews, cart, wishlist tables. I rewrote deleteAccount() as a @Transactional method that manually deletes related records in the correct dependency order before removing the user."
+1. **Cart merge on login** — Guest users shopping without an account would lose their cart on login. I solved this with a mergeCart() function that reads localStorage guest_cart items and syncs them to the DB cart before clearing localStorage.
+2. **JWT token refresh** — When access tokens expired mid-session, API calls would fail and log users out unexpectedly. I implemented a response interceptor in Axios that queues concurrent 401 requests, refreshes the token once, then retries all queued requests with the new token.
+3. **Account deletion FK violations** — Deleting a user failed due to foreign key constraints from reviews, cart, wishlist tables. I rewrote deleteAccount() as a @Transactional method that manually deletes related records in the correct dependency order before removing the user."
 
 ## "Why did you choose this technology stack?"
-"Java and Spring Boot provide strong typing, enterprise-grade security through Spring Security, and excellent JPA/Hibernate support for relational data � perfect for an e-commerce application with complex relationships between users, orders, products, and payments. React was chosen for its component reusability and large ecosystem. MySQL fits well because the data is highly relational (users ? orders ? order_items ? products). Razorpay is the best choice for Indian payments � it supports UPI which is the dominant payment method in India."
+"Java and Spring Boot provide strong typing, enterprise-grade security through Spring Security, and excellent JPA/Hibernate support for relational data — perfect for an e-commerce application with complex relationships between users, orders, products, and payments. React was chosen for its component reusability and large ecosystem. MySQL fits well because the data is highly relational (users ? orders ? order_items ? products). Razorpay is the best choice for Indian payments — it supports UPI which is the dominant payment method in India."
 
 ## "What was your contribution?"
 "I built this project entirely independently. This includes: designing the full database schema (24 tables), implementing all 65+ REST APIs, building the React frontend with 15+ pages and components, integrating Razorpay, implementing email/SMS/WhatsApp notifications, building the admin dashboard with analytics, and deploying to production on Render with Aiven MySQL."
 
 ## "What would you improve?"
-"1. Move product images from MySQL LONGBLOB to AWS S3 or Cloudinary � DB image storage doesn't scale.
-2. Add Redis for session/OTP/token storage instead of in-memory maps � enables multi-instance deployment.
+"1. Move product images from MySQL LONGBLOB to AWS S3 or Cloudinary — DB image storage doesn't scale.
+2. Add Redis for session/OTP/token storage instead of in-memory maps — enables multi-instance deployment.
 3. Add comprehensive unit and integration tests using JUnit 5 and Mockito.
 4. Implement Google OAuth2 for social login.
 5. Add real-time order tracking using WebSockets.
@@ -1905,7 +1904,7 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 # PART 12: PRESENTATION SLIDES OUTLINE
 
 ## Slide 1: Title
-- **Shrinath Cycle Store � E-Commerce Platform**
+- **Shrinath Cycle Store — E-Commerce Platform**
 - Student: Utkarsh Gupta | Technology: Java Spring Boot + React + MySQL
 - Full-Stack Web Application
 
@@ -1926,11 +1925,11 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 |-------|-----------|
 | Frontend | React 19, React Router v7, Axios |
 | Backend | Java 17, Spring Boot 3.5 |
-| Database | MySQL 8 (Aiven Cloud) |
+| Database | TiDB Cloud / MySQL 8 |
 | Security | Spring Security, JWT (JJWT 0.11.5) |
 | Payments | Razorpay |
 | PDF | iText 7 |
-| Notifications | Gmail SMTP, Fast2SMS, Green API |
+| Notifications | Brevo HTTP API & SMTP Relay, Fast2SMS, Green API, Telegram Bot |
 | Deployment | Render (Backend), Static Host (Frontend) |
 
 ## Slide 5: System Architecture
@@ -2000,12 +1999,12 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 "Built Shrinath Cycle Store, a production-deployed full-stack e-commerce web application for a bicycle retail business. Designed a 24-table MySQL schema and implemented 65+ REST APIs using Spring Boot 3.5 with JWT authentication, BCrypt password security, and role-based access control. Integrated Razorpay payment gateway with HMAC signature verification supporting UPI, cards, and COD. Developed a React 19 SPA with code splitting, Context API state management, and a guest cart merge flow. Implemented automated email/SMS/WhatsApp notifications, GST-compliant PDF invoice generation using iText 7, and an admin analytics dashboard."
 
 ## ATS-Friendly Resume Description
-**Shrinath Cycle Store � Full Stack E-Commerce Application** | Java, Spring Boot, React, MySQL, JWT
+**Shrinath Cycle Store — Full Stack E-Commerce Application** | Java, Spring Boot, React, MySQL, JWT
 - Architected RESTful backend with 65+ endpoints using Spring Boot 3.5 and Spring Security with JWT-based stateless authentication and BCrypt password hashing
 - Integrated Razorpay payment gateway with HMAC-SHA256 signature verification supporting UPI, credit/debit cards, and Cash-on-Delivery
 - Designed normalized MySQL database with 24 tables and optimized JPA queries eliminating N+1 problem with batch statistics fetching
 - Built React 19 SPA with React Router v7, code splitting (lazy loading), Context API global state management, and automatic JWT token refresh via Axios interceptors
-- Implemented cart abandonment recovery scheduler, GST-compliant PDF invoice generation (iText 7), and multi-channel notifications (Gmail SMTP, Fast2SMS, WhatsApp Green API)
+- Implemented cart abandonment recovery scheduler, GST-compliant PDF invoice generation (iText 7), and multi-channel notifications (Brevo HTTP API & SMTP Relay, Fast2SMS, WhatsApp Green API, Telegram Bot)
 - Developed full admin dashboard with analytics, product/order/user/coupon management, return-exchange workflow, and inventory control
 - Engineered self-hosted Visitor Intelligence analytics system using localStorage/sessionStorage UUIDs to track 8 KPIs (unique visitors, guest count, conversion rate, repeat customers, repeat products, failed searches) stored in 2 new MySQL tables (analytics_events, search_log) without any third-party service
 
@@ -2015,12 +2014,12 @@ XSS attacks can steal tokens. Mitigation: httpOnly cookies for refresh tokens (i
 Built a complete digital storefront for a real bicycle shop using Java Spring Boot + React + MySQL.
 
 ?? Key Highlights:
-� JWT auth with automatic refresh, BCrypt password security
-� Razorpay integration (UPI, cards, COD) with signature verification
-� Admin dashboard: products, orders, analytics, coupons
-� Email + SMS + WhatsApp order notifications
-� PDF invoice generation, review & rating system
-� Guest cart with seamless login merge
+• JWT auth with automatic refresh, BCrypt password security
+• Razorpay integration (UPI, cards, COD) with signature verification
+• Admin dashboard: products, orders, analytics, coupons
+• Email + SMS + WhatsApp order notifications
+• PDF invoice generation, review & rating system
+• Guest cart with seamless login merge
 
 Stack: Java 17 | Spring Boot 3.5 | React 19 | MySQL 8 | JWT | Razorpay | iText 7"
 
@@ -2090,11 +2089,11 @@ users, products, product_images, orders, order_items, cart, cart_items, reviews,
 
 ---
 
-# PART 15: VISITOR INTELLIGENCE ANALYTICS � FEATURE DOCUMENTATION
+# PART 15: VISITOR INTELLIGENCE ANALYTICS — FEATURE DOCUMENTATION
 
 ## 15.1 Overview
 
-The **Visitor Intelligence** system is a **self-hosted, privacy-first analytics engine** built natively into the Shrinath Cycle Store platform. It tracks user behaviour, search intent, and customer loyalty patterns entirely within the application's own MySQL database � no Google Analytics, Mixpanel, or any third-party analytics service is required.
+The **Visitor Intelligence** system is a **self-hosted, privacy-first analytics engine** built natively into the Shrinath Cycle Store platform. It tracks user behaviour, search intent, and customer loyalty patterns entirely within the application's own MySQL database — no Google Analytics, Mixpanel, or any third-party analytics service is required.
 
 This gives the store owner complete data ownership and answers the critical business questions:
 
@@ -2115,37 +2114,37 @@ This gives the store owner complete data ownership and answers the critical busi
 
 `
 +----------------------------------------------------------------------+
-�  FRONTEND (Browser)                                                   �
-�                                                                       �
-�  localStorage._vuid  --? persistent visitorId (survives restarts)    �
-�  sessionStorage._vsid --? per-tab sessionId (resets on tab close)    �
-�                                                                       �
-�  App.js (route change)    --? trackPageView(path)                    �
-�  SearchFilterBar.jsx       --? trackSearch(query, resultCount)        �
-�  CheckoutPopup.jsx         --? trackOrderPlaced()                     �
-�                                                                       �
-�  All calls: fire-and-forget fetch() � failures never block UI        �
+¦  FRONTEND (Browser)                                                   ¦
+¦                                                                       ¦
+¦  localStorage._vuid  --? persistent visitorId (survives restarts)    ¦
+¦  sessionStorage._vsid --? per-tab sessionId (resets on tab close)    ¦
+¦                                                                       ¦
+¦  App.js (route change)    --? trackPageView(path)                    ¦
+¦  SearchFilterBar.jsx       --? trackSearch(query, resultCount)        ¦
+¦  CheckoutPopup.jsx         --? trackOrderPlaced()                     ¦
+¦                                                                       ¦
+¦  All calls: fire-and-forget fetch() — failures never block UI        ¦
 +----------------------------------------------------------------------+
-                                � HTTPS POST (no auth required)
+                                ¦ HTTPS POST (no auth required)
                                 ?
 +----------------------------------------------------------------------+
-�  BACKEND (Spring Boot)                                                �
-�                                                                       �
-�  VisitorAnalyticsController                                           �
-�    POST /api/analytics/event   --? VisitorAnalyticsService           �
-�    POST /api/analytics/search  --? VisitorAnalyticsService           �
-�    GET  /api/analytics/visitor-dashboard (ADMIN) --? buildDashboard()�
+¦  BACKEND (Spring Boot)                                                ¦
+¦                                                                       ¦
+¦  VisitorAnalyticsController                                           ¦
+¦    POST /api/analytics/event   --? VisitorAnalyticsService           ¦
+¦    POST /api/analytics/search  --? VisitorAnalyticsService           ¦
+¦    GET  /api/analytics/visitor-dashboard (ADMIN) --? buildDashboard()¦
 +----------------------------------------------------------------------+
-                                � JPA/Hibernate
+                                ¦ JPA/Hibernate
                                 ?
 +----------------------------------------------------------------------+
-�  DATABASE (MySQL)                                                     �
-�                                                                       �
-�  analytics_events: id, visitorId, sessionId, eventType,              �
-�                    pagePath, userId, timestamp, ipAddress             �
-�                                                                       �
-�  search_log:       id, query, resultCount, userId, sessionId,        �
-�                    timestamp                                          �
+¦  DATABASE (MySQL)                                                     ¦
+¦                                                                       ¦
+¦  analytics_events: id, visitorId, sessionId, eventType,              ¦
+¦                    pagePath, userId, timestamp, ipAddress             ¦
+¦                                                                       ¦
+¦  search_log:       id, query, resultCount, userId, sessionId,        ¦
+¦                    timestamp                                          ¦
 +----------------------------------------------------------------------+
 `
 
@@ -2174,21 +2173,25 @@ This gives the store owner complete data ownership and answers the critical busi
 |---|---|---|
 | id | BIGINT PK | Auto-increment primary key |
 | query | VARCHAR(512) | Normalized (lowercase, trimmed) search term |
-| esultCount | INT | How many products matched (0 = failed search) |
+| 
+esultCount | INT | How many products matched (0 = failed search) |
 | userId | BIGINT (nullable) | NULL for guests |
 | sessionId | VARCHAR(64) | Links to session in analytics_events |
 | 	imestamp | DATETIME | Server-side timestamp |
 
-**Key insight:** esultCount = 0 identifies **failed searches** � items users want but cannot find. This directly informs inventory decisions.
+**Key insight:** 
+esultCount = 0 identifies **failed searches** — items users want but cannot find. This directly informs inventory decisions.
 
 ---
 
 ## 15.4 Backend Components
 
 ### VisitorAnalyticsService.java
-- ecordEvent(dto, ipAddress) � saves to nalytics_events
-- ecordSearch(dto) � saves to search_log (lowercase normalized query)
-- uildDashboard() � runs 8+ aggregate JPQL queries and returns VisitorDashboardDTO
+- 
+ecordEvent(dto, ipAddress) — saves to nalytics_events
+- 
+ecordSearch(dto) — saves to search_log (lowercase normalized query)
+- uildDashboard() — runs 8+ aggregate JPQL queries and returns VisitorDashboardDTO
 
 Key JPQL queries:
 `java
@@ -2210,9 +2213,9 @@ Key JPQL queries:
 
 ### VisitorAnalyticsController.java
 `
-POST /api/analytics/event    � PUBLIC (no auth) � guests tracked
-POST /api/analytics/search   � PUBLIC (no auth) � all searches logged
-GET  /api/analytics/visitor-dashboard � ADMIN ONLY
+POST /api/analytics/event    — PUBLIC (no auth) — guests tracked
+POST /api/analytics/search   — PUBLIC (no auth) — all searches logged
+GET  /api/analytics/visitor-dashboard — ADMIN ONLY
 `
 
 ---
@@ -2231,11 +2234,12 @@ trackOrderPlaced()       // fires immediately after successful order
 ### Tracking Hook Points
 - **App.js** ? useEffect([location.pathname]) ? 	rackPageView()
 - **SearchFilterBar.jsx** ? useEffect([keyword, totalResults]) with 1.5s debounce + duplicate suppression ref
-- **CheckoutPopup.jsx** ? inside handleConfirm() after es.ok
+- **CheckoutPopup.jsx** ? inside handleConfirm() after 
+es.ok
 
 ---
 
-## 15.6 Admin Panel � Visitor Intelligence Tab
+## 15.6 Admin Panel — Visitor Intelligence Tab
 
 **Section:** ?? Visitor Intelligence (14th tab in Admin Panel)
 
@@ -2257,10 +2261,10 @@ ewUsersThisMonth |
 - 7-day visitor trend bar chart (blue bars, i-visitor-bar CSS class)
 
 **Data Tables (4 tables in 2x2 grid):**
-- ?? Repeat Customers � userId, name, email, phone, order count, last order date
-- ?? Repeat Ordered Products � productId, name, category, times ordered, units sold
-- ?? Failed Searches � query, times searched (with "Consider adding this product" hint)
-- ?? Top Search Terms � query, total searches, avg results (red badge if avg < 1)
+- ?? Repeat Customers — userId, name, email, phone, order count, last order date
+- ?? Repeat Ordered Products — productId, name, category, times ordered, units sold
+- ?? Failed Searches — query, times searched (with "Consider adding this product" hint)
+- ?? Top Search Terms — query, total searches, avg results (red badge if avg < 1)
 
 ---
 
@@ -2273,13 +2277,15 @@ ewUsersThisMonth |
 > localStorage UUID (_vuid) is generated on first visit and persisted across browser sessions. sessionStorage UUID (_vsid) is generated per-tab and resets on close. Both are sent with every tracking event so we can distinguish unique visitors from returning ones.
 
 **Q: How do you prevent spam analytics writes?**
-> Three mechanisms: (1) SearchFilterBar uses a 1.5s debounce, (2) a useRef stores the last logged query+result to suppress duplicate logs, (3) the backend's ecordEvent ignores payloads with empty isitorId or sessionId.
+> Three mechanisms: (1) SearchFilterBar uses a 1.5s debounce, (2) a useRef stores the last logged query+result to suppress duplicate logs, (3) the backend's 
+ecordEvent ignores payloads with empty isitorId or sessionId.
 
 **Q: How does failed search detection work?**
-> SearchFilterBar receives 	otalResults prop from the parent (Home/products page). When a search yields 0 results, 	rackSearch(query, 0) is called. The backend stores esultCount=0. The admin dashboard runs WHERE resultCount = 0 GROUP BY query ORDER BY COUNT DESC to rank failed searches by frequency.
+> SearchFilterBar receives 	otalResults prop from the parent (Home/products page). When a search yields 0 results, 	rackSearch(query, 0) is called. The backend stores 
+esultCount=0. The admin dashboard runs WHERE resultCount = 0 GROUP BY query ORDER BY COUNT DESC to rank failed searches by frequency.
 
 **Q: What happens if the analytics API is down?**
-> All tracking calls are wrapped in 	ry/catch with silent failure � no wait at the call site. Analytics never blocks the user flow or causes UI errors.
+> All tracking calls are wrapped in 	ry/catch with silent failure — no wait at the call site. Analytics never blocks the user flow or causes UI errors.
 
 ---
 
