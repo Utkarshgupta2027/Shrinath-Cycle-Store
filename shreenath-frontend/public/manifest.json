@@ -1,7 +1,10 @@
 {
-  "short_name": "ShreeNath Cycles",
-  "name": "ShreeNath Cycle Store – Best Bicycle Shop in Chitrakoot",
-  "description": "Shop premium cycles, bike parts & accessories at Chitrakoot's most trusted bicycle store.",
+  "name": "Shrinath Cycle Store",
+  "short_name": "Shrinath",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#ffffff",
   "icons": [
     {
       "src": "favicon.ico",
@@ -9,25 +12,18 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo123.png",
+      "src": "icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "orientation": "portrait-primary",
-  "theme_color": "#1a3c5e",
-  "background_color": "#ffffff",
   "lang": "en-IN",
-  "categories": ["shopping", "sports"],
-  "screenshots": []
+  "categories": ["shopping", "sports"]
 }

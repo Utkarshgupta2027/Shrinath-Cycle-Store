@@ -6,6 +6,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { syncThemeFromStorage } from './utils/theme';
 import { initGA } from './utils/googleAnalytics';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Apply the saved theme immediately — before React mounts —
 // so there's no flash of wrong theme on page load / refresh.
@@ -27,3 +28,6 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// Register the PWA service worker (supports offline mode and installation prompt)
+serviceWorkerRegistration.register();

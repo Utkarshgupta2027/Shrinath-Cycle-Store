@@ -6,6 +6,7 @@ import "../styles/components/home.css";
 import SearchFilterBar from "./SearchFilterBar";
 import { trackPageView, trackSearch } from "../utils/analytics";
 import NotifyMeModal from "./NotifyMeModal";
+import InstallButton from "./InstallButton";
 
 import {
   FaShoppingCart,
@@ -483,6 +484,7 @@ function Home() {
               <FaHeart /> My Wishlist
             </Link>
           </div>
+          <InstallButton />
           <div className="hero-stats">
             <div className="hero-stat"><span className="stat-num">500+</span><span>Products</span></div>
             <div className="hero-stat-divider" />
