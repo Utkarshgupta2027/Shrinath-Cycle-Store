@@ -27,6 +27,7 @@ import AppContext from "../Context/Context";
 import { copyTextToClipboard, downloadBlob } from "../utils/browser";
 import { gaTrackPurchase } from "../utils/googleAnalytics";
 import "../styles/components/MakePayment.css";
+import "../styles/components/CheckoutPopup.css";
 
 const API_BASE = `${API_BASE_URL}/api`;
 const WALLET_BALANCE = 1200;
@@ -162,6 +163,36 @@ function MakePayment() {
   });
   const [selectedUpiApp, setSelectedUpiApp] = useState("gpay");
   const [dynamicDeliveryFee, setDynamicDeliveryFee] = useState(null);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [countdown, setCountdown] = useState(3);
+  const [confirmation, setConfirmation] = useState(null);
+
+  const deliveryEstimate = useMemo(() => {
+    const deliveryOption = orderFromState?.deliveryOption || "standard";
+    const start = new Date();
+    const end = new Date();
+    end.setDate(start.getDate() + (deliveryOption === "express" ? 2 : 5));
+    return deliveryOption === "express"
+      ? `Arrives by ${end.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`
+      : `Estimated ${start.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} - ${end.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`;
+  }, [orderFromState]);
+
+  useEffect(() => {
+    if (!showAlert) return;
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(interval);
+          navigate("/orders");
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showAlert, navigate]);
 
   useEffect(() => {
     if (orderFromState?.address) {
@@ -596,6 +627,13 @@ function MakePayment() {
           setPaymentState("success");
           setOtpRequired(false);
           setLoadingMessage("");
+          setConfirmation({
+            id: confirmedOrder.id || "NEW",
+            total: finalResult.amount,
+            estimate: deliveryEstimate
+          });
+          setCartItems([]);
+          setShowAlert(true);
         })
         .catch(err => {
           setPaymentState("failed");
@@ -610,6 +648,13 @@ function MakePayment() {
         setPaymentState("success");
         setOtpRequired(false);
         setLoadingMessage("");
+        setConfirmation({
+          id: "NEW",
+          total: totalPayable,
+          estimate: deliveryEstimate
+        });
+        setCartItems([]);
+        setShowAlert(true);
       }
     }, 2200);
   };
@@ -647,6 +692,54 @@ function MakePayment() {
   return (
     <div className="payment-page">
       <div className="payment-shell">
+        {/* ── Order Success Alert Dialog ── */}
+        {showAlert && confirmation && (
+          <div className="order-success-overlay" role="dialog" aria-modal="true" aria-labelledby="order-success-title">
+            <div className="order-success-dialog">
+              <div className="order-success-icon-ring">
+                <svg viewBox="0 0 52 52" className="order-success-checkmark">
+                  <circle cx="26" cy="26" r="25" fill="none" />
+                  <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+              </div>
+              <h2 id="order-success-title">Order Placed Successfully!</h2>
+              <p className="order-success-order-id">Order #{confirmation.id}</p>
+              <div className="order-success-details">
+                <div>
+                  <span>Amount Paid</span>
+                  <strong>{formatMoney(confirmation.total)}</strong>
+                </div>
+                <div>
+                  <span>Delivery</span>
+                  <strong>{confirmation.estimate}</strong>
+                </div>
+              </div>
+              <p className="order-success-redirect-note">
+                Redirecting to your orders in <strong>{countdown}</strong> second{countdown !== 1 ? "s" : ""}...
+              </p>
+              <div className="order-success-progress">
+                <div
+                  className="order-success-progress-bar"
+                  style={{ width: `${((3 - countdown) / 3) * 100}%` }}
+                />
+              </div>
+              <button
+                className="order-success-btn"
+                onClick={() => navigate("/orders")}
+              >
+                View My Orders
+              </button>
+              <button
+                className="order-success-close"
+                onClick={() => { setShowAlert(false); navigate("/orders"); }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
         <button className="payment-back-link" onClick={() => navigate(-1)}>
           <FaArrowLeft /> Back
         </button>
