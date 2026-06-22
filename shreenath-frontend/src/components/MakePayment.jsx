@@ -194,18 +194,48 @@ function MakePayment() {
       return;
     }
 
-    const savedAddressList = readStoredJson(getAccountKey(userId, "addresses"), []);
-    if (savedAddressList.length > 0) {
-      const primary = savedAddressList[0];
-      setDeliveryAddress({
-        label: primary.label || "Home",
-        fullName: primary.name || user?.name || user?.username || "",
-        phone: primary.phone || user?.phoneNo || user?.phoneNumber || "",
-        line1: primary.line1 || "",
-        city: primary.city || "",
-        state: primary.state || "",
-        pincode: primary.pincode || "",
-      });
+    let parsedAddress = null;
+    if (orderFromState?.address) {
+      let addressPart = orderFromState.address;
+      if (addressPart.includes(" | ")) {
+        addressPart = addressPart.split(" | ")[0];
+      }
+      const parts = addressPart.split(", ");
+      if (parts.length >= 4) {
+        const name = parts[0];
+        const phone = parts[1];
+        const pincode = parts[parts.length - 1];
+        const state = parts[parts.length - 2];
+        const city = parts[parts.length - 3];
+        const line1 = parts.slice(2, parts.length - 3).join(", ");
+        parsedAddress = {
+          label: "Selected Delivery Address",
+          fullName: name,
+          phone: phone,
+          line1: line1,
+          city: city,
+          state: state,
+          pincode: pincode
+        };
+      }
+    }
+
+    if (parsedAddress) {
+      setDeliveryAddress(parsedAddress);
+    } else {
+      const savedAddressList = readStoredJson(getAccountKey(userId, "addresses"), []);
+      if (savedAddressList.length > 0) {
+        const primary = savedAddressList[0];
+        setDeliveryAddress({
+          label: primary.label || "Home",
+          fullName: primary.name || user?.name || user?.username || "",
+          phone: primary.phone || user?.phoneNo || user?.phoneNumber || "",
+          line1: primary.line1 || "",
+          city: primary.city || "",
+          state: primary.state || "",
+          pincode: primary.pincode || "",
+        });
+      }
     }
 
     const storedMethods = readStoredJson(getAccountKey(userId, "payments"), []);
