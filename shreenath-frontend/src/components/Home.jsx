@@ -858,63 +858,6 @@ function Home() {
         </div>
       </section>
 
-      {/* ============ APP INSTALL BANNER ============ */}
-      <section className="app-install-section">
-        <div className="app-install-inner">
-          <div className="app-install-text">
-            <span className="app-install-eyebrow">📱 Get the App</span>
-            <h2 className="app-install-title">Shop Faster with the Shrinath App</h2>
-            <p className="app-install-desc">
-              Install our app on your phone for lightning-fast browsing, instant order tracking, and an immersive full-screen experience — no app store needed!
-            </p>
-            <ul className="app-install-perks">
-              <li>⚡ Instant load — works offline too</li>
-              <li>🔔 Push notifications for offers</li>
-              <li>📦 One-tap order tracking</li>
-              <li>🏠 Lives on your home screen</li>
-            </ul>
-            <div className="app-install-btn-row">
-              {pwaInstalled ? (
-                <button className="home-pwa-btn installed" disabled>
-                  ✅ App Already Installed
-                </button>
-              ) : (
-                <button
-                  className={`home-pwa-btn${!pwaPrompt ? " unavailable" : ""}${pwaInstalling ? " installing" : ""}`}
-                  onClick={handlePwaInstall}
-                  disabled={pwaInstalling || !pwaPrompt}
-                  title={!pwaPrompt ? "Open this site in Chrome on Android/Desktop to install" : "Click to install the app"}
-                >
-                  {pwaInstalling ? "⏳ Installing..." : "📲 Install Free App"}
-                </button>
-              )}
-              <span className="app-install-note">Free · No app store required</span>
-            </div>
-          </div>
-          <div className="app-install-visual">
-            <div className="app-mockup">
-              <div className="mockup-screen">
-                <div className="mockup-header">
-                  <span className="mockup-dot"></span>
-                  <span className="mockup-dot"></span>
-                  <span className="mockup-dot"></span>
-                </div>
-                <div className="mockup-content">
-                  <div className="mockup-logo">🚲</div>
-                  <div className="mockup-store-name">Shrinath Cycles</div>
-                  <div className="mockup-tagline">Your ride awaits</div>
-                  <div className="mockup-bars">
-                    <div className="mockup-bar w80"></div>
-                    <div className="mockup-bar w60"></div>
-                    <div className="mockup-bar w90"></div>
-                  </div>
-                  <div className="mockup-cta-pill">Shop Now →</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ============ CONTACT / LOCATION ============ */}
       <section className="contact-section" id="contact">

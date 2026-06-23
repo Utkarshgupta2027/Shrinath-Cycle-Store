@@ -15,6 +15,7 @@ import {
   FaChevronDown,
   FaIdBadge,
   FaBicycle,
+  FaDownload,
 } from "react-icons/fa";
 import logo from "../assets/images/logo.png";
 import { getStoredUser, isAdminUser } from "../utils/auth";
@@ -31,6 +32,10 @@ const Navbar = () => {
   const [showShopMenu, setShowShopMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // PWA install
+  const [pwaPrompt, setPwaPrompt] = useState(null);
+  const [pwaInstalled, setPwaInstalled] = useState(false);
+  const [pwaInstalling, setPwaInstalling] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, cartCount } = useContext(AppContext);
@@ -43,6 +48,34 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // PWA install prompt
+  useEffect(() => {
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    if (isStandalone) { setPwaInstalled(true); return; }
+    const onPrompt = (e) => { e.preventDefault(); setPwaPrompt(e); };
+    const onInstalled = () => { setPwaInstalled(true); setPwaPrompt(null); };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const handlePwaInstall = async () => {
+    if (!pwaPrompt || pwaInstalling) return;
+    setPwaInstalling(true);
+    pwaPrompt.prompt();
+    try {
+      const { outcome } = await pwaPrompt.userChoice;
+      if (outcome === "accepted") { setPwaInstalled(true); setPwaPrompt(null); }
+    } catch (err) {
+      console.error("Install failed:", err);
+    } finally {
+      setPwaInstalling(false);
+    }
+  };
 
   // Fetch wishlist count — only re-fetch when user changes or on wishlist page
   useEffect(() => {
@@ -135,6 +168,19 @@ const Navbar = () => {
           <a href={isHomePage ? "#contact" : "/#contact"} className="menu-link">
             Contact
           </a>
+
+          {/* PWA Install button — desktop */}
+          {!pwaInstalled && (
+            <button
+              className={`nav-install-btn${!pwaPrompt ? " nav-install-btn--dim" : ""}${pwaInstalling ? " nav-install-btn--loading" : ""}`}
+              onClick={handlePwaInstall}
+              disabled={pwaInstalling || !pwaPrompt}
+              title={pwaPrompt ? "Install Shrinath App" : "Open in Chrome to install"}
+            >
+              <FaDownload className="nav-install-icon" />
+              {pwaInstalling ? "Installing…" : "Install App"}
+            </button>
+          )}
 
           <div className="menu-dropdown" ref={shopMenuRef}>
             <button
@@ -340,6 +386,18 @@ const Navbar = () => {
               </>
             ) : (
               <Link to="/login" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Login / Register</Link>
+            )}
+
+            {/* PWA Install — mobile drawer */}
+            {!pwaInstalled && (
+              <button
+                className={`mobile-install-btn${!pwaPrompt ? " mobile-install-btn--dim" : ""}`}
+                onClick={() => { handlePwaInstall(); setMobileOpen(false); }}
+                disabled={pwaInstalling || !pwaPrompt}
+              >
+                <FaDownload />
+                {pwaInstalling ? "Installing…" : "📲 Install App"}
+              </button>
             )}
           </nav>
         </div>

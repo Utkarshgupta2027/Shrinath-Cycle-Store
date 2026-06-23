@@ -1255,3 +1255,91 @@ body.app-theme-light .mobile-drawer {
     font-size: 1rem;
   }
 }
+
+
+/* ════════════════════════════════
+   NAV INSTALL BUTTON (Desktop)
+════════════════════════════════ */
+.nav-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  border-radius: 50px;
+  color: #0a0c14;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.02em;
+}
+
+.nav-install-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  transform: translateY(-2px);
+}
+
+.nav-install-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Dimmed — prompt not ready */
+.nav-install-btn--dim {
+  background: var(--surface-1);
+  color: var(--ink-dim);
+  box-shadow: none;
+  border: 1px solid var(--nav-border);
+  cursor: not-allowed;
+}
+
+.nav-install-btn--loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.nav-install-icon {
+  font-size: 0.75rem;
+}
+
+/* ════════════════════════════════
+   MOBILE INSTALL BUTTON (Drawer)
+════════════════════════════════ */
+.mobile-install-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 16px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  border-radius: 12px;
+  color: #0a0c14;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+  transition: all 0.25s ease;
+  text-align: left;
+}
+
+.mobile-install-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.4);
+  transform: translateY(-1px);
+}
+
+.mobile-install-btn--dim {
+  background: var(--surface-1);
+  color: var(--ink-dim);
+  box-shadow: none;
+  border: 1px solid var(--nav-border);
+  cursor: not-allowed;
+}
