@@ -287,3 +287,274 @@
     font-size: 1.25rem;
   }
 }
+
+/* ══════════════════════════════════════════
+   APP INSTALL BANNER SECTION (Home Page)
+══════════════════════════════════════════ */
+.app-install-section {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  padding: 5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-install-section::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.app-install-section::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: -60px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.app-install-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Left: Text Side ── */
+.app-install-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.app-install-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.app-install-title {
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.app-install-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 480px;
+}
+
+.app-install-perks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.app-install-perks li {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-install-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+/* Override pwa-install-wrapper margin inside banner */
+.app-install-btn-row .pwa-install-wrapper {
+  margin: 0;
+}
+
+/* Make the install button more prominent in banner context */
+.app-install-btn-row .pwa-install-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 1.75rem;
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.35);
+}
+
+.app-install-btn-row .pwa-install-btn:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 10px 32px rgba(245, 158, 11, 0.45);
+  transform: translateY(-3px);
+}
+
+.app-install-btn-row .pwa-icon {
+  color: #0f172a;
+}
+
+.app-install-btn-row .pwa-badge {
+  background: rgba(15, 23, 42, 0.2);
+  color: #0f172a;
+}
+
+.app-install-note {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ── Right: Phone Mockup ── */
+.app-install-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-mockup {
+  position: relative;
+  animation: floatMockup 4s ease-in-out infinite;
+}
+
+@keyframes floatMockup {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
+}
+
+.mockup-screen {
+  width: 200px;
+  background: #1e293b;
+  border-radius: 24px;
+  border: 2px solid rgba(245, 158, 11, 0.4);
+  padding: 1rem;
+  box-shadow:
+    0 0 0 6px rgba(245, 158, 11, 0.08),
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(245, 158, 11, 0.1);
+}
+
+.mockup-header {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mockup-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.5);
+}
+
+.mockup-dot:first-child { background: #ef4444; }
+.mockup-dot:nth-child(2) { background: #f59e0b; }
+.mockup-dot:last-child { background: #22c55e; }
+
+.mockup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+}
+
+.mockup-logo {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.3));
+}
+
+.mockup-store-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.mockup-tagline {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.mockup-bars {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mockup-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mockup-bar.w80 { width: 80%; }
+.mockup-bar.w60 { width: 60%; }
+.mockup-bar.w90 { width: 90%; }
+
+.mockup-cta-pill {
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0f172a;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.4rem 0.9rem;
+  border-radius: 50px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .app-install-inner {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    text-align: center;
+  }
+
+  .app-install-desc {
+    max-width: 100%;
+  }
+
+  .app-install-perks li {
+    justify-content: center;
+  }
+
+  .app-install-btn-row {
+    justify-content: center;
+  }
+
+  .app-install-visual {
+    order: -1;
+  }
+
+  .mockup-screen {
+    width: 160px;
+  }
+}
