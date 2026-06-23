@@ -14,6 +14,9 @@
 
 # misc
 .DS_Store
+
+# misc
+.DS_Store
 .env
 .env.local
 .env.development.local
@@ -23,3 +26,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Large source/raw images (resized versions in /public are committed instead)
+src/images/ChatGPT*
+src/images/logo.png
