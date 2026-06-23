@@ -149,6 +149,10 @@ function Home() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
   const [productFetchError, setProductFetchError] = useState(false);
+  // PWA install state (managed here so the banner button is always visible)
+  const [pwaPrompt, setPwaPrompt] = useState(null);
+  const [pwaInstalled, setPwaInstalled] = useState(false);
+  const [pwaInstalling, setPwaInstalling] = useState(false);
   const retryTimeoutRef = useRef(null);
   const sliderRef = useRef(null);
   const autoSlideRef = useRef(null);
@@ -156,6 +160,34 @@ function Home() {
   const { user, addToCart } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // PWA install prompt listener
+  useEffect(() => {
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    if (isStandalone) { setPwaInstalled(true); return; }
+    const onPrompt = (e) => { e.preventDefault(); setPwaPrompt(e); };
+    const onInstalled = () => { setPwaInstalled(true); setPwaPrompt(null); };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const handlePwaInstall = async () => {
+    if (!pwaPrompt || pwaInstalling) return;
+    setPwaInstalling(true);
+    pwaPrompt.prompt();
+    try {
+      const { outcome } = await pwaPrompt.userChoice;
+      if (outcome === "accepted") { setPwaInstalled(true); setPwaPrompt(null); }
+    } catch (err) {
+      console.error("Install failed:", err);
+    } finally {
+      setPwaInstalling(false);
+    }
+  };
 
   // Auto slide
   useEffect(() => {
@@ -842,7 +874,20 @@ function Home() {
               <li>🏠 Lives on your home screen</li>
             </ul>
             <div className="app-install-btn-row">
-              <InstallButton />
+              {pwaInstalled ? (
+                <button className="home-pwa-btn installed" disabled>
+                  ✅ App Already Installed
+                </button>
+              ) : (
+                <button
+                  className={`home-pwa-btn${!pwaPrompt ? " unavailable" : ""}${pwaInstalling ? " installing" : ""}`}
+                  onClick={handlePwaInstall}
+                  disabled={pwaInstalling || !pwaPrompt}
+                  title={!pwaPrompt ? "Open this site in Chrome on Android/Desktop to install" : "Click to install the app"}
+                >
+                  {pwaInstalling ? "⏳ Installing..." : "📲 Install Free App"}
+                </button>
+              )}
               <span className="app-install-note">Free · No app store required</span>
             </div>
           </div>
