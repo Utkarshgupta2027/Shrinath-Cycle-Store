@@ -171,21 +171,6 @@ body.app-theme-light .product-card {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 200px;
-  object-fit: contain;
-  background: #000;
-}
-
-@media (max-width: 768px) {
-  .store-poster-img {
-    max-height: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  .store-poster-img {
-    max-height: 110px;
-  }
 }
 
 @keyframes posterFadeIn {
