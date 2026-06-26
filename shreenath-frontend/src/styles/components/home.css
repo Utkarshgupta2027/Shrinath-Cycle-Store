@@ -170,8 +170,21 @@ body.app-theme-light .product-card {
 .store-poster-img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 160px;
   object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 768px) {
+  .store-poster-img {
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .store-poster-img {
+    height: 90px;
+  }
 }
 
 @keyframes posterFadeIn {
