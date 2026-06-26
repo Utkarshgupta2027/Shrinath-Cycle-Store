@@ -158,6 +158,28 @@ body.app-theme-light .product-card {
 
 
 /* ═══════════════════════════════════════════════
+   🏪 STORE POSTER BANNER
+═══════════════════════════════════════════════ */
+.store-poster-banner {
+  width: 100%;
+  line-height: 0;              /* remove inline-block gap below img */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+  animation: posterFadeIn 0.7s ease both;
+}
+
+.store-poster-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+@keyframes posterFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ═══════════════════════════════════════════════
    🌟 HERO SECTION
 ═══════════════════════════════════════════════ */
 .hero-section {

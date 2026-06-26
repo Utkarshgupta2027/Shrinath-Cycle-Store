@@ -42,6 +42,7 @@ import tools from "../assets/images/tools.png";
 import newArrivals from "../assets/images/new_arrivals.png";
 import part from "../assets/images/parts.png";
 import { getStoredUser } from "../utils/auth";
+import storePoster from "../assets/images/store-poster.jpeg";
 
 const HERO_SLIDES = [
   {
@@ -485,6 +486,15 @@ function Home() {
           onClose={() => setNotifyProduct(null)}
         />
       )}
+
+      {/* ============ STORE POSTER BANNER ============ */}
+      <div className="store-poster-banner">
+        <img
+          src={storePoster}
+          alt="ॐ गुप्ता साइकिल स्टोर – श्री नाथ साइकिल स्टोर"
+          className="store-poster-img"
+        />
+      </div>
 
       {/* ============ HERO SECTION ============ */}
       <section className="hero-section" ref={sliderRef}>
