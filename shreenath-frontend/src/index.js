@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { syncThemeFromStorage } from './utils/theme';
 import { initGA } from './utils/googleAnalytics';
 import { startKeepAlive } from './utils/keepAlive';
+import { preCacheData } from './utils/preCacheData';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Apply the saved theme immediately — before React mounts —
@@ -20,6 +21,10 @@ initGA();
 // Keep the Render backend alive by pinging it every 10 minutes.
 // This prevents the free-tier server from spinning down due to inactivity.
 startKeepAlive();
+
+// Pre-fetch critical public API data (products, categories, brands) into
+// the Service Worker cache so repeat visits load them instantly.
+preCacheData();
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
