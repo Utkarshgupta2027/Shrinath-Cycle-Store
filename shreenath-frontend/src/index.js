@@ -6,6 +6,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { syncThemeFromStorage } from './utils/theme';
 import { initGA } from './utils/googleAnalytics';
+import { startKeepAlive } from './utils/keepAlive';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Apply the saved theme immediately — before React mounts —
@@ -15,6 +16,10 @@ syncThemeFromStorage();
 // Initialize Google Analytics 4 before React renders.
 // Reads REACT_APP_GA_MEASUREMENT_ID from .env
 initGA();
+
+// Keep the Render backend alive by pinging it every 10 minutes.
+// This prevents the free-tier server from spinning down due to inactivity.
+startKeepAlive();
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
