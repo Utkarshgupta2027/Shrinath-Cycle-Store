@@ -1,4 +1,4 @@
-# SHRINATH CYCLE STORE — COMPLETE PROJECT DOCUMENTATION
+﻿# SHRINATH CYCLE STORE — COMPLETE PROJECT DOCUMENTATION
 ### Professional Report for College Viva, Internship & Placement Interviews
 
 ---
@@ -1106,6 +1106,63 @@ shreenath-frontend/src/
 1. Why do we need a `failedQueue` — what happens without it on concurrent 401s?
 2. What is the risk of storing tokens in localStorage? What is the alternative?
 3. Why do we avoid redirecting to `/login` if already on `/login`?
+
+## 5.7 Frontend â€” keepAlive.js
+
+### startKeepAlive()
+**Purpose:** Prevents the Render free-tier backend from auto-shutting down due to 15-minute inactivity by sending a lightweight ping every 10 minutes.
+
+**Business Logic:**
+1. Fires an immediate GET /api/products?size=1 request on app startup (background, no-await)
+2. Registers a setInterval for 10-minute repetition (600,000 ms)
+3. Uses the existing public product endpoint - no new backend endpoint needed
+4. On network error: logs a warning silently - never crashes the UI
+5. Returns a cleanup function for testability
+
+**Why /api/products?size=1:** Already permitAll() in SecurityConfig.java (no auth required), minimal response payload, exercises the full Spring Boot + DB stack.
+
+**Called from:** index.js at startup - before React mounts.
+
+**Interview Questions:**
+1. Why is a keep-alive needed on Render's free tier?
+2. Why not use /actuator/health for the ping endpoint?
+3. What is setInterval and how would you cancel it?
+4. Why is the ping fired immediately on startup, not just after the first interval?
+
+---
+
+## 5.8 Frontend â€” preCacheData.js
+
+### preCacheData()
+**Purpose:** Warms up the Service Worker's API cache by background-fetching 6 critical public endpoints after app load, so all subsequent visits load data instantly from cache.
+
+**Business Logic:**
+1. Waits 3 seconds after app load (avoids competing with initial render)
+2. Calls fetch() on 6 URLs with cache: 'default' (allows SW to intercept and cache)
+3. Uses Promise.allSettled() so one failed URL never blocks others
+4. All errors swallowed silently - this is a best-effort warm-up
+
+**URLs Pre-fetched:**
+| URL | Purpose |
+|---|---|
+| /api/products?size=12 | First page of products (homepage) |
+| /api/categories | All product categories |
+| /api/categories/featured | Featured categories (navbar/homepage) |
+| /api/brands | All brands |
+| /api/brands/featured | Featured brands (homepage) |
+| /api/settings | Store name, logo, contact info |
+
+**How it works with Service Worker:** SW fetch event handler intercepts these requests and stores in shrinath-api-v2 cache with sw-cached-at timestamp. On next visit: served from cache instantly, background refresh updates it.
+
+**Called from:** index.js at startup - runs after startKeepAlive().
+
+**Interview Questions:**
+1. Why wait 3 seconds before pre-fetching?
+2. What is Promise.allSettled() vs Promise.all()?
+3. Why use cache: 'default' instead of cache: 'no-store'?
+4. How does this interact with the Service Worker?
+
+---
 ---
 
 # PART 6: DATABASE DOCUMENTATION
@@ -1650,6 +1707,32 @@ DB: reviews table with unique constraint (product_id, user_id)
 Customers subscribe to out-of-stock products. Email sent when admin restocks.
 DB: restock_subscriptions table
 
+## Feature 13: Server Keep-Alive (Render Free Tier)
+Purpose: Prevent Render's free-tier backend from shutting down after 15 minutes of inactivity.
+Flow: On app load -> startKeepAlive() fires an immediate ping -> repeated every 10 minutes via setInterval -> server stays warm.
+Files: src/utils/keepAlive.js, src/index.js
+Endpoint Used: GET /api/products?size=1 (already public, no backend changes needed)
+Technical Detail: Uses setInterval with 600,000 ms (10 min). Returns a cleanup function. All errors handled silently.
+
+## Feature 14: Progressive Service Worker Caching
+Purpose: Make repeat visits load instantly by caching static assets and API responses in the browser.
+Files: public/service-worker.js, src/utils/preCacheData.js, src/index.js
+
+Two-cache strategy:
+| Cache Name | Strategy | Contents | TTL |
+|---|---|---|---|
+| shrinath-static-v2 | Cache-First + background refresh | HTML, JS, CSS, icons, images | Indefinite |
+| shrinath-api-v2 | Stale-While-Revalidate | API responses (products, categories, brands, settings) | 10 minutes |
+
+API Cache Flow:
+1. First visit -> network fetch -> response stored in shrinath-api-v2 with sw-cached-at timestamp header
+2. Repeat visit (within 10 min) -> served instantly from cache -> background refresh fires silently
+3. Repeat visit (after 10 min) -> network fetch -> cache updated
+4. Offline -> stale cache served (graceful degradation)
+
+Pre-warm on Startup: preCacheData() fetches 6 critical endpoints 3 seconds after app load, populating the cache for instant load on the next visit.
+DB: No DB changes. Entirely browser-side (Service Worker + Cache API).
+
 # PART 10: VIVA QUESTIONS & ANSWERS
 
 ## BEGINNER QUESTIONS (1-25)
@@ -1846,6 +1929,17 @@ Implements Spring Security's UserDetails interface. Spring Security needs a User
 
 **Q50. How are product images stored and served?**
 Images are stored as LONGBLOB binary data directly in the MySQL database (products.image_data column). This avoids external file storage setup. Served via GET /api/product/{id}/image which returns byte[] with Content-Type header. Gallery images stored in product_images table similarly.
+
+**Q55B. How does the Render server stay alive â€” explain the keep-alive mechanism?**
+`keepAlive.js` exports `startKeepAlive()` which is called in `index.js` before React mounts. It immediately fires a `GET /api/products?size=1` request to warm the backend, then sets a `setInterval` to repeat every 10 minutes (600,000 ms). Render's free tier shuts down after 15 minutes of no traffic â€” the keep-alive fires every 10 minutes, ensuring the server never reaches that threshold.
+
+**Q55C. How does the Service Worker caching work in this project?**
+The Service Worker maintains two caches: `shrinath-static-v2` (Cache-First for HTML/JS/CSS) and `shrinath-api-v2` (Stale-While-Revalidate for API data). The API cache uses a custom `sw-cached-at` timestamp header with a 10-minute TTL. On first visit: network responses are cached. On repeat visits: cached data returned instantly while a background fetch updates the cache. `preCacheData()` pre-warms 6 critical API endpoints 3 seconds after app load so the second visit is always fast.
+
+**Q55D. What caching strategies does this project use and when?**
+- **Cache-First:** Static assets (JS, CSS, images) â€” served from cache immediately; background fetch silently updates.
+- **Stale-While-Revalidate (with TTL):** API data â€” if cache < 10 min old, serve instantly + background refresh; if stale, fetch from network first; if offline, serve stale cache.
+- **No caching:** POST/PUT/DELETE, auth endpoints â€” intentionally bypassed.
 
 ## ADVANCED QUESTIONS (51-75)
 
@@ -2067,7 +2161,7 @@ Stack: Java 17 | Spring Boot 3.5 | React 19 | MySQL 8 | JWT | Razorpay | iText 7
 users, products, product_images, orders, order_items, cart, cart_items, reviews, coupons, user_addresses, wishlist, payments, restock_subscriptions, return_exchange_requests, serviceable_pins, feedback, store_settings, brands, categories, **analytics_events** (NEW), **search_log** (NEW)
 
 ## Design Patterns Used
-- Repository Pattern, DTO Pattern, Builder (JWT), Singleton (Spring beans), Strategy (payment methods), Observer (abandonment scheduler), Filter Chain (Security), **Fingerprinting Pattern** (localStorage UUID for anonymous visitor tracking)
+- Repository Pattern, DTO Pattern, Builder (JWT), Singleton (Spring beans), Strategy (payment methods), Observer (abandonment scheduler), Filter Chain (Security), **Fingerprinting Pattern** (localStorage UUID for anonymous visitor tracking), **Keep-Alive Pattern** (periodic heartbeat to prevent cold-start), **Stale-While-Revalidate** (Service Worker API caching with TTL)
 
 ## Security Quick Reference
 - Passwords: BCrypt (never stored plain text)
