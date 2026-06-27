@@ -61,10 +61,19 @@ export function getSessionId() {
 
 /**
  * Track a page view. Call this on every route change in App.js.
- * @param {string} path  - current URL path e.g. "/product/5"
+ *
+ * @param {string} path    - current URL path e.g. "/product/5"
+ * @param {number|null} [explicitUserId] - pass user.id from React context
+ *   for accuracy. If omitted, falls back to reading localStorage via
+ *   getStoredUser() (used for search / order tracking where context
+ *   is not directly available).
  */
-export async function trackPageView(path) {
-  const user = getStoredUser();
+export async function trackPageView(path, explicitUserId) {
+  // Prefer the explicitly passed userId (from React context — always up-to-date).
+  // Fall back to localStorage only when not provided.
+  const userId = (explicitUserId !== undefined)
+    ? explicitUserId
+    : (getStoredUser()?.id ?? null);
   try {
     await fetch(`${ANALYTICS_URL}/event`, {
       method: "POST",
@@ -74,13 +83,14 @@ export async function trackPageView(path) {
         sessionId: getSessionId(),
         eventType: "PAGE_VIEW",
         pagePath: path,
-        userId: user?.id || null,
+        userId,
       }),
     });
   } catch {
     // Silently ignore — analytics must never break the UI
   }
 }
+
 
 /**
  * Track when an order is successfully placed.

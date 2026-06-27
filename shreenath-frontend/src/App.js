@@ -1,7 +1,8 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense, useEffect, useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import AppProvider from "./Context/AppProvider";
+import AppContext from "./Context/Context";
 import { THEME_EVENT, syncThemeFromStorage } from "./utils/theme";
 import { trackPageView } from "./utils/analytics";
 import { gaTrackPageView } from "./utils/googleAnalytics";
@@ -72,6 +73,9 @@ function AdminRoute({ children }) {
 
 function AppLayout() {
   const location = useLocation();
+  // Read user from React context (authoritative live state) so analytics
+  // always sends the correct userId — even immediately after login.
+  const { user } = useContext(AppContext);
   const hideNavbar = ["/login", "/register", "/addproduct"].includes(location.pathname)
     || location.pathname.startsWith("/updateproduct/");
 
@@ -79,11 +83,12 @@ function AppLayout() {
     // Reset scroll to top on page navigation
     window.scrollTo(0, 0);
     syncThemeFromStorage();
-    // Track every page view — works for guests and logged-in users
-    trackPageView(location.pathname);
+    // Pass userId explicitly so the analytics call uses the live React state,
+    // not a potentially stale localStorage read.
+    trackPageView(location.pathname, user?.id ?? null);
     // GA4 page view
     gaTrackPageView(location.pathname);
-  }, [location.pathname]);
+  }, [location.pathname, user?.id]);
 
   useEffect(() => {
     const syncTheme = () => {

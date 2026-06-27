@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { API_BASE_URL } from "../config";
+import AppContext from "../Context/Context";
 import "./auth.css";
 
 export default function Login() {
@@ -9,6 +10,7 @@ export default function Login() {
   const [msg, setMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(AppContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,24 +39,29 @@ export default function Login() {
         return;
       }
 
-      const user = {
-        id: data.userId,
-        username: data.username,
-        phoneNo: data.phoneNo,
-        email: data.email,
-        role: data.role,
-      };
-
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("userId", String(data.userId));
-      localStorage.setItem("token", data.token);
-      // Store refresh token for silent token renewal
+      // Store refresh token before calling login() so axiosInstance can use it
       if (data.refreshToken) {
         localStorage.setItem("refreshToken", data.refreshToken);
       }
 
+      // Use context login() — this updates React state, persists to localStorage,
+      // AND merges guest cart. Analytics will now correctly send userId on the
+      // very next page-view because getStoredUser() reads from localStorage.
+      const userData = {
+        id: data.userId,
+        username: data.username,
+        name: data.username,
+        phoneNo: data.phoneNo,
+        phoneNumber: data.phoneNo,
+        email: data.email,
+        role: data.role,
+        verified: data.verified ?? true,
+      };
+
+      await login(userData, data.token);
+
       setMsg("Login successful");
-      setTimeout(() => navigate("/"), 500);
+      setTimeout(() => navigate("/"), 300);
     } catch (err) {
       console.error(err);
       setMsg("Network error. Please check your connection.");
@@ -105,3 +112,4 @@ export default function Login() {
     </div>
   );
 }
+
